@@ -1,0 +1,72 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+
+{% block body %}
+<main id="home">
+    <section id="hero">
+        
+    </section>
+    <!-- <div id="hero-divider"></div> -->
+    <div id="under-hero">
+        <div id="under-hero-left">
+            <section id="short-about">
+                <div class="fancy-title">
+                    <div class="fancy-title-line">
+                        <span></span>
+                    </div>
+                    <h2>{% trans "Us" %}</h2>
+                    <div class="fancy-title-line">
+                        <span></span>
+                    </div>
+                </div>
+                <p>Holy moly</p>
+            </section>
+            <section id="events">
+                <div class="fancy-title">
+                    <div class="fancy-title-line">
+                        <span></span>
+                    </div>
+                    <h2>{% trans "Upcoming events" %}</h2>
+                    <div class="fancy-title-line">
+                        <span></span>
+                    </div>
+                </div>
+                {% for event in events %}
+                <a href="" class="event no-style">
+                    <div class="left">
+                        <h2>Title here</h2>
+                        <span>Date here</span>
+                    </div>
+                    <div class="right"><span class="material-symbols-outlined">videocam</span></div>
+                </a>
+                {% empty %}
+                <h2 style="text-align: center;">{% trans "Something is coming. Soon..." %}</h2>
+                {% endfor %}
+            </section>
+        </div>
+        <section id="blog">
+            <div class="fancy-title">
+                <div class="fancy-title-line">
+                    <span></span>
+                </div>
+                <h2>{% trans "What's going on" %}</h2>
+                <div class="fancy-title-line">
+                    <span></span>
+                </div>
+            </div>
+            <div id="posts-container">
+                {% for post in posts %}
+                    <div class="blogpost">
+                        <div class="blog-bottom">
+                            <h1>Title</h1>
+                            <p>Text</p>
+                        </div>
+                    </div>
+                {% empty %}
+                    <h2 style="text-align: center;">{% trans "Keep an eye on updates!" %}</h2>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}

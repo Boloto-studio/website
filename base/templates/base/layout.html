@@ -1,0 +1,42 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="{% static 'base/layers.css' %}" rel="stylesheet">
+    <link href="{% static 'base/project-styles.css' %}" rel="stylesheet">
+    <style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+    </style>
+    <title>Boloto Studio{% if path_title %}: {{path_title}}{% endif %}</title>
+</head>
+<body>
+    <header>
+        <div id="left">
+            <span>logo</span>
+            <nav>
+                <a href="{% url 'home' %}"><abbr title="{% trans 'Home' %}"><span class="material-symbols-outlined">home</span></abbr></a>
+                <a href=""><abbr title="{% trans 'Studio' %}"><span class="material-symbols-outlined">stadia_controller</span></abbr></a>
+                <a href=""><abbr title="{% trans 'Team' %}"><span class="material-symbols-outlined">groups_2</span></abbr></a>
+                <a href=""><abbr title="{% trans 'Contact us' %}"><span class="material-symbols-outlined">mail</span></abbr></a>
+            </nav>
+        </div>
+        <nav id="projects">
+            <a href="">Echoes Untamed</a>
+        </nav>
+        <div id="right"><a href="https://donate.stripe.com/dR6bKbbJ980K1xueUU" class="button">{% trans "Donate" %}</a></div>
+    </header>
+    {% block body %}{% endblock %}
+    <footer></footer>
+</body>
+</html>
