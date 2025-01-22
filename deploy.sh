@@ -32,8 +32,4 @@ python manage.py collectstatic --noinput || { echo "❌ collectstatic failed!"; 
 echo "🚀 Restarting Gunicorn..."
 sudo systemctl restart gunicorn || { echo "❌ Failed to restart Gunicorn"; exit 1; }
 
-# Restart Nginx (optional)
-echo "🌐 Restarting Nginx..."
-sudo systemctl restart nginx || { echo "❌ Failed to restart Nginx"; exit 1; }
-
 echo "✅ Deployment completed successfully!"
