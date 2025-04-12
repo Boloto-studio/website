@@ -4,9 +4,162 @@
     gap: 1rem;
 }
 
+#logo {
+    height: 5vh;
+    border-radius: 50%;
+}
+
 #hero {
     background-color: var(--accent-1);
-    height: 50vh;
+    position: relative;
+    aspect-ratio: 16/5;
+}
+
+.hero-post {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 4fr 4fr 1fr;
+    place-content: center;
+    justify-items: center;
+    clip-path: inset(0% 0% 0% 0%);
+    opacity: 0;
+    z-index: 1;
+}
+
+.hero-post.selected {
+    opacity: 1;
+    z-index: 2;
+}
+.hero-post.selecting {
+    z-index: 3;
+    opacity: 1;
+}
+
+.hero-post.selecting.forwards {
+    animation: reveal-from-right 500ms ease-out forwards;
+}
+
+.hero-post.selecting.backwards {
+    animation: reveal-from-left 500ms ease-out forwards;
+}
+
+.hero-post > button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 1rem;
+    transition: transform 300ms ease;
+}
+
+.hero-post > div {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    width: 70%;
+}
+
+.hero-post > div:first-of-type {
+    align-items: flex-start;
+}
+
+.hero-post > div:last-of-type {
+    align-items: flex-end;
+}
+
+.hero-post > div:last-of-type * {
+    text-align: end;
+}
+
+.hero-post > div > * {
+    margin: 0;
+}
+
+.hero-post h3 {
+    text-transform: uppercase;
+    color: var(--accent-4);
+}
+
+.hero-post h1 {
+    text-transform: capitalize;
+    font-size: 34px;
+}
+
+.hero-post a.button {
+    border: none;
+    margin-top: 1rem;
+}
+
+.hero-nav-prev:hover {
+    transform: translateX(-30%);
+}
+
+.hero-nav-next:hover {
+    transform: translateX(30%);
+}
+
+#hero-beads {
+    position: absolute;
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 2rem;
+    z-index: 5;
+}
+
+.hero-bead {
+    display: block;
+    border-radius: 50%;
+    background: var(--primary-contrast);
+    height: .5rem;
+    aspect-ratio: 1;
+    box-shadow: var(--primary-background) 0px 0px 20px 3px;
+}
+
+@keyframes shadow-shift {
+    from {
+        box-shadow: var(--primary-background) 0px 0px 20px 3px;
+    } to {
+        box-shadow: var(--primary-contrast) 0px 0px 20px 3px;
+    }
+}
+
+.hero-bead.filled {
+    background: var(--primary-background);
+    box-shadow: var(--primary-contrast) 0px 0px 20px 3px;
+}
+
+.hero-bead.filling {
+    animation: shadow-shift 5s linear forwards;
+    position: relative;
+}
+
+.hero-bead.filling::after {
+    position: absolute;
+    height: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    content: "";
+    background: var(--primary-background);
+    animation: reveal-from-left 5s linear forwards;
+}
+
+@keyframes reveal-from-left {
+    from {
+        clip-path: inset(0% 100% 0% 0%);
+    } to {
+        clip-path: inset(0% 0% 0% 0%);
+    }
+}
+
+@keyframes reveal-from-right {
+    from {
+        clip-path: inset(0% 0% 0% 100%);
+    } to {
+        clip-path: inset(0% 0% 0% 0%);
+    }
 }
 
 #hero-divider {
@@ -79,10 +232,15 @@
     display: flex;
     justify-content: space-between;
     text-decoration: none;
+    opacity: 0;
 }
 
 .event * {
     color: var(--primary-background);
+}
+
+.event.fade-in {
+    animation: fade-in-from-top 400ms ease forwards;
 }
 
 .event:hover {
@@ -119,11 +277,13 @@
     cursor: pointer;
     transition: all 300ms ease;
     align-items: end;
+    opacity: 0;
 }
 
 .blogpost:hover {
     box-shadow: var(--accent-2) 0px 0px 10px 0px;
     scale: 1.025;
+    border: 1px solid var(--primary-background);
 }
 
 #posts-container {
@@ -135,13 +295,32 @@
 
 .blog-bottom {
     position: relative;
+    margin: -.75rem;
+    padding: .75rem;
+    background: linear-gradient(0deg, rgba(34,34,34,.9) 0%, rgba(0,212,255,0) 100%);
+    border-radius: 0 0 10px 10px;
 }
 
-.blog-bottom::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 10%;
-    background: whitesmoke;
-    position: absolute;
+.blogpost.fade-in {
+    animation: fade-in-from-bottom 400ms ease forwards;
+}
+
+@keyframes fade-in-from-bottom {
+    from {
+        opacity: 0;
+        transform: translateY(10%);
+    } to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes fade-in-from-top {
+    from {
+        opacity: 0;
+        transform: translateY(-10%);
+    } to {
+        opacity: 1;
+        transform: none;
+    }
 }

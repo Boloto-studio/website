@@ -4,7 +4,63 @@
 {% block body %}
 <main id="home">
     <section id="hero">
-        
+        {% for post in hero_posts %}
+        <div class="hero-post">
+            <button class="hero-nav-prev" class="no-style"><span class="material-symbols-outlined">arrow_back_ios_new</span></button>
+            {% if post.alignment == "right" %}
+            <div></div>
+            {% endif %}
+            <div>
+                {% if request.LANGUAGE_CODE == "uk" %}
+                <h3>{{ post.ukr_topic }}</h2>
+                <h1>{{ post.ukr_title }}</h1>
+                <p>{{ post.ukr_description }}</p>
+                {% if post.button_link and post.ukr_button_text %}
+                <a href="{{ post.button_link }}" class="button">{{ post.ukr_button_text }}</a>
+                {% endif %}
+                {% elif request.LANGUAGE_CODE == "en" %}
+                <h3>{{ post.eng_topic }}</h2>
+                <h1>{{ post.eng_title }}</h1>
+                <p>{{ post.eng_description }}</p>
+                {% if post.button_link and post.eng_button_text %}
+                <a href="{{ post.button_link }}" class="button">{{ post.eng_button_text }}</a>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% if post.alignment == "left" %}
+            <div></div>
+            {% endif %}
+            <button class="hero-nav-next" class="no-style"><span class="material-symbols-outlined">arrow_forward_ios</span></button>
+        </div>
+        {% empty %}
+        <div class="hero-post">
+            <button class="hero-nav-prev" class="no-style"><span class="material-symbols-outlined">arrow_back_ios_new</span></button>
+            <div></div>
+            <div>
+                {% if request.LANGUAGE_CODE == "uk" %}
+                <h3>{{ post.ukr_topic }}</h2>
+                <h1>{{ post.ukr_title }}</h1>
+                <p>{{ post.ukr_description }}</p>
+                {% if post.button_link and post.ukr_button_text %}
+                <a href="{{ post.button_link }}" class="button">{{ post.ukr_button_text }}</a>
+                {% endif %}
+                {% elif request.LANGUAGE_CODE == "en" %}
+                <h3>{{ post.eng_topic }}</h2>
+                <h1>{{ post.eng_title }}</h1>
+                <p>{{ post.eng_description }}</p>
+                {% if post.button_link and post.eng_button_text %}
+                <a href="{{ post.button_link }}" class="button">{{ post.eng_button_text }}</a>
+                {% endif %}
+                {% endif %}
+            </div>
+            <button class="hero-nav-next" class="no-style"><span class="material-symbols-outlined">arrow_forward_ios</span></button>
+        </div>
+        {% endfor %}
+        <div id="hero-beads">
+            {% for post in hero_posts %}
+            <span class="hero-bead"></span>
+            {% endfor %}
+        </div>
     </section>
     <!-- <div id="hero-divider"></div> -->
     <div id="under-hero">
@@ -19,7 +75,15 @@
                         <span></span>
                     </div>
                 </div>
-                <p>Holy moly</p>
+                <p>
+                    {% blocktrans %}
+                    Boloto Studio is a bunch of friends making games, mods, and other cool stuff. We’re fueled by folklore, creativity, and the occasional bad idea that somehow works out. No corporate nonsense, just passion-driven projects we actually care about.
+                    {% endblocktrans %}
+                    <a href="">{% trans "Read more..." %}</a>
+                </p>
+                <div class="socials-links">
+
+                </div>
             </section>
             <section id="events">
                 <div class="fancy-title">
@@ -69,4 +133,92 @@
         </section>
     </div>
 </main>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".blogpost").forEach((element, index) => {
+            setTimeout(() => {
+                element.classList.add("fade-in")
+            }, index * 100);
+        })
+        document.querySelectorAll(".event").forEach((element, index) => {
+            setTimeout(() => {
+                element.classList.add("fade-in")
+            }, index * 100);
+        })
+
+        const heroCards = document.querySelectorAll(".hero-post")
+        const heroBeads = document.querySelectorAll(".hero-bead")
+        let currentHeroIndex = 0
+        let heroButtonActive = true
+
+        function updateHeroSlide(moveBy) {
+            heroButtonActive = false
+            const maxHeroIndex = heroCards.length - 1
+            const prevIndex = currentHeroIndex
+            if (moveBy + currentHeroIndex > maxHeroIndex) {
+                currentHeroIndex += moveBy - maxHeroIndex - 1
+            } else if (moveBy + currentHeroIndex < 0) {
+                currentHeroIndex += moveBy + maxHeroIndex
+            } else {
+                currentHeroIndex += moveBy
+            }
+            heroBeads.forEach((bead, index) => {
+                bead.classList.remove("filling")
+                bead.classList.remove("filled")
+                if (index < currentHeroIndex) {
+                    bead.classList.add("filled")
+                } else if (index === currentHeroIndex) {
+                    bead.classList.add("filling")
+                } else {
+                    bead.classList.remove("filled")
+                }
+            })
+            heroCards[currentHeroIndex].classList.add("selecting")
+            if (moveBy < 0) {
+                heroCards[currentHeroIndex].classList.add("backwards")
+            } else {
+                heroCards[currentHeroIndex].classList.add("forwards")
+            }
+            setTimeout(() => {
+                try {
+                    heroCards[prevIndex].classList.remove("backwards")
+                    heroCards[prevIndex].classList.remove("forwards")
+                    heroCards[prevIndex].classList.remove("selected")
+                } catch {}
+                heroCards[currentHeroIndex].classList.add("selected")
+                heroCards[currentHeroIndex].classList.remove("selecting")
+                heroButtonActive = true
+            }, 600);
+        }
+
+        updateHeroSlide(0)
+
+        let heroInterval = setInterval(() => {
+            updateHeroSlide(1)
+        }, 5000);
+        
+        document.querySelectorAll(".hero-nav-next").forEach(button => {
+            button.addEventListener("click", () => {
+                if (heroButtonActive) {
+                    updateHeroSlide(1)
+                    clearInterval(heroInterval)
+                    heroInterval = setInterval(() => {
+                        updateHeroSlide(1)
+                    }, 5000);
+                }
+            })
+        })
+        document.querySelectorAll(".hero-nav-prev").forEach(button => {
+            button.addEventListener("click", () => {
+                if (heroButtonActive) {
+                    updateHeroSlide(-1)
+                    clearInterval(heroInterval)
+                    heroInterval = setInterval(() => {
+                        updateHeroSlide(1)
+                    }, 5000);
+                }
+            })
+        })
+    })
+</script>
 {% endblock %}
