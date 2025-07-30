@@ -7,7 +7,7 @@
     --primary-contrast: #D6F4E7;
     --accent-1: #398C7D;
     --accent-2: #3FA689;
-    --accent-3: #37A65E;
+    --accent-3: #e2b561;
     --accent-4: #41BF49;
 }
 
@@ -15,7 +15,8 @@
     font-family: "Noto Sans", "Inter", serif;
 }
 
-html, body {
+html,
+body {
     min-height: 100dvh;
 }
 
