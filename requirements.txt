@@ -5,3 +5,5 @@ python-dotenv
 whitenoise
 apscheduler 
 django-apscheduler
+requests
+dotenv

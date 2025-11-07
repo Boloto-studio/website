@@ -167,3 +167,7 @@ MEDIA_ROOT = '/var/www/django/media'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# YouTube API Configuration
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
+YOUTUBE_CHANNEL_ID = os.getenv('YOUTUBE_CHANNEL_ID')

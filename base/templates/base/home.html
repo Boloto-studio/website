@@ -4,7 +4,7 @@
 {% block body %}
 <main id="home">
     <section id="hero">
-        
+
     </section>
     <!-- <div id="hero-divider"></div> -->
     <div id="under-hero">
@@ -32,10 +32,10 @@
                     </div>
                 </div>
                 {% for event in events %}
-                <a href="" class="event no-style">
+                <a href="{{event.link}}" class="event no-style">
                     <div class="left">
-                        <h2>Title here</h2>
-                        <span>Date here</span>
+                        <h2>{{event.title|truncatechars:35}}</h2>
+                        <span>{{event.date}}</span>
                     </div>
                     <div class="right"><span class="material-symbols-outlined">videocam</span></div>
                 </a>
@@ -56,14 +56,14 @@
             </div>
             <div id="posts-container">
                 {% for post in posts %}
-                    <div class="blogpost">
-                        <div class="blog-bottom">
-                            <h1>Title</h1>
-                            <p>Text</p>
-                        </div>
+                <div class="blogpost">
+                    <div class="blog-bottom">
+                        <h1>Title</h1>
+                        <p>Text</p>
                     </div>
+                </div>
                 {% empty %}
-                    <h2 style="text-align: center;">{% trans "Keep an eye on updates!" %}</h2>
+                <h2 style="text-align: center;">{% trans "Keep an eye on updates!" %}</h2>
                 {% endfor %}
             </div>
         </section>
