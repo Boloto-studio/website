@@ -1,3 +1,4 @@
+import sys
 from django.apps import AppConfig
 import logging
 
@@ -37,5 +38,7 @@ class BaseConfig(AppConfig):
             replace_existing=True,
         )
 
-        scheduler.start()
+        if len(sys.argv) > 1 and sys.argv[1] in ['runserver', 'runserver_plus']:
+            scheduler.start()
+
         logger.info("Scheduler started...")
