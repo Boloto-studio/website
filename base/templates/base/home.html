@@ -58,8 +58,9 @@
                 {% for post in posts %}
                 <div class="blogpost">
                     <div class="blog-bottom">
-                        <h1>Title</h1>
-                        <p>Text</p>
+                        <h1>{{ post.title }}</h1>
+                        <span>{{ post.published_date }}</span>
+                        <p>{{ post.content|truncatechars:650 }}</p>
                     </div>
                 </div>
                 {% empty %}

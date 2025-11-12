@@ -32,3 +32,15 @@ class Event(models.Model):
 
     class Meta:
         ordering = ['-date']
+
+    def is_upcoming(self):
+        return self.date >= timezone.now()
+
+
+class BlogPost(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    published_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.title

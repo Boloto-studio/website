@@ -1,4 +1,5 @@
-from .models import Event
+from django.utils import timezone
+from .models import BlogPost, Event
 from django.shortcuts import render
 from django.utils.translation import gettext as _
 
@@ -6,9 +7,14 @@ from django.utils.translation import gettext as _
 
 
 def home(request):
-    events = Event.objects.all()  # Fetch all events from the database
+    # Fetch all upcoming events from the database
+    events = Event.objects.all().order_by('date')
+    # events = Event.objects.filter(date__gte=timezone.now()).order_by('date')
+    blog_counts = BlogPost.objects.count()
+    blogs_posts = BlogPost.objects.all().order_by('-published_date')[:8]
     return render(request, "base/home.html", {
         "path_title": _("Home"),
         "events": events,
-        "posts": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        "posts": blogs_posts,
+        "extra_blogs": blog_counts > 8,
     })
