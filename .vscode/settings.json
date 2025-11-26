@@ -1,5 +1,29 @@
 {
     "cSpell.words": [
         "Boloto"
-    ]
+    ],
+    // Disable automatic formatting that's breaking your code
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false,
+    "editor.formatOnPaste": false,
+    
+    // Disable autopep8 specifically
+    "autopep8.enabled": false,
+    "python.formatting.autopep8Path": "",
+    "python.formatting.provider": "none",
+    
+    // Disable ESLint auto-fix
+    "eslint.format.enable": false,
+    "eslint.autoFixOnSave": false,
+    
+    // Disable Pylance formatting features
+    "python.analysis.autoImportCompletions": false,
+    "python.analysis.fixAll": [],
+    
+    // General formatting controls
+    "editor.wordWrap": "off",
+    "editor.wordWrapColumn": 999,
+    "files.insertFinalNewline": false,
+    "files.trimFinalNewlines": false,
+    "files.trimTrailingWhitespace": false
 }
