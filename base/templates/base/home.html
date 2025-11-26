@@ -5,25 +5,25 @@
 <main id="home">
     <section id="hero" class="hero-carousel">
         {% for slide in hero_slides %}
-        <article class="hero-slide" data-bg-image="{{ slide.image|escape }}">
+        <article class="hero-slide vertical-{{ slide.vertical_align }} horizontal-{{ slide.horizontal_align }}"
+            data-bg-image="{{ slide.image|escape }}">
             <div class="hero-slide-content">
                 <h1>{{ slide.title }}</h1>
                 {% if slide.subtitle %}<p>{{ slide.subtitle }}</p>{% endif %}
-                {% if slide.link %}<a href="{{ slide.link|escape }}" class="button hero-cta">{{ slide.link_text }}</a>{% endif %}
+                {% if slide.link %}<a href="{{ slide.link|escape }}" class="button hero-cta">{{ slide.link_text}}</a>{%endif %}
             </div>
         </article>
-        {% endfor %}
-        {% if not hero_slides %}
+        {% empty %}
         <article class="hero-slide hero-slide-placeholder">
             <div class="hero-slide-content">
                 <h1>{% trans "Welcome to Boloto Studio" %}</h1>
                 <p>{% trans "Creating immersive gaming experiences" %}</p>
             </div>
         </article>
-        {% endif %}
+        {% endfor %}
     </section>
     <script>
-        document.querySelectorAll('.hero-slide[data-bg-image]').forEach(function(slide) {
+        document.querySelectorAll('.hero-slide[data-bg-image]').forEach(function (slide) {
             var url = slide.dataset.bgImage;
             // Validate URL starts with https:// or http:// to prevent javascript: or data: URLs
             // Additional validation: ensure no embedded javascript

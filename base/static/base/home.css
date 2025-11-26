@@ -105,6 +105,32 @@
     display: grid;
     place-items: center;
     position: relative;
+    padding: 3rem;
+    box-sizing: border-box;
+}
+
+.hero-slide.vertical-top {
+    align-items: start;
+}
+
+.hero-slide.vertical-center {
+    align-items: center;
+}
+
+.hero-slide.vertical-bottom {
+    align-items: end;
+}
+
+.hero-slide.horizontal-left {
+    justify-items: start;
+}
+
+.hero-slide.horizontal-center {
+    justify-items: center;
+}
+
+.hero-slide.horizontal-right {
+    justify-items: end;
 }
 
 .hero-slide::before {
@@ -120,6 +146,14 @@
     text-align: center;
     padding: 2rem;
     max-width: 80%;
+}
+
+.hero-slide.horizontal-right .hero-slide-content {
+    text-align: right;
+}
+
+.hero-slide.horizontal-left .hero-slide-content {
+    text-align: left;
 }
 
 .hero-slide-content h1 {
