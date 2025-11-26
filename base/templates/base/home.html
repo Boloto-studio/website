@@ -3,8 +3,23 @@
 
 {% block body %}
 <main id="home">
-    <section id="hero">
-
+    <section id="hero" class="hero-carousel">
+        {% for slide in hero_slides %}
+        <article class="hero-slide" style="background-image: url('{{ slide.image }}');">
+            <div class="hero-slide-content">
+                <h1>{{ slide.title }}</h1>
+                {% if slide.subtitle %}<p>{{ slide.subtitle }}</p>{% endif %}
+                {% if slide.link %}<a href="{{ slide.link }}" class="button hero-cta">{{ slide.link_text }}</a>{% endif %}
+            </div>
+        </article>
+        {% empty %}
+        <article class="hero-slide hero-slide-placeholder">
+            <div class="hero-slide-content">
+                <h1>{% trans "Welcome to Boloto Studio" %}</h1>
+                <p>{% trans "Creating immersive gaming experiences" %}</p>
+            </div>
+        </article>
+        {% endfor %}
     </section>
     <!-- <div id="hero-divider"></div> -->
     <div id="under-hero">
