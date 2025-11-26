@@ -5,22 +5,33 @@
 <main id="home">
     <section id="hero" class="hero-carousel">
         {% for slide in hero_slides %}
-        <article class="hero-slide" style="background-image: url('{{ slide.image }}');">
+        <article class="hero-slide" data-bg-image="{{ slide.image|escape }}">
             <div class="hero-slide-content">
                 <h1>{{ slide.title }}</h1>
                 {% if slide.subtitle %}<p>{{ slide.subtitle }}</p>{% endif %}
-                {% if slide.link %}<a href="{{ slide.link }}" class="button hero-cta">{{ slide.link_text }}</a>{% endif %}
+                {% if slide.link %}<a href="{{ slide.link|escape }}" class="button hero-cta">{{ slide.link_text }}</a>{% endif %}
             </div>
         </article>
-        {% empty %}
+        {% endfor %}
+        {% if not hero_slides %}
         <article class="hero-slide hero-slide-placeholder">
             <div class="hero-slide-content">
                 <h1>{% trans "Welcome to Boloto Studio" %}</h1>
                 <p>{% trans "Creating immersive gaming experiences" %}</p>
             </div>
         </article>
-        {% endfor %}
+        {% endif %}
     </section>
+    <script>
+        document.querySelectorAll('.hero-slide[data-bg-image]').forEach(function(slide) {
+            var url = slide.dataset.bgImage;
+            // Validate URL starts with https:// or http:// to prevent javascript: or data: URLs
+            // Additional validation: ensure no embedded javascript
+            if (url && (url.startsWith('https://') || url.startsWith('http://')) && !url.includes('javascript:')) {
+                slide.style.backgroundImage = 'url("' + url.replace(/["\\]/g, '') + '")';
+            }
+        });
+    </script>
     <!-- <div id="hero-divider"></div> -->
     <div id="under-hero">
         <div id="under-hero-left">
