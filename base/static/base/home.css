@@ -4,9 +4,190 @@
     gap: 1rem;
 }
 
-#hero {
-    background-color: var(--accent-1);
+/* Hero Carousel using CSS scroll-button() and scroll-marker() */
+#hero.hero-carousel {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
     height: 50vh;
+    position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#hero.hero-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+/* Scroll buttons using ::scroll-button() pseudo-element */
+#hero.hero-carousel::scroll-button(left) {
+    content: "❮";
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: var(--primary-contrast);
+    border: none;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    display: grid;
+    place-items: center;
+    z-index: 10;
+    transition: background-color 300ms ease;
+}
+
+#hero.hero-carousel::scroll-button(right) {
+    content: "❯";
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: var(--primary-contrast);
+    border: none;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    display: grid;
+    place-items: center;
+    z-index: 10;
+    transition: background-color 300ms ease;
+}
+
+#hero.hero-carousel::scroll-button(left):hover,
+#hero.hero-carousel::scroll-button(right):hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Scroll markers using ::scroll-marker-group and ::scroll-marker() */
+#hero.hero-carousel::scroll-marker-group {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.hero-slide::scroll-marker {
+    content: "";
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid var(--primary-contrast);
+    cursor: pointer;
+    transition: background-color 300ms ease, transform 300ms ease;
+}
+
+.hero-slide::scroll-marker:target-current {
+    background: var(--accent-2);
+    transform: scale(1.2);
+}
+
+.hero-slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: grid;
+    place-items: center;
+    position: relative;
+    padding: 3rem;
+    box-sizing: border-box;
+}
+
+.hero-slide.vertical-top {
+    align-items: start;
+}
+
+.hero-slide.vertical-center {
+    align-items: center;
+}
+
+.hero-slide.vertical-bottom {
+    align-items: end;
+}
+
+.hero-slide.horizontal-left {
+    justify-items: start;
+}
+
+.hero-slide.horizontal-center {
+    justify-items: center;
+}
+
+.hero-slide.horizontal-right {
+    justify-items: end;
+}
+
+.hero-slide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.7) 100%);
+}
+
+.hero-slide-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    max-width: 80%;
+}
+
+.hero-slide.horizontal-right .hero-slide-content {
+    text-align: right;
+}
+
+.hero-slide.horizontal-left .hero-slide-content {
+    text-align: left;
+}
+
+.hero-slide-content h1 {
+    font-size: 3rem;
+    margin: 0 0 1rem 0;
+    color: var(--primary-contrast);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-slide-content p {
+    font-size: 1.25rem;
+    margin: 0 0 1.5rem 0;
+    color: var(--primary-contrast);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.hero-cta {
+    background-color: var(--accent-1);
+    border-color: var(--accent-1);
+    color: var(--primary-background);
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: background-color 300ms ease, transform 300ms ease;
+}
+
+.hero-cta:hover {
+    background-color: var(--accent-2);
+    transform: scale(1.05);
+}
+
+.hero-slide-placeholder {
+    background-color: var(--accent-1);
 }
 
 #hero-divider {
