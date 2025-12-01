@@ -31,6 +31,68 @@
                 slide.style.backgroundImage = 'url("' + url.replace(/["\\]/g, '') + '")';
             }
         });
+
+        // Auto-scroll carousel with looping
+        (function() {
+            var carousel = document.getElementById('hero');
+            var slides = carousel.querySelectorAll('.hero-slide');
+            if (slides.length <= 1) return;
+
+            var currentIndex = 0;
+            var autoScrollInterval = 5000; // 5 seconds between slides
+            var intervalId;
+            var scrollTimeout;
+
+            function scrollToSlide(index) {
+                if (index >= slides.length) {
+                    index = 0;
+                } else if (index < 0) {
+                    index = slides.length - 1;
+                }
+                currentIndex = index;
+                slides[index].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            }
+
+            function nextSlide() {
+                scrollToSlide(currentIndex + 1);
+            }
+
+            function startAutoScroll() {
+                intervalId = setInterval(nextSlide, autoScrollInterval);
+            }
+
+            function resetAutoScroll() {
+                clearInterval(intervalId);
+                startAutoScroll();
+            }
+
+            // Debounced scroll handler to update current index when user manually scrolls
+            carousel.addEventListener('scroll', function() {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(function() {
+                    var slideWidth = slides[0] ? slides[0].offsetWidth : 0;
+                    if (slideWidth === 0) return;
+                    var scrollLeft = carousel.scrollLeft;
+                    var newIndex = Math.round(scrollLeft / slideWidth);
+                    if (newIndex !== currentIndex && newIndex >= 0 && newIndex < slides.length) {
+                        currentIndex = newIndex;
+                        resetAutoScroll();
+                    }
+                }, 100);
+            });
+
+            // Pause auto-scroll on hover
+            carousel.addEventListener('mouseenter', function() {
+                clearInterval(intervalId);
+            });
+
+            carousel.addEventListener('mouseleave', function() {
+                startAutoScroll();
+            });
+
+            // Start auto-scrolling
+            startAutoScroll();
+        })();
     </script>
     <!-- <div id="hero-divider"></div> -->
     <div id="under-hero">
