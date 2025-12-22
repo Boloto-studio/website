@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'base',
     'echoes_untamed',
     'django_apscheduler',
+    'frogsnet',
 ]
 
 MIDDLEWARE = [

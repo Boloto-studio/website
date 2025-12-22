@@ -1,0 +1,54 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="{% static 'base/layers.css' %}" rel="stylesheet">
+    <link href="{% static 'base/project-styles.css' %}" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+    <style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+    </style>
+    <title>Frogs.net: {% block title %}{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <div id="left">
+            <span>logo</span>
+            <nav>
+                <a href="{% url 'home' %}"><abbr title="{% trans 'Studio website' %}"><span class="material-symbols-outlined">globe</span></abbr></a>
+            </nav>
+        </div>
+        <nav id="center">
+            <a href=""><abbr title="{% trans 'Forum' %}"><span class="material-symbols-outlined">forum</span></abbr></a>
+            <a href=""><abbr title="{% trans 'Friends' %}"><span class="material-symbols-outlined">person_4</span></abbr></a>
+            <a href=""><abbr title="{% trans 'Your lilypad' %}">
+                {% if user.is_authenticated %}
+                <img src="{% if user.frog.avatar %}{{ user.frog.avatar }}{% else %}{% static 'frogsnet/avatar.webp' %}{% endif %}" alt="{{ user.username }}'s avatar" class="avatar-small">
+                {% else %}
+                <span class="material-symbols-outlined">account_circle</span>
+                {% endif %}
+                <span>{{ user.username }}</span>
+            </abbr></a>
+            <a href=""><abbr title="{% trans 'Modpacks' %}"><span class="material-symbols-outlined">stadia_controller</span></abbr></a>
+            <a href=""><abbr title="{% trans 'Servers' %}"><span class="material-symbols-outlined">host</span></abbr></a>
+        </nav>
+        <div id="right">
+            <a href="https://donate.stripe.com/dR6bKbbJ980K1xueUU" class="button"><span class="material-symbols-outlined">volunteer_activism</span>{% trans "Donate" %}</a>
+            <a href="https://donate.stripe.com/dR6bKbbJ980K1xueUU"><span class="material-symbols-outlined">storefront</span>{% trans "Store" %}</a>
+        </div>
+    </header>
+    {% block body %}{% endblock %}
+    <footer></footer>
+</body>
+</html>

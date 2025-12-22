@@ -26,7 +26,8 @@ header {
     justify-content: space-between;
 }
 
-header a.button {
+header a.button,
+header a.button span {
     background-color: var(--accent-1);
     border-color: var(--accent-1);
     color: var(--primary-background);
@@ -51,10 +52,19 @@ header #left {
 }
 
 header #right {
-    display: grid;
-    place-items: center end;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: end;
 }
 
+header #right a {
+    display: flex;
+    text-decoration: none;
+    gap: .5rem;
+}
+
+header #center,
 header #projects {
     align-items: center;
 }
@@ -74,4 +84,11 @@ header a:not(.button) {
 body {
     display: grid;
     grid-template-rows: auto 1fr auto;
+}
+
+.avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    vertical-align: middle;
 }

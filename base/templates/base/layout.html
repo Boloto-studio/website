@@ -34,7 +34,16 @@
         <nav id="projects">
             <a href="">Echoes Untamed</a>
         </nav>
-        <div id="right"><a href="https://donate.stripe.com/dR6bKbbJ980K1xueUU" class="button">{% trans "Donate" %}</a></div>
+        <div id="right">
+            <a href="https://donate.stripe.com/dR6bKbbJ980K1xueUU" class="button">{% trans "Donate" %}</a>
+            <a href="https://donate.stripe.com/dR6bKbbJ980K1xueUU"><span class="material-symbols-outlined">storefront</span>{% trans "Store" %}</a>
+            <a href="{% url 'frogsnet-home' %}"><abbr title="{% trans 'Frogs.Net' %}">
+                {% if user.is_authenticated %}
+                <img src="{% if user.frog.avatar %}{{ user.frog.avatar }}{% else %}{% static 'frogsnet/avatar.webp' %}{% endif %}" alt="{{ user.username }}'s avatar" class="avatar-small">
+                {% else %}
+                <span class="material-symbols-outlined">account_circle</span>
+                {% endif %}</abbr></a>
+        </div>
     </header>
     {% block body %}{% endblock %}
     <footer></footer>

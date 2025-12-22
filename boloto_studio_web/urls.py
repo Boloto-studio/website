@@ -21,5 +21,6 @@ from django.conf.urls.i18n import i18n_patterns
 urlpatterns = i18n_patterns(
     path("", include("base.urls")),
     path("echoes-untamed", include("echoes_untamed.urls")),
+    path("frogs/", include("frogsnet.urls")),
     path('admin/', admin.site.urls),
 )

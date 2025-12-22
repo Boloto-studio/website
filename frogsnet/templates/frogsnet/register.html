@@ -1,0 +1,54 @@
+{% extends "frogsnet/layout.html" %}
+{% load static %}
+
+{% block title %}Register{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'frogsnet/register.css' %}">
+    <style>
+        main {
+            background-image: url('{% static "frogsnet/backgrounds/" %}{{ bg }}');
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<main>
+    <form action="{% url 'register' %}" method="post">
+        {% csrf_token %}
+        <h1>Frogs.Net</h1>
+        <h3>Create an Account</h3>
+        <div>
+            <label for="username">Username</label>
+            <input type="text" class="{% if form.username.errors %}error{% endif %}" name="{{ form.username.name }}" placeholder="Username" required autofocus id="username" autocomplete="off">
+            <div>
+                <small>25 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
+            </div>
+            {{ form.username.errors }}
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" class="{% if form.password1.errors %}error{% endif %}" name="{{ form.password1.name }}" placeholder="Password" required id="password" autocomplete="new-password">
+            <div>
+                <ul>
+                    <li>Your password can’t be too similar to your other personal information.</li>
+                    <li>Your password must contain at least 8 characters.</li>
+                    <li>Your password can’t be a commonly used password.</li>
+                    <li>Your password can’t be entirely numeric.</li>
+                </ul>
+            </div>
+            {{ form.password1.errors }}
+        </div>
+        <div>
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" class="{% if form.password2.errors %}error{% endif %}" name="{{ form.password2.name }}" placeholder="Confirm Password" required id="confirm_password" autocomplete="new-password">
+            <div>
+                <small>Enter the same password as before, for verification.</small>
+            </div>
+            {{ form.password2.errors }}
+        </div>
+        <button type="submit">Register</button>
+        {{ form.non_field_errors }}
+    </form>
+</main>
+{% endblock %}
