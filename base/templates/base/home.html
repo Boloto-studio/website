@@ -50,7 +50,10 @@
                     index = slides.length - 1;
                 }
                 currentIndex = index;
-                slides[index].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+                var slideWidth = slides[0] ? slides[0].offsetWidth : 0;
+                if (slideWidth > 0) {
+                    carousel.scrollTo({ left: index * slideWidth, behavior: 'smooth' });
+                }
             }
 
             function nextSlide() {
