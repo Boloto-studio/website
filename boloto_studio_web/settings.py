@@ -36,7 +36,8 @@ ALLOWED_HOSTS = [
     "192.168.1.74",
     "boloto.studio",
     "echoes.boloto.studio",
-    "23.16.73.26"
+    "23.16.73.26",
+    "kokocsww0cws888owo84ccko.192.168.1.74.sslip.io" # For dev preview with sslip.io
 ]
 
 
