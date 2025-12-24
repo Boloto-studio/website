@@ -1,10 +1,11 @@
 from django.contrib import admin
-from .models import BlogPost, Event, HeroSlide
+from .models import BlogPost, Event, HeroSlide, StaffMember
 
 # Register your models here.
 
 admin.site.register(Event)
 admin.site.register(BlogPost)
+admin.site.register(StaffMember)
 
 
 @admin.register(HeroSlide)

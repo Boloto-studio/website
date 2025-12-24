@@ -1,0 +1,43 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block path_title %}{% trans "Team" %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'base/team.css' %}">
+{% endblock %}
+
+{% block body %}
+<main id="team">
+    <h1>{% trans "The frogs running the Boloto" %}</h1>
+    <section>
+        {% for member in staff %}
+        <div class="person-card">
+            <img src="{{ member.photo.url }}" alt="{{ member.name }}'s profile picture">
+            <h2>{{ member.name }}</h2>
+            <h3>{{ member.user.username }}</h3>
+            <h4>{{ member.role }}</h4>
+            <p>{{ member.bio }}</p>
+            <div class="social-links">
+                {% if member.facebook_url %}
+                <a href="{{ member.facebook_url }}" class="facebook"></a>
+                {% endif %}
+                {% if member.instagram_url %}
+                <a href="{{ member.instagram_url }}" class="instagram"></a>
+                {% endif %}
+                {% if member.github_url %}
+                <a href="{{ member.github_url }}" class="github"></a>
+                {% endif %}
+                {% if member.discord_url %}
+                <a href="{{ member.discord_url }}" class="discord"></a>
+                {% endif %}
+                {% if member.telegram_username %}
+                <a href="https://t.me/{{ member.telegram_username }}" class="telegram"></a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+</main>
+{% endblock %}

@@ -1,5 +1,5 @@
 from django.utils import timezone
-from .models import BlogPost, Event, HeroSlide
+from .models import BlogPost, Event, HeroSlide, StaffMember
 from django.shortcuts import render
 from django.utils.translation import gettext as _
 
@@ -14,9 +14,17 @@ def home(request):
     blogs_posts = BlogPost.objects.all().order_by('-published_date')[:8]
     hero_slides = HeroSlide.objects.filter(is_active=True).order_by('order', '-created_at')
     return render(request, "base/home.html", {
-        "path_title": _("Home"),
         "events": events,
         "posts": blogs_posts,
         "extra_blogs": blog_counts > 8,
         "hero_slides": hero_slides,
+    })
+
+def studio(request):
+    return render(request, "base/studio.html")
+
+def team(request):
+    staff = StaffMember.objects.all()
+    return render(request, "base/team.html", {
+        "staff": staff,
     })
