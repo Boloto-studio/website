@@ -8,3 +8,4 @@ django-apscheduler
 requests
 dotenv
 dj_database_url
+Pillow
