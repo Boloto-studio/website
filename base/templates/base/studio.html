@@ -1,55 +1,110 @@
-{% extends "base/public_layout.html" %}
+{% extends "base/layout.html" %}
+{% load i18n %}
+{% load static %}
 
-{% block title %}Boloto Studio - Studio & Team{% endblock %}
+{% block path_title %}{{ page_title }}{% endblock %}
 
-{% block content %}
-<section class="terminal-section terminal-section--narrow studio-shell">
-    <header class="section-header studio-header">
-        <div>
-            <h1 class="terminal-placeholder__title">Studio &amp; Team</h1>
-            <div class="terminal-eyebrow">{{ mission_directory }}</div>
-        </div>
-    </header>
-
-    <section class="mission-console">
-        <div class="mission-console__tab">Mission_Log.txt</div>
-        <div class="mission-console__body">
-            {% for line in mission_log %}
-                <p>&gt; {{ line }}</p>
-            {% endfor %}
-        </div>
-    </section>
-
-    <section class="roster-shell">
-        <div class="roster-shell__header">
-            <h2 class="section-title">Active Personnel</h2>
-            <span class="section-shell">[{{ staff_profiles|length|stringformat:"02d" }} RECORDS FOUND]</span>
-        </div>
-        <div class="staff-grid">
-            {% for member in staff_profiles %}
-                <article class="staff-card">
-                    <div class="staff-card__image-wrap">
-                        <img class="staff-card__image" src="{{ member.photo_url }}" alt="{{ member.name }} portrait">
-                        <span class="staff-card__badge">ID: {{ member.internal_code }}</span>
-                    </div>
-                    <div class="staff-card__body">
-                        <h3 class="staff-card__callsign">{{ member.callsign }}</h3>
-                        <p class="staff-card__name">{{ member.name }}</p>
-                        <span class="staff-card__role">&gt; {{ member.role }}</span>
-                        <p class="staff-card__bio">{{ member.bio }}</p>
-                        <div class="staff-card__links">
-                            {% for link in member.links %}
-                                <a href="{{ link.url|default:'#' }}">{{ link.label }}</a>
-                            {% endfor %}
-                        </div>
-                        <div class="staff-card__status">
-                            <span>STS:</span>
-                            <strong>{{ member.status }}</strong>
-                        </div>
-                    </div>
-                </article>
-            {% endfor %}
-        </div>
-    </section>
+{% block body %}
+<section class="terminal-page-header">
+    <p class="terminal-path">DIR: /usr/local/boloto/{% if active_section == 'team' %}team{% else %}studio{% endif %}</p>
+    <h1 class="terminal-title">{% if active_section == 'team' %}{% trans "Active personnel" %}{% else %}{% trans "Initiating Boloto protocol" %}{% endif %}</h1>
+    <p class="terminal-subtitle">{% trans "A mission log for the studio and a live roster for the people building the worlds, systems, and stories behind Boloto Studio." %}</p>
 </section>
+
+<nav class="terminal-tabbar" aria-label="{% trans 'Studio sections' %}">
+    <a class="terminal-tab{% if active_section == 'studio' %} is-active{% endif %}" href="{% url 'studio' %}">mission_log.txt</a>
+    <a class="terminal-tab{% if active_section == 'team' %} is-active{% endif %}" href="{% url 'team' %}">active_personnel</a>
+</nav>
+
+<div class="terminal-grid terminal-grid--two">
+    <section class="terminal-panel">
+        <div class="terminal-section-heading">
+            <h2 class="terminal-section-title">mission_log.txt</h2>
+            <span class="terminal-badge">{% trans "Transmission" %}</span>
+        </div>
+        <div class="terminal-mission-log">
+            {% for line in mission_lines %}
+            <p>{{ line }}</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="terminal-panel">
+        <div class="terminal-section-heading">
+            <h2 class="terminal-section-title">{% trans "Field notes" %}</h2>
+            <span class="terminal-badge">{% trans "Live status" %}</span>
+        </div>
+        <p class="terminal-card-copy">{% trans "PROJECT SWAMP remains the primary theater of operations. Current work focuses on world-building, encounter design, and keeping the studio pipeline light enough for a small team to move fast." %}</p>
+        <div class="terminal-inline-actions">
+            <a class="terminal-inline-link" href="{% url 'home' %}">{% trans "Review public logs" %}</a>
+            <a class="terminal-inline-link" href="{% url 'donation' %}">{% trans "Support the operation" %}</a>
+        </div>
+    </section>
+    
+</div>
+
+<section class="terminal-panel" style="margin-top: 1rem;">
+    <div class="terminal-section-heading">
+        <h2 class="terminal-section-title">{% trans "Active personnel" %}</h2>
+        <span class="terminal-badge">{{ staff|length }} {% trans "entries" %}</span>
+    </div>
+    <div class="terminal-staff-grid">
+        {% for member in staff %}
+        <article class="terminal-staff-card">
+            <div class="terminal-staff-photo">
+                {% if member.photo %}
+                <img src="{{ member.photo.url }}" alt="{{ member.name }}">
+                {% else %}
+                <div class="terminal-staff-placeholder material-symbols-outlined">person</div>
+                {% endif %}
+            </div>
+            <div>
+                <h3 class="terminal-card-title">{{ member.name }}</h3>
+                <p class="terminal-staff-role">{{ member.role }}</p>
+            </div>
+            {% if member.bio %}
+            <p class="terminal-card-copy">{{ member.bio }}</p>
+            {% endif %}
+            <div class="terminal-socials">
+                {% if member.github_url %}
+                <a class="terminal-social-link" href="{{ member.github_url }}" aria-label="GitHub">
+                    <img src="{% static 'base/icons/github.svg' %}" alt="">
+                </a>
+                {% endif %}
+                {% if member.instagram_url %}
+                <a class="terminal-social-link" href="{{ member.instagram_url }}" aria-label="Instagram">
+                    <img src="{% static 'base/icons/instagram.svg' %}" alt="">
+                </a>
+                {% endif %}
+                {% if member.facebook_url %}
+                <a class="terminal-social-link" href="{{ member.facebook_url }}" aria-label="Facebook">
+                    <img src="{% static 'base/icons/facebook.svg' %}" alt="">
+                </a>
+                {% endif %}
+                {% if member.discord_url %}
+                <a class="terminal-social-link" href="{{ member.discord_url }}" aria-label="Discord">
+                    <img src="{% static 'base/icons/discord.svg' %}" alt="">
+                </a>
+                {% endif %}
+                {% if member.telegram_username %}
+                <a class="terminal-social-link" href="https://t.me/{{ member.telegram_username }}" aria-label="Telegram">
+                    <img src="{% static 'base/icons/telegram.svg' %}" alt="">
+                </a>
+                {% endif %}
+            </div>
+        </article>
+        {% empty %}
+        <p class="terminal-empty">{% trans "No personnel records yet. Add staff members in the admin to populate this directory." %}</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}{% extends "base/layout.html" %}
+{% load i18n %}
+
+{% block path_title %}{% trans "Studio" %}{% endblock %}
+
+{% block body %}
+<main id="studio">
+    
+</main>
 {% endblock %}

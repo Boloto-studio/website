@@ -1,115 +1,260 @@
-{% extends "base/public_layout.html" %}
+{% extends "base/layout.html" %}
+{% load i18n %}
 
-{% block title %}Boloto Studio - Home{% endblock %}
+{% block path_title %}{% trans "Home" %}{% endblock %}
 
-{% block content %}
-<section class="hero-carousel" data-carousel>
-    {% for slide in hero_slides %}
-        <article class="hero-slide{% if forloop.first %} is-active{% endif %}" data-slide style="--hero-image: url('{{ slide.image }}');">
-            <div class="hero-slide__content">
-                <div class="hero-topline">
-                    <div class="hero-chip">Classified // {{ slide.sector }}</div>
-                    <div class="hero-controls">
-                        <button class="hero-control" type="button" data-carousel-prev>&lt; Prev</button>
-                        <span>[ <span data-carousel-index>{{ forloop.counter }}</span> / <span data-carousel-total>{{ hero_slides|length }}</span> ]</span>
-                        <button class="hero-control" type="button" data-carousel-next>Next &gt;</button>
-                    </div>
-                </div>
-                <h1 class="hero-title">{{ slide.title }}</h1>
-                <p class="hero-subtitle">{{ slide.subtitle }}</p>
-                <a class="terminal-button terminal-button--primary" href="{{ slide.link|default:'#terminal-logs' }}">
-                    <span class="material-symbols-outlined">folder_open</span>
-                    {{ slide.link_text|default:"ACCESS_FILES" }}
-                </a>
-            </div>
-        </article>
-    {% endfor %}
-</section>
-
-<section class="terminal-section" id="terminal-logs">
-    <header class="section-header">
-        <h2 class="section-title">
-            <span class="material-symbols-outlined">terminal</span>
-            Terminal_Logs
-        </h2>
-        <span class="section-shell">/boloto/logs&gt; _</span>
-    </header>
-    <div class="terminal-grid">
-        {% for entry in terminal_entries %}
-            <article class="terminal-card">
-                <div class="terminal-card__meta">
-                    <span class="terminal-card__time">[ {{ entry.date_label }} ]</span>
-                    <span class="terminal-badge">{{ entry.kind }}</span>
-                </div>
-                {% if entry.thumbnail %}
-                    <div class="terminal-card__media">
-                        <img src="{{ entry.thumbnail }}" alt="{{ entry.title }} thumbnail">
-                        <div class="terminal-card__play">
-                            <span class="terminal-card__play-badge material-symbols-outlined">play_arrow</span>
-                        </div>
-                        {% if entry.runtime %}
-                            <span class="terminal-card__runtime">{{ entry.runtime }}</span>
+{% block body %}
+<section class="terminal-page-header terminal-page-header--hero">
+    <p class="terminal-kicker">{% trans "Classified // Sector 7" %}</p>
+    <div class="terminal-carousel" data-carousel>
+        <div class="terminal-carousel-track">
+            {% for slide in hero_slides %}
+            <article class="terminal-carousel-slide{% if forloop.first %} is-active{% endif %}" data-carousel-slide{% if slide.image %} data-background-image="{{ slide.image|escape }}"{% endif %}>
+                <div class="terminal-carousel-copy">
+                    <span class="terminal-badge">{{ forloop.counter|stringformat:"02d" }}/{{ hero_slides|length|stringformat:"02d" }}</span>
+                    <h1 class="terminal-title">{{ slide.title }}</h1>
+                    {% if slide.subtitle %}
+                    <p class="terminal-subtitle">{{ slide.subtitle }}</p>
+                    {% endif %}
+                    <div class="terminal-carousel-actions">
+                        {% if slide.link %}
+                        <a class="terminal-button" href="{{ slide.link }}">{% if slide.link_text %}{{ slide.link_text }}{% else %}{% trans "Access files" %}{% endif %}</a>
+                        {% else %}
+                        <a class="terminal-button" href="{% url 'studio' %}">{% trans "Access files" %}</a>
                         {% endif %}
                     </div>
-                {% endif %}
-                <h3 class="terminal-card__title">{{ entry.title }}</h3>
-                <p class="terminal-card__description">{{ entry.description }}</p>
-                <a class="terminal-card__action" href="{{ entry.action_url }}">
-                    {{ entry.action_text }}
-                    <span class="material-symbols-outlined">{{ entry.action_icon }}</span>
-                </a>
-            </article>
-        {% empty %}
-            <article class="terminal-card">
-                <div class="terminal-card__meta">
-                    <span class="terminal-card__time">[ SYSTEM ]</span>
-                    <span class="terminal-badge">TEXT_LOG</span>
                 </div>
-                <h3 class="terminal-card__title">Awaiting transmission</h3>
-                <p class="terminal-card__description">No blog posts or video logs are available yet. Add posts or synced video entries to populate the terminal grid.</p>
             </article>
+            {% empty %}
+            <article class="terminal-carousel-slide is-active" data-carousel-slide>
+                <div class="terminal-carousel-copy">
+                    <span class="terminal-badge">01/01</span>
+                    <h1 class="terminal-title">{% trans "Project:" %} <span class="terminal-title__accent">{% trans "Swamp" %}</span></h1>
+                    <p class="terminal-subtitle">{% trans "The flagship modpack for survival systems, uncanny folklore, and hostile wetlands." %}</p>
+                    <div class="terminal-carousel-actions">
+                        <a class="terminal-button" href="{% url 'studio' %}">{% trans "Access files" %}</a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        <div class="terminal-carousel-nav">
+            <div class="terminal-carousel-controls">
+                <button class="terminal-icon-button" type="button" data-carousel-prev aria-label="{% trans 'Previous slide' %}">
+                    <span class="material-symbols-outlined">west</span>
+                </button>
+                <button class="terminal-icon-button" type="button" data-carousel-next aria-label="{% trans 'Next slide' %}">
+                    <span class="material-symbols-outlined">east</span>
+                </button>
+            </div>
+            <div class="terminal-carousel-dots">
+                {% for slide in hero_slides %}
+                <button class="terminal-dot{% if forloop.first %} is-active{% endif %}" type="button" data-carousel-dot aria-label="{% blocktrans %}Go to slide {{ forloop.counter }}{% endblocktrans %}"></button>
+                {% empty %}
+                <button class="terminal-dot is-active" type="button" data-carousel-dot aria-label="{% trans 'Current slide' %}"></button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="terminal-panel">
+    <div class="terminal-section-heading">
+        <h2 class="terminal-section-title">{% trans "Terminal logs" %}</h2>
+        <span class="terminal-badge">{% trans "Blog posts + video transmissions" %}</span>
+    </div>
+    <div class="terminal-logs-grid">
+        {% for item in terminal_logs %}
+        <article class="terminal-log-card{% if item.thumbnail %} terminal-log-card--media{% endif %}">
+            {% if item.thumbnail %}
+            <div class="terminal-log-media" data-log-thumbnail="{{ item.thumbnail|escape }}">
+                <span class="terminal-log-play material-symbols-outlined">play_arrow</span>
+            </div>
+            {% endif %}
+            <div class="terminal-log-copy">
+                <div class="terminal-log-meta">
+                    <span>[ {{ item.timestamp|date:'Y-m-d H:i' }} ]</span>
+                    <span>{{ item.kind }}</span>
+                </div>
+                <h3 class="terminal-log-title">{{ item.title }}</h3>
+                <p class="terminal-log-body">{{ item.summary|truncatechars:220 }}</p>
+                {% if item.url %}
+                <a class="terminal-log-action" href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.action_label }}</a>
+                {% else %}
+                <span class="terminal-log-action">{{ item.action_label }}</span>
+                {% endif %}
+            </div>
+        </article>
+        {% empty %}
+        <p class="terminal-empty">{% trans "No logs indexed yet. Upload a transmission or publish a post to populate this console." %}</p>
         {% endfor %}
     </div>
 </section>
-{% endblock %}
+{% endblock %}{% extends "base/layout.html" %}
+{% load i18n %}
 
-{% block extra_js %}
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll("[data-carousel]").forEach(function (carousel) {
-        const slides = Array.from(carousel.querySelectorAll("[data-slide]"));
-        if (slides.length <= 1) {
-            return;
-        }
+{% block path_title %}{% trans "Home" %}{% endblock %}
 
-        let index = 0;
-        const setActive = function (nextIndex) {
-            index = (nextIndex + slides.length) % slides.length;
-            slides.forEach(function (slide, slideIndex) {
-                slide.classList.toggle("is-active", slideIndex === index);
-                const counter = slide.querySelector("[data-carousel-index]");
-                if (counter) {
-                    counter.textContent = String(index + 1).padStart(2, "0");
+{% block body %}
+<main id="home">
+    <section id="hero" class="hero-carousel">
+        {% for slide in hero_slides %}
+        <article class="hero-slide vertical-{{ slide.vertical_align }} horizontal-{{ slide.horizontal_align }}"
+            data-bg-image="{{ slide.image|escape }}">
+            <div class="hero-slide-content">
+                <h1>{{ slide.title }}</h1>
+                {% if slide.subtitle %}<p>{{ slide.subtitle }}</p>{% endif %}
+                {% if slide.link %}<a href="{{ slide.link|escape }}" class="button hero-cta">{{ slide.link_text}}</a>{%endif %}
+            </div>
+        </article>
+        {% empty %}
+        <article class="hero-slide hero-slide-placeholder">
+            <div class="hero-slide-content">
+                <h1>{% trans "Welcome to Boloto Studio" %}</h1>
+                <p>{% trans "Creating immersive gaming experiences" %}</p>
+            </div>
+        </article>
+        {% endfor %}
+    </section>
+    <script>
+        document.querySelectorAll('.hero-slide[data-bg-image]').forEach(function (slide) {
+            var url = slide.dataset.bgImage;
+            // Validate URL starts with https:// or http:// to prevent javascript: or data: URLs
+            // Additional validation: ensure no embedded javascript
+            if (url && (url.startsWith('https://') || url.startsWith('http://')) && !url.includes('javascript:')) {
+                slide.style.backgroundImage = 'url("' + url.replace(/["\\]/g, '') + '")';
+            }
+        });
+
+        // Auto-scroll carousel with looping
+        (function() {
+            var carousel = document.getElementById('hero');
+            var slides = carousel.querySelectorAll('.hero-slide');
+            if (slides.length <= 1) return;
+
+            var currentIndex = 0;
+            var autoScrollInterval = 5000; // 5 seconds between slides
+            var intervalId;
+            var scrollTimeout;
+
+            function scrollToSlide(index) {
+                if (index >= slides.length) {
+                    index = 0;
+                } else if (index < 0) {
+                    index = slides.length - 1;
                 }
-            });
-        };
+                currentIndex = index;
+                var slideWidth = slides[0] ? slides[0].offsetWidth : 0;
+                if (slideWidth > 0) {
+                    carousel.scrollTo({ left: index * slideWidth, behavior: 'smooth' });
+                }
+            }
 
-        carousel.querySelectorAll("[data-carousel-prev]").forEach(function (button) {
-            button.addEventListener("click", function () {
-                setActive(index - 1);
-            });
-        });
+            function nextSlide() {
+                scrollToSlide(currentIndex + 1);
+            }
 
-        carousel.querySelectorAll("[data-carousel-next]").forEach(function (button) {
-            button.addEventListener("click", function () {
-                setActive(index + 1);
-            });
-        });
+            function startAutoScroll() {
+                intervalId = setInterval(nextSlide, autoScrollInterval);
+            }
 
-        setInterval(function () {
-            setActive(index + 1);
-        }, 6500);
-    });
-});
-</script>
+            function resetAutoScroll() {
+                clearInterval(intervalId);
+                startAutoScroll();
+            }
+
+            // Debounced scroll handler to update current index when user manually scrolls
+            carousel.addEventListener('scroll', function() {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(function() {
+                    var slideWidth = slides[0] ? slides[0].offsetWidth : 0;
+                    if (slideWidth === 0) return;
+                    var scrollLeft = carousel.scrollLeft;
+                    var newIndex = Math.round(scrollLeft / slideWidth);
+                    if (newIndex !== currentIndex && newIndex >= 0 && newIndex < slides.length) {
+                        currentIndex = newIndex;
+                        resetAutoScroll();
+                    }
+                }, 100);
+            });
+
+            // Pause auto-scroll on hover
+            carousel.addEventListener('mouseenter', function() {
+                clearInterval(intervalId);
+            });
+
+            carousel.addEventListener('mouseleave', function() {
+                startAutoScroll();
+            });
+
+            // Start auto-scrolling
+            startAutoScroll();
+        })();
+    </script>
+    <!-- <div id="hero-divider"></div> -->
+    <div id="under-hero">
+        <div id="under-hero-left">
+            <section id="short-about">
+                <div class="fancy-title">
+                    <div class="fancy-title-line">
+                        <span></span>
+                    </div>
+                    <h2>{% trans "Us" %}</h2>
+                    <div class="fancy-title-line">
+                        <span></span>
+                    </div>
+                </div>
+                <p>Boloto Studio is just a bunch of friends building cool stuff together—modpacks, stories, sometimes
+                    full-on worlds. No corporate nonsense, just vibes, code, and a shared obsession with Slavic
+                    folklore.</p>
+            </section>
+            <section id="events">
+                <div class="fancy-title">
+                    <div class="fancy-title-line">
+                        <span></span>
+                    </div>
+                    <h2>{% trans "Upcoming events" %}</h2>
+                    <div class="fancy-title-line">
+                        <span></span>
+                    </div>
+                </div>
+                {% for event in events %}
+                <a href="{{event.link}}" class="event no-style">
+                    <div class="left">
+                        <h2>{{event.title|truncatechars:35}}</h2>
+                        <span>{{event.date}}</span>
+                    </div>
+                    <div class="right"><span class="material-symbols-outlined">videocam</span></div>
+                </a>
+                {% empty %}
+                <h2 style="text-align: center;">{% trans "Something is coming. Soon..." %}</h2>
+                {% endfor %}
+            </section>
+        </div>
+        <section id="blog">
+            <div class="fancy-title">
+                <div class="fancy-title-line">
+                    <span></span>
+                </div>
+                <h2>{% trans "What's going on" %}</h2>
+                <div class="fancy-title-line">
+                    <span></span>
+                </div>
+            </div>
+            <div id="posts-container">
+                {% for post in posts %}
+                <div class="blogpost">
+                    <div class="blog-bottom">
+                        <h1>{{ post.title }}</h1>
+                        <span>{{ post.published_date }}</span>
+                        <p>{{ post.content|truncatechars:650 }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <h2 style="text-align: center;">{% trans "Keep an eye on updates!" %}</h2>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
 {% endblock %}
