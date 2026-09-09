@@ -17,7 +17,6 @@
     --highlight-soft: rgba(244, 198, 62, 0.18);
     --danger: #ff9782;
     --shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
-    --content-width: 1120px;
     --radius: 3px;
 }
 
@@ -106,14 +105,13 @@ textarea {
 }
 
 .terminal-brand__wordmark {
-    margin: 0;
-    color: transparent;
-    font-size: clamp(1.8rem, 4vw, 2.35rem);
-    font-weight: 700;
-    letter-spacing: 0.22rem;
-    -webkit-text-stroke: 1px var(--highlight);
-    text-shadow: 0 0 18px rgba(244, 198, 62, 0.12);
-    text-transform: uppercase;
+  font-family: 'Courier New', Courier, monospace; /* Monospaced font ensures equal character width */
+  white-space: pre;                               /* Preserves spaces and line breaks exactly */
+  font-size: 14px;                                /* Fixed size so it scales predictably */
+  line-height: 1.1;                               /* Tight line height prevents row gaps */
+  letter-spacing: 0;                              /* Prevents browser-specific character spacing */
+  color: var(--highlight);                        /* Matches your terminal accent color */
+  display: block;
 }
 
 .terminal-brand__caption {
@@ -270,10 +268,6 @@ textarea {
 
 .terminal-main {
     padding: 2rem clamp(1.25rem, 2.6vw, 2.8rem) 2.5rem;
-}
-
-.terminal-main__inner {
-    max-width: var(--content-width);
 }
 
 .terminal-messages {
