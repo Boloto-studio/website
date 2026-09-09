@@ -1,0 +1,37 @@
+{% extends "frogsnet/layout.html" %}
+
+{% block title %}frogs.net - Forum{% endblock %}
+
+{% block frogs_content %}
+<header class="frogs-header">
+    <div>
+        <div class="terminal-eyebrow">SYS.STATUS: ONLINE</div>
+        <h1 class="frogs-title">&gt; /BIN/FORUM</h1>
+        <p class="terminal-placeholder__text">Secure communications channel established. Encrypted protocol: ALPHA-7. Decryption active: THREADS.</p>
+    </div>
+    <div class="forum-toolbar">
+        <a class="terminal-button terminal-button--primary" href="{% url 'frogs-forum-new' %}">NEW_THREAD.EXE</a>
+        <div class="forum-search">GREP THREAD...</div>
+    </div>
+</header>
+
+{% for section in sections %}
+    <section class="forum-section">
+        <div class="panel__title">DIR: {{ section.directory }}</div>
+        {% for thread in section.threads %}
+            <article class="thread-card">
+                <div>
+                    <p class="thread-card__prefix">{{ thread.prefix }}</p>
+                    <h2 class="thread-card__title">{{ thread.title }}</h2>
+                    <div class="thread-card__meta">BY {{ thread.author }} · {{ thread.timestamp }}</div>
+                </div>
+                <div class="thread-card__stats">
+                    <span>REPLIES {{ thread.replies }}</span>
+                    <span>VIEWS {{ thread.views }}</span>
+                    <a href="{% url 'frogs-forum-thread' %}">READ_MORE</a>
+                </div>
+            </article>
+        {% endfor %}
+    </section>
+{% endfor %}
+{% endblock %}

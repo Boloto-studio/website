@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Boloto Studio - Terminal Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#cee9d4",
+                        "secondary-fixed": "#56ffa8",
+                        "primary": "#ffe8ae",
+                        "on-error-container": "#ffdad6",
+                        "inverse-primary": "#745b00",
+                        "secondary": "#ddffe4",
+                        "outline": "#9a9078",
+                        "tertiary-container": "#39e0ff",
+                        "on-secondary-fixed-variant": "#00522f",
+                        "on-secondary-container": "#006e41",
+                        "surface-variant": "#233a2b",
+                        "error-container": "#93000a",
+                        "primary-fixed": "#ffe089",
+                        "on-surface-variant": "#d1c5ab",
+                        "surface-container-highest": "#233a2b",
+                        "surface-container-lowest": "#001207",
+                        "on-surface": "#cee9d4",
+                        "inverse-on-surface": "#1f3527",
+                        "tertiary": "#c1f2ff",
+                        "on-primary-fixed-variant": "#574400",
+                        "on-background": "#cee9d4",
+                        "error": "#ffb4ab",
+                        "outline-variant": "#4e4632",
+                        "surface-tint": "#f0c100",
+                        "on-tertiary-fixed": "#001f25",
+                        "surface": "#02170b",
+                        "on-tertiary-container": "#00606f",
+                        "secondary-container": "#00f999",
+                        "on-tertiary-fixed-variant": "#004e5b",
+                        "on-tertiary": "#00363f",
+                        "on-primary": "#3d2f00",
+                        "background": "#02170b",
+                        "primary-container": "#f9c806",
+                        "on-secondary-fixed": "#002110",
+                        "on-error": "#690005",
+                        "tertiary-fixed-dim": "#2bd9f7",
+                        "tertiary-fixed": "#a7edff",
+                        "surface-bright": "#273e2f",
+                        "on-primary-container": "#6b5500",
+                        "secondary-fixed-dim": "#00e38b",
+                        "surface-container": "#0d2417",
+                        "primary-fixed-dim": "#f0c100",
+                        "surface-container-high": "#182f21",
+                        "surface-container-low": "#092013",
+                        "surface-dim": "#02170b",
+                        "on-primary-fixed": "#241a00",
+                        "on-secondary": "#00391f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "baseline": "4px",
+                        "sidebar-width": "30%",
+                        "gutter": "1.5rem",
+                        "main-padding": "3rem",
+                        "section-gap": "4rem"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Space Mono"],
+                        "display-xl-mobile": ["Space Mono"],
+                        "code-snippet": ["Space Mono"],
+                        "label-sm": ["Space Mono"],
+                        "display-xl": ["Space Mono"],
+                        "headline-lg": ["Space Mono"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-xl-mobile": ["48px", { "lineHeight": "1.1", "fontWeight": "700" }],
+                        "code-snippet": ["14px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.15em", "fontWeight": "700" }],
+                        "display-xl": ["72px", { "lineHeight": "1.0", "letterSpacing": "-0.05em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .scanline-overlay {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 50;
+        }
+        .crt-flicker {
+            animation: flicker 0.15s infinite;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.95; }
+            50% { opacity: 1; }
+            100% { opacity: 0.95; }
+        }
+        .terminal-input-bg {
+            background: transparent;
+            border: none;
+            outline: none;
+            box-shadow: none;
+        }
+        .terminal-input-bg:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        .bracket-border {
+            position: relative;
+        }
+        .bracket-border::before, .bracket-border::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+            border: 1px solid theme('colors.secondary-container');
+            transition: all 0.2s;
+        }
+        .bracket-border::before {
+            left: 0;
+            border-right: none;
+        }
+        .bracket-border::after {
+            right: 0;
+            border-left: none;
+        }
+        .bracket-border:focus-within::before, .bracket-border:focus-within::after {
+            border-color: theme('colors.primary-container');
+            box-shadow: 0 0 10px theme('colors.primary-container');
+        }
+        
+        .bg-log-scroll {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: -1;
+            opacity: 0.1;
+            font-family: 'Space Mono', monospace;
+            color: theme('colors.secondary-fixed-dim');
+            font-size: 10px;
+            line-height: 1.2;
+            white-space: pre;
+            pointer-events: none;
+        }
+        .log-line {
+            animation: scrollUp 20s linear infinite;
+        }
+        @keyframes scrollUp {
+            from { transform: translateY(100vh); }
+            to { transform: translateY(-100%); }
+        }
+        .glow-button:hover {
+            box-shadow: 0 0 15px theme('colors.primary-container');
+        }
+        .blink-cursor {
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col crt-flicker selection:bg-secondary-container selection:text-background">
+<!-- Global Scanline Overlay -->
+<div class="scanline-overlay"></div>
+<!-- Background Logs (Simulated) -->
+<div class="bg-log-scroll" id="bg-logs"></div>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex items-center justify-center p-gutter relative z-10">
+<!-- Login Modal -->
+<div class="w-full max-w-md bg-surface-container border border-outline-variant p-main-padding relative shadow-[0_0_20px_rgba(0,249,153,0.05)]">
+<!-- Modal Header -->
+<div class="border-b border-outline-variant pb-baseline mb-8 flex justify-between items-end">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-secondary-container flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security</span>
+                        AUTHENTICATION_REQUIRED
+                    </h1>
+<p class="font-label-sm text-label-sm text-outline mt-2 tracking-widest">BOLOTO_OS // V2.0.48_STABLE</p>
+</div>
+<div class="w-3 h-3 rounded-full bg-error animate-pulse shadow-[0_0_8px_rgba(255,180,171,0.6)]"></div>
+</div>
+<!-- Login Form -->
+<form class="space-y-6" onsubmit="event.preventDefault(); console.log('Init seq...');">
+<!-- Operator ID -->
+<div class="space-y-2">
+<label class="font-label-sm text-label-sm text-secondary-container block">
+                        &gt; ENTER_OPERATOR_ID
+                    </label>
+<div class="bracket-border px-4 py-2 flex items-center bg-surface-container-low group">
+<span class="text-outline mr-2">ID:</span>
+<input autocomplete="off" class="terminal-input-bg w-full font-code-snippet text-code-snippet text-primary focus:text-primary placeholder-surface-variant" placeholder="OP-XXXX" spellcheck="false" type="text"/>
+<span class="blink-cursor text-secondary-container hidden group-focus-within:inline">_</span>
+</div>
+</div>
+<!-- Pass Key -->
+<div class="space-y-2">
+<label class="font-label-sm text-label-sm text-secondary-container block">
+                        &gt; ENTER_PASS_KEY
+                    </label>
+<div class="bracket-border px-4 py-2 flex items-center bg-surface-container-low group">
+<span class="text-outline mr-2">PK:</span>
+<input autocomplete="off" class="terminal-input-bg w-full font-code-snippet text-code-snippet text-primary focus:text-primary placeholder-surface-variant" placeholder="********" type="password"/>
+<span class="blink-cursor text-secondary-container hidden group-focus-within:inline">_</span>
+</div>
+</div>
+<!-- Submit Action -->
+<div class="pt-4">
+<button class="w-full bg-primary-container text-on-primary-container border border-primary font-label-sm text-label-sm py-4 uppercase tracking-widest hover:bg-surface hover:text-primary-container transition-all duration-300 glow-button flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined">terminal</span>
+                        INITIALIZE_SESSION.EXE
+                    </button>
+</div>
+</form>
+<!-- Decorative Corners -->
+<div class="absolute top-0 left-0 w-2 h-2 border-t border-l border-secondary-container"></div>
+<div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-secondary-container"></div>
+<div class="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-secondary-container"></div>
+<div class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-secondary-container"></div>
+</div>
+</main>
+<!-- Global Status Bar (Footer) -->
+<footer class="border-t border-outline-variant bg-surface-container-high h-8 flex items-center justify-between px-gutter relative z-20">
+<div class="flex items-center gap-4 font-code-snippet text-code-snippet text-outline text-xs">
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse shadow-[0_0_5px_rgba(0,249,153,0.5)]"></span>
+                SYS_ONLINE
+            </span>
+<span>|</span>
+<span>NODE: SECURE_09</span>
+</div>
+<div class="font-label-sm text-label-sm text-secondary-container tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">lock</span>
+            CONNECTION: ENCRYPTED
+        </div>
+</footer>
+<!-- JS for Background Logs -->
+<script>
+        const logContainer = document.getElementById('bg-logs');
+        const snippets = [
+            "INIT_CORE_MODULES... OK",
+            "CHECKING_V-RAM_ALLOCATION... 0x00F8A",
+            "MOUNT_DRIVE: /dev/sda1... SUCCESS",
+            "WARNING: UNEXPECTED_PING_FROM_IP:192.168.0.4",
+            "ESTABLISHING_SECURE_HANDSHAKE...",
+            "DECRYPTING_PAYLOAD_CHUNK_04...",
+            "SYSTEM_TEMP: 42C (NOMINAL)",
+            "AUTH_SERVER_REACHABLE: TRUE",
+            "LOADING_UI_ASSETS...",
+            "AWAITING_USER_INPUT_"
+        ];
+
+        function generateLogs() {
+            let html = '';
+            for(let i=0; i<100; i++) {
+                const text = snippets[Math.floor(Math.random() * snippets.length)];
+                const offset = Math.random() * 20;
+                const duration = 15 + Math.random() * 10;
+                html += `<div class="log-line" style="margin-left: ${Math.random()*50}%; animation-duration: ${duration}s; animation-delay: -${offset}s;">[${Date.now() - i*1000}] ${text}</div>`;
+            }
+            logContainer.innerHTML = html;
+        }
+
+        generateLogs();
+    </script>
+</body></html>

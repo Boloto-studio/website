@@ -1,0 +1,33 @@
+{% extends "frogsnet/layout.html" %}
+
+{% block title %}frogs.net - Friends{% endblock %}
+
+{% block frogs_content %}
+<header class="frogs-header">
+    <div>
+        <div class="terminal-eyebrow">SWAMPY TERMINAL</div>
+        <h1 class="frogs-title">/SYS/COMMS/FRIENDS</h1>
+    </div>
+    <span class="frogs-chip">STATUS: ONLINE (3) / TOTAL 162</span>
+</header>
+
+<div class="friends-grid">
+    {% for friend in friends_list %}
+        <article class="friend-card friend-card--{{ friend.status|lower }}">
+            <div class="friend-card__topline">
+                <div class="friend-card__identity">
+                    <span class="material-symbols-outlined">{{ friend.icon }}</span>
+                    <div>
+                        <h2>{{ friend.name }}</h2>
+                        <p>LVL: {{ friend.level }} | CLAN: {{ friend.clan }}</p>
+                    </div>
+                </div>
+                <span class="friend-card__status-dot"></span>
+            </div>
+            <p class="friend-card__note">&gt; {{ friend.note }}</p>
+        </article>
+    {% endfor %}
+</div>
+
+<footer class="frogs-footer">C:\sys\comms&gt; search_roster</footer>
+{% endblock %}

@@ -1,10 +1,55 @@
-{% extends "base/layout.html" %}
-{% load i18n %}
+{% extends "base/public_layout.html" %}
 
-{% block path_title %}{% trans "Studio" %}{% endblock %}
+{% block title %}Boloto Studio - Studio & Team{% endblock %}
 
-{% block body %}
-<main id="studio">
-    
-</main>
+{% block content %}
+<section class="terminal-section terminal-section--narrow studio-shell">
+    <header class="section-header studio-header">
+        <div>
+            <h1 class="terminal-placeholder__title">Studio &amp; Team</h1>
+            <div class="terminal-eyebrow">{{ mission_directory }}</div>
+        </div>
+    </header>
+
+    <section class="mission-console">
+        <div class="mission-console__tab">Mission_Log.txt</div>
+        <div class="mission-console__body">
+            {% for line in mission_log %}
+                <p>&gt; {{ line }}</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="roster-shell">
+        <div class="roster-shell__header">
+            <h2 class="section-title">Active Personnel</h2>
+            <span class="section-shell">[{{ staff_profiles|length|stringformat:"02d" }} RECORDS FOUND]</span>
+        </div>
+        <div class="staff-grid">
+            {% for member in staff_profiles %}
+                <article class="staff-card">
+                    <div class="staff-card__image-wrap">
+                        <img class="staff-card__image" src="{{ member.photo_url }}" alt="{{ member.name }} portrait">
+                        <span class="staff-card__badge">ID: {{ member.internal_code }}</span>
+                    </div>
+                    <div class="staff-card__body">
+                        <h3 class="staff-card__callsign">{{ member.callsign }}</h3>
+                        <p class="staff-card__name">{{ member.name }}</p>
+                        <span class="staff-card__role">&gt; {{ member.role }}</span>
+                        <p class="staff-card__bio">{{ member.bio }}</p>
+                        <div class="staff-card__links">
+                            {% for link in member.links %}
+                                <a href="{{ link.url|default:'#' }}">{{ link.label }}</a>
+                            {% endfor %}
+                        </div>
+                        <div class="staff-card__status">
+                            <span>STS:</span>
+                            <strong>{{ member.status }}</strong>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+</section>
 {% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base/public_layout.html" %}
+
+{% block title %}Boloto Studio - Contact{% endblock %}
+
+{% block content %}
+<section class="terminal-section terminal-section--narrow contact-shell">
+    <header class="section-header">
+        <div>
+            <h1 class="terminal-placeholder__title">Secure_Comm_Link</h1>
+            <div class="terminal-eyebrow">&gt; INITIALIZING SECURE CHANNEL...</div>
+            <div class="terminal-eyebrow">&gt; CONNECTION ESTABLISHED. AWAITING INPUT.</div>
+        </div>
+    </header>
+
+    {% if submitted %}
+        <div class="transmission-status transmission-status--ok">&gt; TRANSMISSION RECEIVED BY HQ.</div>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+        <div class="transmission-status transmission-status--error">{{ form.non_field_errors|join:', ' }}</div>
+    {% endif %}
+
+    <form class="terminal-form" method="post">
+        {% csrf_token %}
+        <div class="form-row">
+            <label class="form-label" for="id_name">/home/user/name &gt;</label>
+            {{ form.name }}
+        </div>
+        {% if form.name.errors %}<div class="transmission-status transmission-status--error">{{ form.name.errors|join:', ' }}</div>{% endif %}
+        <div class="form-row">
+            <label class="form-label" for="id_email">/home/user/email &gt;</label>
+            {{ form.email }}
+        </div>
+        {% if form.email.errors %}<div class="transmission-status transmission-status--error">{{ form.email.errors|join:', ' }}</div>{% endif %}
+        <div class="form-row form-row--stacked">
+            <label class="form-label" for="id_message">/home/user/message &gt;</label>
+            {{ form.message }}
+        </div>
+        {% if form.message.errors %}<div class="transmission-status transmission-status--error">{{ form.message.errors|join:', ' }}</div>{% endif %}
+        <div class="contact-shell__actions">
+            <button class="terminal-button terminal-button--primary contact-shell__submit" type="submit">[ TRANSMIT_DATA ]</button>
+        </div>
+    </form>
+
+    <footer class="contact-shell__footer">© BOLOTO STUDIO. END OF LINE.</footer>
+</section>
+{% endblock %}

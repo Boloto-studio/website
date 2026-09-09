@@ -1,0 +1,247 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Boloto Studio - Studio &amp; Team</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#ffe8ae", "background-light": "#f8f8f5", "background-dark": "#231f0f", "terminal-surface": "#111A14", "terminal-muted": "#738C7A", "terminal-accent": "#00FA9A", "terminal-text": "#E6F0EB", "secondary-container": "#00f999", background: "#02170b", "inverse-surface": "#cee9d4", "primary-container": "#f9c806", "surface-bright": "#273e2f", "secondary-fixed": "#56ffa8", outline: "#9a9078", "on-surface": "#cee9d4", "surface-container": "#0d2417", "inverse-on-surface": "#1f3527", "secondary-fixed-dim": "#00e38b", "surface-container-lowest": "#001207", "surface-tint": "#f0c100", "on-secondary-container": "#006e41", "on-primary-fixed-variant": "#574400", "on-secondary": "#00391f", "on-secondary-fixed": "#002110", "on-error-container": "#ffdad6", "on-primary-container": "#6b5500", surface: "#02170b", "on-tertiary-fixed": "#001f25", "primary-fixed-dim": "#f0c100", "on-background": "#cee9d4", "on-error": "#690005", "on-primary-fixed": "#241a00", "on-tertiary": "#00363f", "on-surface-variant": "#d1c5ab", "surface-container-high": "#182f21", tertiary: "#c1f2ff", "surface-container-low": "#092013", "surface-container-highest": "#233a2b", secondary: "#ddffe4", "outline-variant": "#4e4632", "tertiary-container": "#39e0ff", "tertiary-fixed-dim": "#2bd9f7", "error-container": "#93000a", "surface-variant": "#233a2b", "tertiary-fixed": "#a7edff", "on-secondary-fixed-variant": "#00522f", "primary-fixed": "#ffe089", "inverse-primary": "#745b00", error: "#ffb4ab", "surface-dim": "#02170b", "on-tertiary-fixed-variant": "#004e5b", "on-primary": "#3d2f00", "on-tertiary-container": "#00606f"}, fontFamily: {display: ["Space Mono"], mono: ["Fira Code", "monospace"], "headline-lg": ["Space Mono"], "label-sm": ["Space Mono"], "display-xl": ["Space Mono"], "display-xl-mobile": ["Space Mono"], "body-md": ["Space Mono"], "code-snippet": ["Space Mono"], headline: ["Space Mono"], body: ["Space Mono"], label: ["Space Mono"]}, borderRadius: {DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem"}, fontSize: {"headline-lg": ["32px", {lineHeight: "1.2", letterSpacing: "0.05em", fontWeight: "700"}], "label-sm": ["12px", {lineHeight: "1.0", letterSpacing: "0.15em", fontWeight: "700"}], "display-xl": ["72px", {lineHeight: "1.0", letterSpacing: "-0.05em", fontWeight: "700"}], "display-xl-mobile": ["48px", {lineHeight: "1.1", fontWeight: "700"}], "body-md": ["16px", {lineHeight: "1.6", fontWeight: "400"}], "code-snippet": ["14px", {lineHeight: "1.4", fontWeight: "400"}]}, spacing: {gutter: "1.5rem", baseline: "4px", "main-padding": "3rem", "section-gap": "4rem", "sidebar-width": "30%"}}}};</script>
+<style>
+        body {
+            background-color: #080C0A;
+            color: #E6F0EB;
+            position: relative;
+        }
+        /* CRT Scanline Overlay */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0),
+                rgba(255, 255, 255, 0) 50%,
+                rgba(0, 0, 0, 0.1) 50%,
+                rgba(0, 0, 0, 0.1)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.3;
+        }
+        
+        .profile-card:hover {
+            border-color: #00FA9A;
+            box-shadow: 0 0 8px rgba(0, 250, 154, 0.4);
+        }
+        
+        .profile-image {
+            filter: grayscale(100%) contrast(120%);
+            transition: filter 0.3s ease;
+        }
+        
+        .profile-card:hover .profile-image {
+            filter: sepia(100%) hue-rotate(90deg) saturate(300%) contrast(120%);
+        }
+        
+        /* Typing animation simulation for static HTML */
+        .typing-text {
+            border-right: 2px solid #00FA9A;
+            white-space: pre-wrap;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="font-mono h-screen flex overflow-hidden selection:bg-terminal-accent selection:text-black">
+<!-- Shared Navigation -->
+<div class="relative flex h-auto min-h-screen w-[30%] max-w-[320px] flex-col bg-[#181711] border-r border-terminal-muted z-10 shrink-0">
+<div class="layout-container flex h-full grow flex-col">
+<div class="flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-full flex-1">
+<div class="flex h-full flex-col justify-between p-4 overflow-y-auto">
+<div class="flex flex-col gap-8">
+<div class="flex flex-col text-center border-b border-terminal-muted pb-4">
+<pre class="text-primary text-xs font-bold leading-none tracking-widest mx-auto"> ____  __  __    __  ____  __  
+(  _ \/  \(  )  /  \(_  _)/  \ 
+ ) _ (  O )) (_(  O ) )( (  O )
+(____/\__/(____)\__/ (__) \__/ 
+                                </pre>
+<p class="text-terminal-muted text-xs mt-2 font-mono">[ BOLOTO STUDIO HQ ]</p>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="TerminalWindow" data-weight="regular">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> HOME <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-terminal-surface border border-terminal-muted shadow-[0_0_8px_rgba(0,250,154,0.2)]" href="#">
+<div class="text-terminal-accent" data-icon="Users" data-weight="fill">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+</div>
+<p class="text-terminal-accent text-sm font-bold leading-normal">[ STUDIO ]</p>
+</a>
+<details class="group/nav">
+<summary class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors cursor-pointer list-none [&amp;::-webkit-details-marker]:hidden">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="Globe" data-weight="regular">
+<span class="material-symbols-outlined">globe</span>
+</div>
+<div class="flex flex-1 items-center justify-between">
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> COMMUNITY <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+<span class="material-symbols-outlined text-terminal-muted text-sm transition-transform group-open/nav:rotate-180">expand_more</span>
+</div>
+</summary>
+<div class="flex flex-col gap-1 pl-11 py-1">
+<a class="flex items-center gap-3 px-3 py-1.5 group hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> FORUM <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-3 py-1.5 group hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> MY PROFILE <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-3 py-1.5 group hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> FRIENDS LIST <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-3 py-1.5 group hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> SERVERS LIST <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+</div>
+</details>
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="Heart" data-weight="regular">
+<span class="material-symbols-outlined">favorite</span>
+</div>
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> DONATION <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="EnvelopeSimple" data-weight="regular">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> CONTACT <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+</nav>
+</div>
+<div class="mt-auto border-t border-terminal-muted pt-4 shrink-0">
+<p class="text-xs text-terminal-muted uppercase tracking-widest font-mono">SYS.VER: 4.2.0</p>
+<p class="text-xs text-terminal-accent uppercase tracking-widest mt-1 animate-pulse font-mono">STATUS: ONLINE</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Area -->
+<main class="flex-1 h-full overflow-y-auto relative z-0">
+<div class="max-w-5xl mx-auto p-8 lg:p-12 pb-24">
+<header class="mb-10 border-b border-terminal-muted pb-4 flex items-end justify-between">
+<div>
+<h1 class="text-terminal-text uppercase tracking-widest font-['VT323'] text-[72px]">STUDIO &amp; TEAM</h1>
+<p class="text-terminal-muted text-sm mt-2 font-mono">DIR: /usr/local/boloto/team</p>
+</div>
+</header>
+<!-- Mission Console -->
+<section class="mb-16">
+<div class="bg-black border border-terminal-muted p-6 shadow-md relative">
+<div class="absolute top-0 left-0 bg-terminal-muted text-black text-xs px-2 py-0.5 uppercase font-bold font-mono">
+                        Mission_Log.txt
+                    </div>
+<div class="mt-4 text-terminal-accent text-sm leading-relaxed typing-text font-mono">
+&gt; INITIALIZING BOLOTO PROTOCOL...
+&gt; ESTABLISHED: 2021
+&gt; DIRECTIVE: Engineer uncompromising, lore-dense modifications for the Minecraft ecosystem.
+&gt; 
+&gt; We are a collective of architects, coders, and digital scavengers operating from the Swamp Lab. Our flagship project, 'PROJECT: SWAMP', is not just a modpack—it is an aggressive reimagining of survival mechanics set against a backdrop of industrial decay and environmental hostility.
+&gt; 
+&gt; We build tools for those who find vanilla environments too hospitable.
+&gt; 
+&gt; END LOG_</div>
+</div>
+</section>
+<!-- Team Roster -->
+<section>
+<div class="flex items-center gap-4 mb-8">
+<h2 class="text-3xl text-terminal-text font-display uppercase tracking-wider">ACTIVE PERSONNEL</h2>
+<div class="h-px bg-terminal-muted flex-1"></div>
+<span class="text-terminal-accent text-sm font-mono">[03 RECORDS FOUND]</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+<!-- Team Member 1 -->
+<article class="profile-card bg-terminal-surface border border-terminal-muted p-4 flex flex-col transition-all duration-200">
+<div class="relative w-full h-[240px] mb-4 border border-terminal-muted overflow-hidden bg-black">
+<img alt="Lead Engineer" class="profile-image w-full h-full object-cover" data-alt="A gritty, high-contrast black and white portrait of a rugged man with messy hair and a serious expression, sitting in a dimly lit, industrial-looking room. The scene is illuminated by harsh, directional light casting deep shadows, evoking a retro-futuristic, cyberpunk hacker aesthetic. The mood is intense and focused, fitting for a 'swamp lab' lead engineer." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ1lFW-ymLDawC6JqXeYTLqq_VzV8d9hsrF6CLFrKfOu9176mSYbLphQogV5-6Ob1W6AIZKL-6OvlqAvS__2UjsRmBLgm79PWCzGoVuF-GdvHFUMwFU0RjlZEziKMovKeQiIb-ee_0MVky9GZCr6KpNKMN50zK44csiec9-_-DW6SocwpspOLPRuLpzQFPnKex3VAw462bPmY7nMdLAZ63DmL_-I0U-uY5qBhUoPBiei8tt6_PxYNTknEsaH8Q65Fzucg8-YyDWvMS">
+<div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 text-[10px] text-terminal-muted uppercase font-mono">
+                                ID: BLT-001
+                            </div>
+</div>
+<div class="flex-1 flex flex-col">
+<h3 class="text-4xl font-display uppercase text-terminal-text tracking-wider">Vektor</h3>
+<p class="font-display text-terminal-muted text-xl mb-3">Viktor Volkov</p>
+<div class="inline-block bg-[#111A14] border border-primary px-2 py-1 text-primary text-xs uppercase self-start mb-3 shadow-[0_0_4px_rgba(255,204,0,0.3)] font-mono">
+                                &gt; LEAD_ENGINEER
+                            </div>
+<p class="text-terminal-muted text-sm flex-1 font-mono">
+                                Mastermind behind the core logic systems. Specializes in terrain generation and structural decay algorithms.
+                            </p>
+<div class="mt-4 flex gap-2 text-xs font-mono"><a class="text-terminal-muted hover:text-terminal-accent transition-colors" href="#"><img alt="Twitter" class="h-5 w-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAwCAYAAAA2GtvFAAAAk0lEQVR4AeyQOwrCQBiE/x0ju8HCyhsIgngHj+ABbLa1sIwgImwbIwTxEp7BYwiWVjaBBNLl/a5CUqfMwDRTfAwfqJdx6AoZ3IdSSuBgnlZSSnG8GVtv4u+hZclyvl7skixyGZiDPM3TOIi/rOQAaX9wLkif6ZtpwcLH5f6BfbbetmG+nlfrR3UGf1ozaYQ2FtpWAAAA//8CHa68AAAABklEQVQDANO8JWGcgftEAAAAAElFTkSuQmCC"></a><a class="text-terminal-muted hover:text-terminal-accent transition-colors" href="#"><img alt="GitHub" class="h-5 w-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAwCAYAAAA2GtvFAAAAsElEQVR4AeyQoQrCUBiF//vPX9lNwsQyUHwAbT6C2GzrppssQ8RgucUiC4JBBPEBTBafwBcwmWz6BHMX8W5elKVpFOMOnPKlcz6Er+TgU8hffAghyNt6RU++6/s2Qp033XOjVyG3U3WwjSyJnaPmu+Vkvi8QlNAmilpc9QfTYfcRmxNG+nnBBMqGDNNEIa7l4hpabMWZdajduUqXbsazWzAKlJTSpCD7JgdZGwA/+HgBAAD//12b9p4AAAAGSURBVAMALMQuYfuSHZYAAAAASUVORK5CYII="></a><a class="text-terminal-muted hover:text-terminal-accent transition-colors" href="#"><img alt="Portfolio" class="h-5 w-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAwCAYAAAA2GtvFAAAAhElEQVR4AeyQPQ5EUBSF77smk9jO7GHK6WYLU05kBnlEQ+VJ0GiERKWUWAqroKLSEH95Jb2Kk3zNac7Jh7DLVWyFHOPjz2j4ZfQju/pbsqQnTgB5oDmxp9jZXRQJLvMs/Bh9cfpxuGE3NCURyIPTLl2BiZlUvsosTmpE9TFPtzYATr6yAgAA////6b2OAAAABklEQVQDALwxKGGjh+qPAAAAAElFTkSuQmCC"></a></div>
+<div class="mt-3 pt-3 border-t border-terminal-muted flex gap-3 text-sm font-mono">
+<span class="text-terminal-accent">STS:</span> <span class="text-terminal-text">ONLINE</span>
+</div>
+</div>
+</article>
+<!-- Team Member 2 -->
+<article class="profile-card bg-terminal-surface border border-terminal-muted p-4 flex flex-col transition-all duration-200">
+<div class="relative w-full h-[240px] mb-4 border border-terminal-muted overflow-hidden bg-black">
+<img alt="Art Director" class="profile-image w-full h-full object-cover" data-alt="A stark, high-contrast monochrome portrait of a woman with sharp features and a focused gaze, wearing a dark turtleneck. She is positioned against a textured, metallic wall in a low-light environment. The lighting is dramatic, emphasizing the contours of her face and creating a gritty, underground bunker atmosphere suitable for a retro-industrial art director." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmUoGq_VwPdYPEBhkuVJwX1UF9gYEf0CIhFOZeL78rj6PmlfPKIxw_l5hdq5eFJM0Mc-WOV4mDZfNGPIxAYUrtuCzzYDqEs1i_464ccujWsX9zRbam1JhKWQnD1t9Bn0_nnZU7q1pXc9BZpuRlaZa6hn_TwfPFjSnpggHzFF7m12wNhIasCbjZmw2y-h6CAUi0qWTW9tVGQnlVY6tMciAZAOlREA1hAQidtCHwbzNCMZ0eIsXipCZZhwpxAbbb8Cr_y00Zzp0cPrNL">
+<div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 text-[10px] text-terminal-muted uppercase font-mono">
+                                ID: BLT-002
+                            </div>
+</div>
+<div class="flex-1 flex flex-col">
+<h3 class="text-4xl font-display uppercase text-terminal-text tracking-wider">Cipher</h3>
+<p class="font-display text-terminal-muted text-xl mb-3">Elena Rossi</p>
+<div class="inline-block bg-[#111A14] border border-primary px-2 py-1 text-primary text-xs uppercase self-start mb-3 shadow-[0_0_4px_rgba(255,204,0,0.3)] font-mono">
+                                &gt; ART_DIRECTOR
+                            </div>
+<p class="text-terminal-muted text-sm flex-1 font-mono">
+                                Dictates the visual decay. Responsible for all textures, models, and the overarching Swamp Lab aesthetic.
+                            </p>
+<div class="mt-4 flex gap-2 text-xs font-mono"><a class="text-terminal-muted hover:text-terminal-accent transition-colors" href="#"><img alt="Twitter" class="h-5 w-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAwCAYAAAA2GtvFAAAAk0lEQVR4AeyQOwrCQBiE/x0ju8HCyhsIgngHj+ABbLa1sIwgImwbIwTxEp7BYwiWVjaBBNLl/a5CUqfMwDRTfAwfqJdx6AoZ3IdSSuBgnlZSSnG8GVtv4u+hZclyvl7skixyGZiDPM3TOIi/rOQAaX9wLkif6ZtpwcLH5f6BfbbetmG+nlfrR3UGf1ozaYQ2FtpWAAAA//8CHa68AAAABklEQVQDANO8JWGcgftEAAAAAElFTkSuQmCC"></a><a class="text-terminal-muted hover:text-terminal-accent transition-colors" href="#"><img alt="GitHub" class="h-5 w-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAwCAYAAAA2GtvFAAAAsElEQVR4AeyQoQrCUBiF//vPX9lNwsQyUHwAbT6C2GzrppssQ8RgucUiC4JBBPEBTBafwBcwmWz6BHMX8W5elKVpFOMOnPKlcz6Er+TgU8hffAghyNt6RU++6/s2Qp033XOjVyG3U3WwjSyJnaPmu+Vkvi8QlNAmilpc9QfTYfcRmxNG+nnBBMqGDNNEIa7l4hpabMWZdajduUqXbsazWzAKlJTSpCD7JgdZGwA/+HgBAAD//12b9p4AAAAGSURBVAMALMQuYfuSHZYAAAAASUVORK5CYII="></a><a class="text-terminal-muted hover:text-terminal-accent transition-colors" href="#"><img alt="Portfolio" class="h-5 w-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAwCAYAAAA2GtvFAAAAhElEQVR4AeyQPQ5EUBSF77smk9jO7GHK6WYLU05kBnlEQ+VJ0GiERKWUWAqroKLSEH95Jb2Kk3zNac7Jh7DLVWyFHOPjz2j4ZfQju/pbsqQnTgB5oDmxp9jZXRQJLvMs/Bh9cfpxuGE3NCURyIPTLl2BiZlUvsosTmpE9TFPtzYATr6yAgAA////6b2OAAAABklEQVQDALwxKGGjh+qPAAAAAElFTkSuQmCC"></a></div>
+<div class="mt-3 pt-3 border-t border-terminal-muted flex gap-3 text-sm font-mono">
+<span class="text-terminal-accent">STS:</span> <span class="text-terminal-text">AWAY</span>
+</div>
+</div>
+</article>
+<!-- Team Member 3 -->
+<article class="profile-card bg-terminal-surface border border-terminal-muted p-4 flex flex-col transition-all duration-200">
+<div class="relative w-full h-[240px] mb-4 border border-terminal-muted overflow-hidden bg-black">
+<img alt="Community Manager" class="profile-image w-full h-full object-cover" data-alt="A moody, desaturated black and white photo of a young man wearing a headset, looking intently at an off-camera screen. The background is dark, filled with blurry, glowing monitors and chaotic wiring, simulating a makeshift control room. The harsh contrast and grainy texture evoke a gritty, analog surveillance vibe for a swamp lab community manager." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtKZzIDk6LzvJVvOuIYHNFgaL2HFkWkBL3-IDNud15W1CKEdMGHoplB7MjC9T_anbWYuyxa6DPdVDdXyZ5vXLq5UC0Irk1ApVnMLhONia_KM_dHop3KugEX2rQUGVOYM0mizpvFEWL1-1EuqvQoFaNf9V8N6wlbBU8vLZUHjITKMbgzxhw8YGvtCroKkNhKZETON7rsHo_T7PWfgQVZGWU_ECwqnBzgSB2RxphyPO65L6sUtgfXiUj_twcJOZ7vDh2vOX4TBq88ldl">
+<div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 text-[10px] text-terminal-muted uppercase font-mono">
+                                ID: BLT-003
+                            </div>
+</div>
+<div class="flex-1 flex flex-col">
+<h3 class="text-4xl font-display uppercase text-terminal-text tracking-wider">Static</h3>
+<p class="font-display text-terminal-muted text-xl mb-3">Marcus Thorne</p>
+<div class="inline-block bg-[#111A14] border border-primary px-2 py-1 text-primary text-xs uppercase self-start mb-3 shadow-[0_0_4px_rgba(255,204,0,0.3)] font-mono">
+                                &gt; COMMS_OFFICER
+                            </div>
+<p class="text-terminal-muted text-sm flex-1 font-mono">
+                                Manages the external arrays. Handles community transmissions, server logistics, and bug report triaging.
+                            </p>
+<div class="mt-4 flex gap-2 text-xs font-mono"><a class="text-terminal-muted hover:text-terminal-accent transition-colors" href="#"><img alt="Twitter" class="h-5 w-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAwCAYAAAA2GtvFAAAAk0lEQVR4AeyQOwrCQBiE/x0ju8HCyhsIgngHj+ABbLa1sIwgImwbIwTxEp7BYwiWVjaBBNLl/a5CUqfMwDRTfAwfqJdx6AoZ3IdSSuBgnlZSSnG8GVtv4u+hZclyvl7skixyGZiDPM3TOIi/rOQAaX9wLkif6ZtpwcLH5f6BfbbetmG+nlfrR3UGf1ozaYQ2FtpWAAAA//8CHa68AAAABklEQVQDANO8JWGcgftEAAAAAElFTkSuQmCC"></a><a class="text-terminal-muted hover:text-terminal-accent transition-colors" href="#"><img alt="GitHub" class="h-5 w-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAwCAYAAAA2GtvFAAAAsElEQVR4AeyQoQrCUBiF//vPX9lNwsQyUHwAbT6C2GzrppssQ8RgucUiC4JBBPEBTBafwBcwmWz6BHMX8W5elKVpFOMOnPKlcz6Er+TgU8hffAghyNt6RU++6/s2Qp033XOjVyG3U3WwjSyJnaPmu+Vkvi8QlNAmilpc9QfTYfcRmxNG+nnBBMqGDNNEIa7l4hpabMWZdajduUqXbsazWzAKlJTSpCD7JgdZGwA/+HgBAAD//12b9p4AAAAGSURBVAMALMQuYfuSHZYAAAAASUVORK5CYII="></a><a class="text-terminal-muted hover:text-terminal-accent transition-colors" href="#"><img alt="Portfolio" class="h-5 w-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAwCAYAAAA2GtvFAAAAhElEQVR4AeyQPQ5EUBSF77smk9jO7GHK6WYLU05kBnlEQ+VJ0GiERKWUWAqroKLSEH95Jb2Kk3zNac7Jh7DLVWyFHOPjz2j4ZfQju/pbsqQnTgB5oDmxp9jZXRQJLvMs/Bh9cfpxuGE3NCURyIPTLl2BiZlUvsosTmpE9TFPtzYATr6yAgAA////6b2OAAAABklEQVQDALwxKGGjh+qPAAAAAElFTkSuQmCC"></a></div>
+<div class="mt-3 pt-3 border-t border-terminal-muted flex gap-3 text-sm font-mono">
+<span class="text-terminal-accent">STS:</span> <span class="text-terminal-text">ONLINE</span>
+</div>
+</div>
+</article>
+</div>
+</section>
+</div>
+</main>
+
+
+</body></html>

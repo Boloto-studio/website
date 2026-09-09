@@ -1,0 +1,19 @@
+{% extends "base/public_layout.html" %}
+
+{% block title %}Boloto Studio - {{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="terminal-section terminal-section--narrow">
+    <header class="section-header">
+        <div>
+            {% if page_eyebrow %}
+                <div class="terminal-eyebrow">{{ page_eyebrow }}</div>
+            {% endif %}
+            <h1 class="terminal-placeholder__title">{{ page_title }}</h1>
+        </div>
+    </header>
+    <div class="terminal-placeholder">
+        <p class="terminal-placeholder__text">{{ page_summary }}</p>
+    </div>
+</section>
+{% endblock %}

@@ -1,54 +1,50 @@
-{% extends "frogsnet/layout.html" %}
-{% load static %}
+{% extends "frogsnet/auth_layout.html" %}
 
-{% block title %}Register{% endblock %}
+{% block title %}frogs.net - Registration{% endblock %}
 
-{% block extra_head %}
-    <link rel="stylesheet" href="{% static 'frogsnet/register.css' %}">
-    <style>
-        main {
-            background-image: url('{% static "frogsnet/backgrounds/" %}{{ bg }}');
-        }
-    </style>
-{% endblock %}
+{% block auth_content %}
+<section class="auth-card">
+    <header class="auth-card__header">
+        <span class="material-symbols-outlined auth-card__icon">terminal</span>
+        <h1 class="auth-card__title">New_Operator_Registration</h1>
+        <p class="auth-card__subline">SECURE_UPLINK_ESTABLISHED</p>
+    </header>
 
-{% block body %}
-<main>
-    <form action="{% url 'register' %}" method="post">
+    {% if form.non_field_errors %}
+        <div class="transmission-status transmission-status--error">{{ form.non_field_errors|join:', ' }}</div>
+    {% endif %}
+
+    <form class="auth-form" method="post">
         {% csrf_token %}
-        <h1>Frogs.Net</h1>
-        <h3>Create an Account</h3>
-        <div>
-            <label for="username">Username</label>
-            <input type="text" class="{% if form.username.errors %}error{% endif %}" name="{{ form.username.name }}" placeholder="Username" required autofocus id="username" autocomplete="off">
-            <div>
-                <small>25 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
+        <div class="auth-field">
+            <label class="auth-field__label" for="id_username">CHOOSE_CALLSIGN</label>
+            <div class="auth-input-wrap auth-input-wrap--icon">
+                <span class="material-symbols-outlined">badge</span>
+                <input class="auth-input" id="id_username" name="username" placeholder="ENTER_IDENTIFIER" required type="text" value="{{ form.username.value|default:'' }}">
             </div>
-            {{ form.username.errors }}
         </div>
-        <div>
-            <label for="password">Password</label>
-            <input type="password" class="{% if form.password1.errors %}error{% endif %}" name="{{ form.password1.name }}" placeholder="Password" required id="password" autocomplete="new-password">
-            <div>
-                <ul>
-                    <li>Your password can’t be too similar to your other personal information.</li>
-                    <li>Your password must contain at least 8 characters.</li>
-                    <li>Your password can’t be a commonly used password.</li>
-                    <li>Your password can’t be entirely numeric.</li>
-                </ul>
+        {% if form.username.errors %}<div class="transmission-status transmission-status--error">{{ form.username.errors|join:', ' }}</div>{% endif %}
+        <div class="auth-field">
+            <label class="auth-field__label" for="id_email">EMAIL_UPLINK</label>
+            <div class="auth-input-wrap auth-input-wrap--icon">
+                <span class="material-symbols-outlined">mail</span>
+                <input class="auth-input" id="id_email" name="email" placeholder="COMMS_ADDRESS" required type="email" value="{{ form.email.value|default:'' }}">
             </div>
-            {{ form.password1.errors }}
         </div>
-        <div>
-            <label for="confirm_password">Confirm Password</label>
-            <input type="password" class="{% if form.password2.errors %}error{% endif %}" name="{{ form.password2.name }}" placeholder="Confirm Password" required id="confirm_password" autocomplete="new-password">
-            <div>
-                <small>Enter the same password as before, for verification.</small>
+        {% if form.email.errors %}<div class="transmission-status transmission-status--error">{{ form.email.errors|join:', ' }}</div>{% endif %}
+        <div class="auth-field">
+            <label class="auth-field__label" for="id_password">SECURE_KEY</label>
+            <div class="auth-input-wrap auth-input-wrap--icon">
+                <span class="material-symbols-outlined">key</span>
+                <input class="auth-input" id="id_password" name="password" placeholder="**********" required type="password">
             </div>
-            {{ form.password2.errors }}
         </div>
-        <button type="submit">Register</button>
-        {{ form.non_field_errors }}
+        {% if form.password.errors %}<div class="transmission-status transmission-status--error">{{ form.password.errors|join:', ' }}</div>{% endif %}
+        <button class="terminal-button terminal-button--primary auth-submit" type="submit">CREATE_IDENTITY.SH</button>
     </form>
-</main>
+    <div class="auth-card__footer">
+        <span>SWAMP_LAB PROTOCOLS ACCEPTED ON SUBMIT</span>
+        <a href="{% url 'frogs-login' %}">RETURN_TO_LOGIN</a>
+    </div>
+</section>
 {% endblock %}

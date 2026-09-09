@@ -1,0 +1,60 @@
+{% extends "frogsnet/layout.html" %}
+
+{% block title %}frogs.net - Profile{% endblock %}
+
+{% block frogs_content %}
+<header class="frogs-header">
+    <div>
+        <div class="terminal-eyebrow">root@boloto :~ &gt; cd /home/user/profile_</div>
+        <h1 class="frogs-title">BOLOTO_OS v2.4</h1>
+    </div>
+    <span class="frogs-chip">OPERATOR: ACTIVE</span>
+</header>
+
+<section class="profile-summary">
+    <img class="profile-summary__avatar" src="{{ profile.avatar }}" alt="{{ profile.callsign }} avatar">
+    <div>
+        <h2 class="profile-summary__name">{{ profile.callsign }}</h2>
+        <p>{{ profile.identity }}</p>
+        <p>CLAN: {{ profile.clan }}</p>
+        <p class="profile-summary__status">STATUS: {{ profile.status }}</p>
+    </div>
+    <button class="terminal-button profile-summary__button" type="button">[ ASS_CONTACT ]</button>
+</section>
+
+<div class="profile-grid">
+    <section class="panel">
+        <div class="panel__title">MODPACKS_LINKED &gt;&gt;</div>
+        <ul class="modpack-list">
+            {% for modpack in profile.modpacks %}
+                <li>
+                    <span class="material-symbols-outlined">{{ modpack.icon }}</span>
+                    <span>{{ modpack.name }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+    <section class="panel">
+        <div class="panel__title">SQUAD_ROSTER &gt;&gt;</div>
+        <ul class="roster-list">
+            {% for squadmate in profile.squad %}
+                <li><span class="roster-list__dot"></span>{{ squadmate }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+    <section class="panel panel--wide">
+        <div class="panel__title">COMMS_HISTORY &gt;&gt;</div>
+        <div class="history-list">
+            {% for entry in profile.history %}
+                <article class="history-list__entry">
+                    <header>
+                        <span>{{ entry.log }}</span>
+                        <span>{{ entry.time }}</span>
+                    </header>
+                    <p>{{ entry.text }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

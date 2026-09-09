@@ -8,6 +8,18 @@ EVENT_TYPES = [
     ("trailer", "Trailer drop"),
 ]
 
+STAFF_STATUSES = [
+    ("online", "Online"),
+    ("away", "Away"),
+    ("offline", "Offline"),
+]
+
+CONTACT_REQUEST_STATUSES = [
+    ("new", "New"),
+    ("reviewed", "Reviewed"),
+    ("closed", "Closed"),
+]
+
 class HeroSlide(models.Model):
     title = models.CharField(max_length=200)
     subtitle = models.CharField(max_length=300, blank=True)
@@ -76,14 +88,37 @@ class BlogPost(models.Model):
 class StaffMember(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='staff_profile')
     name = models.CharField(max_length=100)
+    callsign = models.CharField(max_length=60, blank=True)
     role = models.CharField(max_length=100)
     bio = models.TextField(blank=True, max_length=200)
     photo = models.ImageField(upload_to='staff_photos/', blank=True, null=True)
+    internal_code = models.CharField(max_length=20, blank=True)
+    status = models.CharField(max_length=20, choices=STAFF_STATUSES, default='online')
+    display_order = models.PositiveIntegerField(default=0)
     facebook_url = models.URLField(blank=True, null=True)
     instagram_url = models.URLField(blank=True, null=True)
     github_url = models.URLField(blank=True, null=True)
+    x_url = models.URLField(blank=True, null=True)
+    portfolio_url = models.URLField(blank=True, null=True)
     discord_url = models.URLField(blank=True, null=True)
     telegram_username = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ['display_order', 'name']
+
+
+class ContactRequest(models.Model):
+    name = models.CharField(max_length=120)
+    email = models.EmailField()
+    message = models.TextField(max_length=2000)
+    status = models.CharField(max_length=20, choices=CONTACT_REQUEST_STATUSES, default='new')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.name} <{self.email}>"

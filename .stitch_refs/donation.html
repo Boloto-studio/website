@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Boloto Studio - Donation Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&amp;family=Fira+Code:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#FFCC00",
+          "background-light": "#f8f8f5",
+          "background-dark": "#080C0A",
+          "surface": "#111A14",
+          "text": "#E6F0EB",
+          "muted": "#738C7A",
+          "accent": "#00FA9A",
+          "hover-bg": "#18251D"
+        },
+        fontFamily: {
+          "heading": ["VT323", "monospace"],
+          "body": ["Fira Code", "monospace"]
+        },
+        borderRadius: {
+          "DEFAULT": "0px",
+          "none": "0px",
+          "sm": "0px",
+          "md": "0px",
+          "lg": "0px",
+          "xl": "0px",
+          "2xl": "0px",
+          "3xl": "0px",
+          "full": "0px",
+        },
+        borderWidth: {
+          "terminal": "1px",
+        },
+        boxShadow: {
+          "glow-emerald": "0 0 8px rgba(0, 250, 154, 0.4)",
+          "glow-primary": "0 0 12px rgba(255, 204, 0, 0.6)",
+        },
+        animation: {
+          'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        }
+      },
+    },
+  }
+</script>
+<style>
+  body {
+    background-color: var(--color-background-dark, #080C0A);
+    color: var(--color-text, #E6F0EB);
+    margin: 0;
+    overflow-x: hidden;
+  }
+  
+  /* CRT Scanline Overlay */
+  body::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 50;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+  }
+
+  .font-heading { font-family: 'VT323', monospace; }
+  .font-body { font-family: 'Fira Code', monospace; }
+  
+  .terminal-border { border: 1px solid #738C7A; }
+  .terminal-border-primary { border: 1px solid #FFCC00; }
+</style>
+<style data-stitch-cursor=""></style><style data-stitch-scroll-lock=""></style></head>
+<body class="font-body text-text bg-background-dark h-screen flex overflow-hidden selection:bg-accent selection:text-background-dark">
+<!-- Shared Navigation -->
+<div class="relative flex h-auto min-h-screen w-[30%] max-w-[320px] flex-col bg-[#181711] border-r border-muted z-10 shrink-0 hidden md:flex">
+<div class="layout-container flex h-full grow flex-col">
+<div class="flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-full flex-1">
+<div class="flex h-full flex-col justify-between p-4">
+<div class="flex flex-col gap-8">
+<div class="flex flex-col text-center border-b border-muted pb-4">
+<pre class="text-primary text-xs font-bold leading-none tracking-widest mx-auto"> ____  __  __    __  ____  __  
+(  _ \/  \(  )  /  \(_  _)/  \ 
+ ) _ (  O )) (_(  O ) )( (  O )
+(____/\__/(____)\__/ (__) \__/ 
+                                </pre>
+<p class="text-muted text-xs mt-2">[ BOLOTO STUDIO HQ ]</p>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-text group-hover:text-accent transition-colors" data-icon="TerminalWindow" data-weight="regular">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<p class="text-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-muted group-hover:text-accent">[</span> HOME <span class="text-muted group-hover:text-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-text group-hover:text-accent transition-colors" data-icon="Users" data-weight="regular">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<p class="text-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-muted group-hover:text-accent">[</span> STUDIO <span class="text-muted group-hover:text-accent">]</span></p>
+</a>
+<details class="group" open="">
+<summary class="flex items-center gap-3 px-3 py-2 hover:bg-[#2A2921] transition-colors cursor-pointer list-none [&amp;::-webkit-details-marker]:hidden">
+<div class="text-text group-hover:text-accent transition-colors" data-icon="Globe" data-weight="regular">
+<span class="material-symbols-outlined">globe</span>
+</div>
+<p class="text-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-muted group-hover:text-accent">[</span> COMMUNITY <span class="text-muted group-hover:text-accent">]</span></p>
+</summary>
+<div class="flex flex-col gap-1 pl-10 pr-3 pb-2">
+<a class="flex items-center py-1.5 px-2 group/sub hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-text text-sm font-medium leading-normal group-hover/sub:text-white"><span class="text-muted group-hover/sub:text-accent">[</span> FORUM <span class="text-muted group-hover/sub:text-accent">]</span></p>
+</a>
+<a class="flex items-center py-1.5 px-2 group/sub hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-text text-sm font-medium leading-normal group-hover/sub:text-white"><span class="text-muted group-hover/sub:text-accent">[</span> MY PROFILE <span class="text-muted group-hover/sub:text-accent">]</span></p>
+</a>
+<a class="flex items-center py-1.5 px-2 group/sub hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-text text-sm font-medium leading-normal group-hover/sub:text-white"><span class="text-muted group-hover/sub:text-accent">[</span> FRIENDS LIST <span class="text-muted group-hover/sub:text-accent">]</span></p>
+</a>
+<a class="flex items-center py-1.5 px-2 group/sub hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-text text-sm font-medium leading-normal group-hover/sub:text-white"><span class="text-muted group-hover/sub:text-accent">[</span> SERVERS LIST <span class="text-muted group-hover/sub:text-accent">]</span></p>
+</a>
+</div>
+</details>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-surface border border-muted shadow-[0_0_8px_rgba(0,250,154,0.2)]" href="#">
+<div class="text-accent" data-icon="Heart" data-weight="fill">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<p class="text-accent text-sm font-bold leading-normal">[ DONATION ]</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-text group-hover:text-accent transition-colors" data-icon="EnvelopeSimple" data-weight="regular">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<p class="text-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-muted group-hover:text-accent">[</span> CONTACT <span class="text-muted group-hover:text-accent">]</span></p>
+</a>
+</nav>
+</div>
+<div class="mt-auto border-t border-muted pt-4">
+<p class="text-xs text-muted uppercase tracking-widest">SYS.VER: 4.2.0</p>
+<p class="text-xs text-accent uppercase tracking-widest mt-1 animate-pulse">STATUS: ONLINE</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Area -->
+<main class="flex-1 h-full overflow-y-auto relative z-0">
+<div class="w-full p-6 md:p-12 pb-24 flex flex-col gap-12">
+<!-- Header Section -->
+<header class="border-b border-muted pb-6 mb-4">
+<h2 class="font-heading text-5xl text-text uppercase tracking-widest mb-2 shadow-glow-emerald inline-block">SUPPORT PROTOCOL INITIATED</h2>
+<p class="font-body text-muted text-sm uppercase">Funding required for continued development and server maintenance.</p>
+</header>
+<!-- Goal Tracker Section -->
+<section class="bg-surface terminal-border p-6 mb-8 flex flex-col gap-4">
+<div class="flex justify-between items-end">
+<h3 class="font-heading text-3xl text-text uppercase tracking-wider">MAINTENANCE FUNDS</h3>
+<span class="font-body text-accent font-bold text-xl">80%</span>
+</div>
+<div class="w-full h-8 bg-background-dark terminal-border relative overflow-hidden">
+<div class="h-full bg-muted w-[80%] absolute left-0 top-0 flex items-center overflow-hidden">
+<div class="w-full h-full opacity-30" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, #000 10px, #000 20px);"></div>
+</div>
+</div>
+<div class="font-body text-accent text-sm tracking-widest mt-2">
+        &gt; <span class="text-muted">[████████░░]</span> TARGET: $500/MO
+      </div>
+</section>
+<!-- Tier Grid -->
+<section class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+<!-- Tier 1: Scavenger -->
+<article class="bg-surface terminal-border p-6 flex flex-col gap-6 hover:bg-hover-bg transition-colors duration-300 relative group">
+<div class="border-b border-muted pb-4">
+<h4 class="font-heading text-3xl text-muted group-hover:text-text transition-colors">SCAVENGER</h4>
+<div class="font-body text-text mt-2 flex items-baseline gap-2">
+<span class="text-4xl font-bold">$5</span>
+<span class="text-sm text-muted">/ MONTH</span>
+</div>
+</div>
+<ul class="font-body text-sm text-text flex-1 flex flex-col gap-3">
+<li class="flex items-start gap-3">
+<span class="text-muted">&gt;</span>
+<span class="">Discord Role</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-muted">&gt;</span>
+<span class="">Early Updates</span>
+</li>
+</ul>
+<button class="w-full bg-background-dark terminal-border text-muted font-heading text-2xl uppercase py-3 hover:text-text hover:border-text transition-all mt-6">SELECT_SCAVENGER.SH</button>
+</article>
+<!-- Tier 2: Operative (Featured) -->
+<article class="bg-surface terminal-border-primary p-6 flex flex-col gap-6 hover:bg-hover-bg transition-colors duration-300 relative shadow-glow-primary scale-105 z-10 animate-pulse-fast">
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-background-dark font-heading text-xl px-4 py-1 uppercase tracking-wider">
+          MOST SELECTED
+        </div>
+<div class="border-b border-muted pb-4 pt-2">
+<h4 class="font-heading text-4xl text-primary">OPERATIVE</h4>
+<div class="font-body text-text mt-2 flex items-baseline gap-2">
+<span class="text-5xl font-bold text-text">$15</span>
+<span class="text-sm text-muted">/ MONTH</span>
+</div>
+</div>
+<ul class="font-body text-sm text-text flex-1 flex flex-col gap-3">
+<li class="flex items-start gap-3">
+<span class="text-primary">&gt;</span>
+<span class="">Discord Role</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-primary">&gt;</span>
+<span class="">Early Updates</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-primary">&gt;</span>
+<span class="text-accent shadow-glow-emerald">Beta Server Access</span>
+</li>
+</ul>
+<button class="w-full bg-primary text-background-dark font-heading text-2xl uppercase py-3 hover:bg-white transition-colors mt-6">SELECT_OPERATIVE.SH</button>
+</article>
+<!-- Tier 3: Overseer -->
+<article class="bg-surface terminal-border p-6 flex flex-col gap-6 hover:bg-hover-bg transition-colors duration-300 relative group">
+<div class="border-b border-muted pb-4">
+<h4 class="font-heading text-3xl text-muted group-hover:text-text transition-colors">OVERSEER</h4>
+<div class="font-body text-text mt-2 flex items-baseline gap-2">
+<span class="text-4xl font-bold">$30</span>
+<span class="text-sm text-muted">/ MONTH</span>
+</div>
+</div>
+<ul class="font-body text-sm text-text flex-1 flex flex-col gap-3">
+<li class="flex items-start gap-3">
+<span class="text-muted">&gt;</span>
+<span class="">Discord Role</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-muted">&gt;</span>
+<span class="">Early Updates</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-muted">&gt;</span>
+<span class="">Beta Server Access</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-muted">&gt;</span>
+<span class="">Hall of Fame</span>
+</li>
+</ul>
+<button class="w-full bg-background-dark terminal-border text-muted font-heading text-2xl uppercase py-3 hover:text-text hover:border-text transition-all mt-6">SELECT_OVERSEER.SH</button>
+</article>
+</section>
+</div>
+</main>
+</body></html>

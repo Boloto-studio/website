@@ -1,0 +1,42 @@
+{% extends "frogsnet/auth_layout.html" %}
+
+{% block title %}frogs.net - Login{% endblock %}
+
+{% block auth_content %}
+<section class="auth-card auth-card--login">
+    <header class="auth-card__header">
+        <h1 class="auth-card__title">Authentication_Required</h1>
+        <p class="auth-card__subline">BOLOTO_OS // V2.0.48_STABLE</p>
+    </header>
+
+    {% if created %}
+        <div class="transmission-status transmission-status--ok">&gt; IDENTITY CREATED. INITIALIZE SESSION.</div>
+    {% endif %}
+    {% if form.non_field_errors %}
+        <div class="transmission-status transmission-status--error">{{ form.non_field_errors|join:', ' }}</div>
+    {% endif %}
+
+    <form class="auth-form" method="post">
+        {% csrf_token %}
+        <div class="auth-field">
+            <label class="auth-field__label" for="id_username">&gt; ENTER_OPERATOR_ID</label>
+            <div class="auth-input-wrap">
+                <span class="auth-input-prefix">ID:</span>
+                <input class="auth-input" id="id_username" name="username" placeholder="OP-XXXX" required type="text" value="{{ form.username.value|default:'' }}">
+            </div>
+        </div>
+        <div class="auth-field">
+            <label class="auth-field__label" for="id_password">&gt; ENTER_PASS_KEY</label>
+            <div class="auth-input-wrap">
+                <span class="auth-input-prefix">PK:</span>
+                <input class="auth-input" id="id_password" name="password" placeholder="********" required type="password">
+            </div>
+        </div>
+        <button class="terminal-button terminal-button--primary auth-submit" type="submit">INITIALIZE_SESSION.EXE</button>
+    </form>
+    <div class="auth-card__footer">
+        <span>NODE: SECURE_09</span>
+        <a href="{% url 'frogs-register' %}">CREATE_IDENTITY.SH</a>
+    </div>
+</section>
+{% endblock %}
