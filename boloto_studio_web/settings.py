@@ -37,7 +37,6 @@ ALLOWED_HOSTS = [
     "boloto.studio",
     "echoes.boloto.studio",
     "23.16.73.26",
-    "kokocsww0cws888owo84ccko.192.168.1.74.sslip.io" # For dev preview with sslip.io
 ]
 
 
@@ -94,7 +93,14 @@ WSGI_APPLICATION = 'boloto_studio_web.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-if os.getenv("DB_STRING"):
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+elif os.getenv("DB_STRING"):
     import dj_database_url
 
     DATABASES = {
