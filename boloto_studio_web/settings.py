@@ -35,11 +35,16 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "192.168.1.74",
     "boloto.studio",
-    "echoes.boloto.studio",
-    "23.16.73.26",
-    "kokocsww0cws888owo84ccko.192.168.1.74.sslip.io" # For dev preview with sslip.io
+    "echoes.boloto.studio"
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "http://127.0.0.1",
+    "http://192.168.1.74",
+    "https://boloto.studio",
+    "https://echoes.boloto.studio"
+]    
 
 # Application definition
 
