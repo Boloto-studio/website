@@ -236,7 +236,7 @@ body.under-construction .terminal-shell main .terminal-main__inner {
         border-color 0.22s ease;
 }
 
-.terminal-nav-group.is-open .terminal-nav-submenu {
+.terminal-nav:has(.is-open) .terminal-nav-submenu {
     max-height: 260px;
     opacity: 1;
     margin: 0.35rem 0 0.35rem 1.55rem;
@@ -294,6 +294,71 @@ body.under-construction .terminal-shell main .terminal-main__inner {
 
 .terminal-meta-line--status {
     color: var(--accent);
+}
+
+.terminal-nav-submenu.mobile {
+    display: none;
+}
+
+.terminal-nav-link__label::before,
+.terminal-nav-summary__label::before,
+.nav-sublink__label::before {
+    content: "[";
+}
+
+.terminal-nav-link__label::after,
+.terminal-nav-summary__label::after,
+.nav-sublink__label::after {
+    content: "]";
+}
+
+@media (max-width: 640px) {
+    .terminal-nav {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+    .terminal-nav-link,
+    .terminal-nav-summary {
+        flex-direction: column;
+        gap: 0.45rem;
+        padding: 0.7rem 0.35rem;
+    }
+    .terminal-nav-submenu {
+        display: none;
+    }
+    .terminal-nav-submenu.mobile {
+        grid-column: span 5 / span 5;
+        display: flex;
+    }
+
+    .terminal-nav-link__label,
+    .terminal-nav-summary__label,
+    .nav-sublink__label {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        text-align: center;
+        white-space: normal;
+        overflow-wrap: normal;
+        word-break: normal;
+        line-height: 1.2;
+        font-size: clamp(0.46rem, 1.9vw, 0.64rem);;
+        letter-spacing: 0.02rem;
+    }
+    .terminal-nav-sublink::before {
+        display: none;
+    }
+    .terminal-nav-summary__caret {
+        display: none;
+    }
+    .terminal-nav:has(.is-open) .terminal-nav-submenu {
+        margin: 0.2rem;
+        padding: 0;
+        border-left: none;
+        border-top: 1px solid var(--line);
+    }
+    .terminal-nav-sublink {
+        justify-content: center;
+    }
 }
 
 .terminal-main {
@@ -1191,6 +1256,25 @@ body.under-construction .terminal-shell main .terminal-main__inner {
 
     .terminal-main {
         padding-inline: 1rem;
+    }
+
+    .terminal-nav {
+        min-width: 0;
+    }
+
+    .terminal-nav-link,
+    .terminal-nav-summary,
+    .terminal-nav-sublink {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .terminal-nav-link__label,
+    .terminal-nav-summary__label,
+    .terminal-nav-sublink {
+        white-space: normal;
+        overflow-wrap: normal;
+        word-break: normal;
     }
 
     .terminal-title {

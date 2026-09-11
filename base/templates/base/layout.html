@@ -35,41 +35,55 @@
             <nav class="terminal-nav" aria-label="{% trans 'Primary navigation' %}">
                 <a class="terminal-nav-link{% if current == 'home' %} is-active{% endif %}" href="{% url 'home' %}">
                     <span class="terminal-nav-link__icon material-symbols-outlined">terminal</span>
-                    <span class="terminal-nav-link__label">[ {% trans 'Home' %} ]</span>
+                    <span class="terminal-nav-link__label">{% trans 'Home' %}</span>
                 </a>
                 <a class="terminal-nav-link{% if current == 'studio' %} is-active{% endif %}" href="{% url 'studio' %}">
                     <span class="terminal-nav-link__icon material-symbols-outlined">groups</span>
-                    <span class="terminal-nav-link__label">[ {% trans 'Studio' %} ]</span>
+                    <span class="terminal-nav-link__label">{% trans 'Studio' %}</span>
                 </a>
                 <div class="terminal-nav-group{% if current == 'frogs-forum' or current == 'frogs-forum-new' or current == 'frogs-forum-thread' or current == 'frogs-profile' or current == 'frogs-friends' or current == 'frogs-servers' or current == 'frogs-login' or current == 'frogs-register' %} is-active is-open{% endif %}" data-nav-group>
                     <button class="terminal-nav-summary{% if current == 'frogs-forum' or current == 'frogs-forum-new' or current == 'frogs-forum-thread' or current == 'frogs-profile' or current == 'frogs-friends' or current == 'frogs-servers' or current == 'frogs-login' or current == 'frogs-register' %} is-active{% endif %}" type="button" data-nav-toggle aria-expanded="{% if current == 'frogs-forum' or current == 'frogs-forum-new' or current == 'frogs-forum-thread' or current == 'frogs-profile' or current == 'frogs-friends' or current == 'frogs-servers' or current == 'frogs-login' or current == 'frogs-register' %}true{% else %}false{% endif %}">
                         <span class="terminal-nav-summary__icon material-symbols-outlined">lan</span>
-                        <span class="terminal-nav-summary__label">[ frogs.net ]</span>
+                        <span class="terminal-nav-summary__label">frogs.net</span>
                         <span class="terminal-nav-summary__caret material-symbols-outlined">expand_more</span>
                     </button>
                     <div class="terminal-nav-submenu" data-nav-panel>
                         <a class="terminal-nav-sublink{% if current == 'frogs-forum' %} is-active{% endif %}" href="{% url 'frogs-forum' %}">
-                            <span class="nav-sublink__label" data-type-label>[ Forum ]</span>
+                            <span class="nav-sublink__label" data-type-label>{% trans 'Forum' %}</span>
                         </a>
                         <a class="terminal-nav-sublink{% if current == 'frogs-profile' %} is-active{% endif %}" href="{% url 'frogs-profile' %}">
-                            <span class="nav-sublink__label" data-type-label>[ My Profile ]</span>
+                            <span class="nav-sublink__label" data-type-label>{% trans 'My Profile' %}</span>
                         </a>
                         <a class="terminal-nav-sublink{% if current == 'frogs-friends' %} is-active{% endif %}" href="{% url 'frogs-friends' %}">
-                            <span class="nav-sublink__label" data-type-label>[ Friends List ]</span>
+                            <span class="nav-sublink__label" data-type-label>{% trans 'Friends List' %}</span>
                         </a>
                         <a class="terminal-nav-sublink{% if current == 'frogs-servers' %} is-active{% endif %}" href="{% url 'frogs-servers' %}">
-                            <span class="nav-sublink__label" data-type-label>[ Servers List ]</span>
+                            <span class="nav-sublink__label" data-type-label>{% trans 'Servers List' %}</span>
                         </a>
                     </div>
                 </div>
                 <a class="terminal-nav-link terminal-nav-link--donate{% if current == 'donation' %} is-active{% endif %}" href="{% url 'donation' %}">
                     <span class="terminal-nav-link__icon material-symbols-outlined">favorite</span>
-                    <span class="terminal-nav-link__label">[ {% trans 'Donation' %} ]</span>
+                    <span class="terminal-nav-link__label">{% trans 'Donation' %}</span>
                 </a>
                 <a class="terminal-nav-link{% if current == 'contact' %} is-active{% endif %}" href="{% url 'contact' %}">
                     <span class="terminal-nav-link__icon material-symbols-outlined">mail</span>
-                    <span class="terminal-nav-link__label">[ {% trans 'Contact' %} ]</span>
+                    <span class="terminal-nav-link__label">{% trans 'Contact' %}</span>
                 </a>
+                <div class="terminal-nav-submenu mobile" data-nav-panel>
+                    <a class="terminal-nav-sublink{% if current == 'frogs-forum' %} is-active{% endif %}" href="{% url 'frogs-forum' %}">
+                        <span class="nav-sublink__label" data-type-label>{% trans 'Forum' %}</span>
+                    </a>
+                    <a class="terminal-nav-sublink{% if current == 'frogs-profile' %} is-active{% endif %}" href="{% url 'frogs-profile' %}">
+                        <span class="nav-sublink__label" data-type-label>{% trans 'My Profile' %}</span>
+                    </a>
+                    <a class="terminal-nav-sublink{% if current == 'frogs-friends' %} is-active{% endif %}" href="{% url 'frogs-friends' %}">
+                        <span class="nav-sublink__label" data-type-label>{% trans 'Friends List' %}</span>
+                    </a>
+                    <a class="terminal-nav-sublink{% if current == 'frogs-servers' %} is-active{% endif %}" href="{% url 'frogs-servers' %}">
+                        <span class="nav-sublink__label" data-type-label>{% trans 'Servers List' %}</span>
+                    </a>
+                </div>
             </nav>
 
             <div class="terminal-sidebar__meta">
@@ -133,7 +147,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function animateGroup(group) {
-        const labels = Array.from(group.querySelectorAll("[data-type-label]"));
+        const labels = Array.from(new Set([
+            ...Array.from(group.querySelectorAll("[data-type-label]")),
+            ...Array.from(group.parentElement.querySelectorAll(".terminal-nav-submenu.mobile [data-type-label]"))
+        ]));
+
         labels.forEach(function (label, index) {
             label.dataset.fullText = label.dataset.fullText || label.textContent.trim();
             typeLabel(label, index * 130);
@@ -142,7 +160,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     navGroups.forEach(function (group) {
         const toggle = group.querySelector("[data-nav-toggle]");
-        const labels = Array.from(group.querySelectorAll("[data-type-label]"));
+        const labels = Array.from(new Set([
+            ...Array.from(group.querySelectorAll("[data-type-label]")),
+            ...Array.from(group.parentElement.querySelectorAll(".terminal-nav-submenu.mobile [data-type-label]"))
+        ]));
 
         if (!toggle) {
             return;
