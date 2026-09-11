@@ -104,7 +104,6 @@ def _donation_tiers():
 def home(request):
     hero_slides = HeroSlide.objects.filter(is_active=True).order_by('order', '-created_at')
     return render(request, "base/home.html", {
-        "nav_key": "home",
         "hero_slides": hero_slides,
         "terminal_logs": _build_terminal_logs(),
     })
@@ -120,11 +119,12 @@ def team(request):
 
 def donation(request):
     return render(request, "base/donation.html", {
-        "nav_key": "donation",
         "funding_progress": 80,
         "donation_tiers": _donation_tiers(),
     })
 
+def under_construction(request):
+    return render(request, "base/under_construction.html")
 
 def contact(request):
     if request.method == "POST":

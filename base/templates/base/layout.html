@@ -3,6 +3,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+{% with current=request.resolver_match.url_name %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,9 +15,8 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
-{% with current=request.resolver_match.url_name %}
     <div class="terminal-shell">
-        <aside class="terminal-sidebar">
+        <aside class="terminal-sidebar" {% if current == "under_construction" %}style="display: none;"{% endif %}>
             <a class="terminal-brand" href="{% url 'home' %}">
                 <pre class="terminal-brand__wordmark">
  ____  __  __    __  ____  __  
@@ -86,7 +86,6 @@
             </div>
         </main>
     </div>
-{% endwith %}
 </body>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -166,4 +165,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+
+{% if current != "under_construction" %}
+<script>
+    const curious = sessionStorage.getItem("curious") === "true";
+    if (!curious) {
+        window.location.href = "{% url 'under_construction' %}";
+    }
+</script>
+{% endif %}
+{% endwith %}
 </html>
