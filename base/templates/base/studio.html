@@ -23,9 +23,17 @@
             <span class="terminal-badge">{% trans "Transmission" %}</span>
         </div>
         <div class="terminal-mission-log">
-            {% for line in mission_lines %}
-            <p>{{ line }}</p>
-            {% endfor %}
+            {% blocktrans %}
+            <p>INITIALIZING BOLOTO PROTOCOL...</p>
+            <p>ESTABLISHED: 2024</p>
+            <p>DIRECTIVE: Engineer uncooperative, lore-drenched game worlds.</p>
+            <p></p>
+            <p></p>
+            <p>We are a collective of artists, coders, builders, and late-night troubleshooters.</p>
+            <p>Our flagship project, PROJECT SWAMP, leans into survival systems, atmosphere, and stories that feel like they were dug out of a forgotten bunker.</p>
+            <p>We build tools for players who like mud on their boots and mystery in the fog.</p>
+            <p>END LOG.</p>
+            {% endblocktrans %}
         </div>
     </section>
 
@@ -98,13 +106,4 @@
         {% endfor %}
     </div>
 </section>
-{% endblock %}{% extends "base/layout.html" %}
-{% load i18n %}
-
-{% block path_title %}{% trans "Studio" %}{% endblock %}
-
-{% block body %}
-<main id="studio">
-    
-</main>
 {% endblock %}

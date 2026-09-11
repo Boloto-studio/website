@@ -9,7 +9,7 @@
     <div class="terminal-carousel" data-carousel>
         <div class="terminal-carousel-track">
             {% for slide in hero_slides %}
-            <article class="terminal-carousel-slide{% if forloop.first %} is-active{% endif %}" data-carousel-slide{% if slide.image %} data-background-image="{{ slide.image|escape }}"{% endif %}>
+            <article class="terminal-carousel-slide{% if forloop.first %} is-active{% endif %}" data-carousel-slide{% if slide.image %} style="background: url('{{ slide.image|escape }}')"{% endif %}>
                 <div class="terminal-carousel-copy">
                     <span class="terminal-badge">{{ forloop.counter|stringformat:"02d" }}/{{ hero_slides|length|stringformat:"02d" }}</span>
                     <h1 class="terminal-title">{{ slide.title }}</h1>
@@ -18,7 +18,7 @@
                     {% endif %}
                     <div class="terminal-carousel-actions">
                         {% if slide.link %}
-                        <a class="terminal-button" href="{{ slide.link }}">{% if slide.link_text %}{{ slide.link_text }}{% else %}{% trans "Access files" %}{% endif %}</a>
+                        <a class="terminal-button" href="{{ slide.link }}">{% if slide.link_text %}[{{ slide.link_text }}]{% else %}[{% trans "Access files" %}]{% endif %}</a>
                         {% else %}
                         <a class="terminal-button" href="{% url 'studio' %}">{% trans "Access files" %}</a>
                         {% endif %}

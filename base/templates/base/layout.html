@@ -14,6 +14,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
+{% with current=request.resolver_match.url_name %}
     <div class="terminal-shell">
         <aside class="terminal-sidebar">
             <a class="terminal-brand" href="{% url 'home' %}">
@@ -27,32 +28,40 @@
             </a>
 
             <nav class="terminal-nav" aria-label="{% trans 'Primary navigation' %}">
-                <a class="terminal-nav-link{% if nav_key == 'home' %} is-active{% endif %}" href="{% url 'home' %}">
+                <a class="terminal-nav-link{% if current == 'home' %} is-active{% endif %}" href="{% url 'home' %}">
                     <span class="terminal-nav-link__icon material-symbols-outlined">terminal</span>
                     <span class="terminal-nav-link__label">[ {% trans 'Home' %} ]</span>
                 </a>
-                <a class="terminal-nav-link{% if nav_key == 'studio' %} is-active{% endif %}" href="{% url 'studio' %}">
+                <a class="terminal-nav-link{% if current == 'studio' %} is-active{% endif %}" href="{% url 'studio' %}">
                     <span class="terminal-nav-link__icon material-symbols-outlined">groups</span>
                     <span class="terminal-nav-link__label">[ {% trans 'Studio' %} ]</span>
                 </a>
-                <details class="terminal-nav-group"{% if nav_key == 'frogs' %} open{% endif %}>
-                    <summary class="terminal-nav-summary{% if nav_key == 'frogs' %} is-active{% endif %}">
+                <div class="terminal-nav-group{% if current == 'frogs-forum' or current == 'frogs-forum-new' or current == 'frogs-forum-thread' or current == 'frogs-profile' or current == 'frogs-friends' or current == 'frogs-servers' or current == 'frogs-login' or current == 'frogs-register' %} is-active is-open{% endif %}" data-nav-group>
+                    <button class="terminal-nav-summary{% if current == 'frogs-forum' or current == 'frogs-forum-new' or current == 'frogs-forum-thread' or current == 'frogs-profile' or current == 'frogs-friends' or current == 'frogs-servers' or current == 'frogs-login' or current == 'frogs-register' %} is-active{% endif %}" type="button" data-nav-toggle aria-expanded="{% if current == 'frogs-forum' or current == 'frogs-forum-new' or current == 'frogs-forum-thread' or current == 'frogs-profile' or current == 'frogs-friends' or current == 'frogs-servers' or current == 'frogs-login' or current == 'frogs-register' %}true{% else %}false{% endif %}">
                         <span class="terminal-nav-summary__icon material-symbols-outlined">lan</span>
                         <span class="terminal-nav-summary__label">[ frogs.net ]</span>
                         <span class="terminal-nav-summary__caret material-symbols-outlined">expand_more</span>
-                    </summary>
-                    <div class="terminal-nav-submenu">
-                        {% comment %} <a class="terminal-nav-sublink{% if frogs_nav_key == 'forum' %} is-active{% endif %}" href="{% url 'frogsnet-forum' %}">{% trans 'Forum' %}</a>
-                        <a class="terminal-nav-sublink{% if frogs_nav_key == 'profile' %} is-active{% endif %}" href="{% url 'frogsnet-profile' %}">{% trans 'My profile' %}</a>
-                        <a class="terminal-nav-sublink{% if frogs_nav_key == 'friends' %} is-active{% endif %}" href="{% url 'frogsnet-friends' %}">{% trans 'Friends list' %}</a>
-                        <a class="terminal-nav-sublink{% if frogs_nav_key == 'servers' %} is-active{% endif %}" href="{% url 'frogsnet-servers' %}">{% trans 'Servers list' %}</a> {% endcomment %}
+                    </button>
+                    <div class="terminal-nav-submenu" data-nav-panel>
+                        <a class="terminal-nav-sublink{% if current == 'frogs-forum' %} is-active{% endif %}" href="{% url 'frogs-forum' %}">
+                            <span class="nav-sublink__label" data-type-label>[ Forum ]</span>
+                        </a>
+                        <a class="terminal-nav-sublink{% if current == 'frogs-profile' %} is-active{% endif %}" href="{% url 'frogs-profile' %}">
+                            <span class="nav-sublink__label" data-type-label>[ My Profile ]</span>
+                        </a>
+                        <a class="terminal-nav-sublink{% if current == 'frogs-friends' %} is-active{% endif %}" href="{% url 'frogs-friends' %}">
+                            <span class="nav-sublink__label" data-type-label>[ Friends List ]</span>
+                        </a>
+                        <a class="terminal-nav-sublink{% if current == 'frogs-servers' %} is-active{% endif %}" href="{% url 'frogs-servers' %}">
+                            <span class="nav-sublink__label" data-type-label>[ Servers List ]</span>
+                        </a>
                     </div>
-                </details>
-                <a class="terminal-nav-link terminal-nav-link--donate{% if nav_key == 'donation' %} is-active{% endif %}" href="{% url 'donation' %}">
+                </div>
+                <a class="terminal-nav-link terminal-nav-link--donate{% if current == 'donation' %} is-active{% endif %}" href="{% url 'donation' %}">
                     <span class="terminal-nav-link__icon material-symbols-outlined">favorite</span>
                     <span class="terminal-nav-link__label">[ {% trans 'Donation' %} ]</span>
                 </a>
-                <a class="terminal-nav-link{% if nav_key == 'contact' %} is-active{% endif %}" href="{% url 'contact' %}">
+                <a class="terminal-nav-link{% if current == 'contact' %} is-active{% endif %}" href="{% url 'contact' %}">
                     <span class="terminal-nav-link__icon material-symbols-outlined">mail</span>
                     <span class="terminal-nav-link__label">[ {% trans 'Contact' %} ]</span>
                 </a>
@@ -77,6 +86,84 @@
             </div>
         </main>
     </div>
-    <script src="{% static 'base/site.js' %}" defer></script>
+{% endwith %}
 </body>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const navGroups = document.querySelectorAll("[data-nav-group]");
+
+    function clearTyping(label) {
+        if (label._typingDelay) {
+            window.clearTimeout(label._typingDelay);
+        }
+        if (label._typingTimer) {
+            window.clearInterval(label._typingTimer);
+        }
+        label._typingDelay = null;
+        label._typingTimer = null;
+        label.classList.remove("is-typing");
+    }
+
+    function resetLabel(label) {
+        clearTyping(label);
+        label.textContent = label.dataset.fullText || label.textContent;
+    }
+
+    function typeLabel(label, delay) {
+        clearTyping(label);
+        const fullText = label.dataset.fullText || label.textContent.trim();
+        label.dataset.fullText = fullText;
+        label.textContent = "";
+        label.classList.add("is-typing");
+
+        label._typingDelay = window.setTimeout(function () {
+            let index = 0;
+            label._typingTimer = window.setInterval(function () {
+                index += 1;
+                label.textContent = fullText.slice(0, index);
+                if (index >= fullText.length) {
+                    clearTyping(label);
+                }
+            }, 22);
+        }, delay);
+    }
+
+    function animateGroup(group) {
+        const labels = Array.from(group.querySelectorAll("[data-type-label]"));
+        labels.forEach(function (label, index) {
+            label.dataset.fullText = label.dataset.fullText || label.textContent.trim();
+            typeLabel(label, index * 130);
+        });
+    }
+
+    navGroups.forEach(function (group) {
+        const toggle = group.querySelector("[data-nav-toggle]");
+        const labels = Array.from(group.querySelectorAll("[data-type-label]"));
+
+        if (!toggle) {
+            return;
+        }
+
+        labels.forEach(function (label) {
+            label.dataset.fullText = label.textContent.trim();
+        });
+
+        if (group.classList.contains("is-open")) {
+            animateGroup(group);
+        }
+
+        toggle.addEventListener("click", function () {
+            const isOpen = group.classList.toggle("is-open");
+            toggle.setAttribute("aria-expanded", String(isOpen));
+
+            if (isOpen) {
+                animateGroup(group);
+                return;
+            }
+
+            labels.forEach(resetLabel);
+        });
+    });
+});
+</script>
 </html>
