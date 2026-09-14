@@ -5,9 +5,14 @@
 {% block auth_content %}
 <section class="auth-card">
     <header class="auth-card__header">
-        <span class="material-symbols-outlined auth-card__icon">terminal</span>
-        <h1 class="auth-card__title">New_Operator</h1>
-        <p class="auth-card__subline">SECURE_UPLINK_ESTABLISHED</p>
+        <div>
+            <h1 class="auth-card__title">
+                <span class="material-symbols-outlined auth-card__icon">terminal</span>
+                New_Operator
+            </h1>
+            <p class="auth-card__subline">SECURE_UPLINK_ESTABLISHED</p>
+        </div>
+        <span class="auth-card__live-indicator" aria-label="System online"></span>
     </header>
 
     {% if form.non_field_errors %}
@@ -39,6 +44,13 @@
                 <input class="auth-input" id="id_password" name="password" placeholder="**********" required type="password">
             </div>
         </div>
+        <div class="auth-field">
+            <label class="auth-field__label" for="id_confirm_password">RETYPE_SECURE_KEY</label>
+            <div class="auth-input-wrap auth-input-wrap--icon">
+                <span class="material-symbols-outlined">key</span>
+                <input class="auth-input" id="id_confirm_password" name="confirm_password" placeholder="**********" required type="password">
+            </div>
+        </div>
         {% if form.password.errors %}<div class="transmission-status transmission-status--error">{{ form.password.errors|join:', ' }}</div>{% endif %}
         <button class="terminal-button terminal-button--primary auth-submit" type="submit">CREATE_IDENTITY.SH</button>
     </form>
@@ -47,4 +59,23 @@
         <a href="{% url 'frogs-login' %}">RETURN_TO_LOGIN</a>
     </div>
 </section>
+
+<script>
+  const password = document.getElementById("id_password");
+  const confirmPassword = document.getElementById("id_confirm_password");
+
+  function validatePassword() {
+    if (password.value !== confirmPassword.value) {
+      // Setting a message marks the field as invalid and blocks form submission
+      confirmPassword.setCustomValidity("Passwords do not match");
+    } else {
+      // An empty string clears the error and marks the field as valid
+      confirmPassword.setCustomValidity("");
+    }
+  }
+
+  // Trigger validation when the user types or changes the fields
+  password.addEventListener("change", validatePassword);
+  confirmPassword.addEventListener("keyup", validatePassword);
+</script>
 {% endblock %}
