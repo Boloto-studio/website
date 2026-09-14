@@ -1173,6 +1173,73 @@ body.under-construction .terminal-shell main .terminal-main__inner {
     font-size: 0.72rem;
 }
 
+.contact-shell {
+    width: min(100%, 42rem);
+    display: grid;
+    gap: 1.5rem;
+    padding: 0.5rem 0 1rem;
+}
+
+.contact-shell__header {
+    display: grid;
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.contact-shell__title {
+    margin: 0;
+    color: var(--text);
+    font-size: clamp(2.1rem, 5vw, 3.8rem);
+    line-height: 0.9;
+    letter-spacing: 0.12rem;
+    text-transform: uppercase;
+    font-family: "Handjet", sans-serif;
+}
+
+.terminal-eyebrow {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.12rem;
+    text-transform: uppercase;
+}
+
+.terminal-eyebrow--success {
+    color: var(--accent);
+}
+
+.contact-shell__form {
+    max-width: none;
+}
+
+.contact-shell .terminal-field__label {
+    display: block;
+    color: var(--highlight);
+    font-weight: 700;
+    letter-spacing: 0.08rem;
+    text-transform: none;
+}
+
+.contact-shell__actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.4rem;
+}
+
+.contact-shell__submit {
+    width: min(100%, 20rem);
+}
+
+.contact-shell__footer {
+    margin-top: 0.5rem;
+    color: var(--muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.12rem;
+    text-transform: uppercase;
+    text-align: center;
+}
+
 .terminal-footnote {
     margin: 1.25rem 0 0;
     color: var(--muted);

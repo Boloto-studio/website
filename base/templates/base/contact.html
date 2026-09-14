@@ -1,44 +1,48 @@
-{% extends "base/public_layout.html" %}
+{% extends "base/layout.html" %}
+{% load i18n %}
 
-{% block title %}Boloto Studio - Contact{% endblock %}
+{% block title %}{% trans "Contact" %}{% endblock %}
+{% block path_title %}{% trans "Contact" %}{% endblock %}
 
-{% block content %}
-<section class="terminal-section terminal-section--narrow contact-shell">
-    <header class="section-header">
-        <div>
-            <h1 class="terminal-placeholder__title">Secure_Comm_Link</h1>
-            <div class="terminal-eyebrow">&gt; INITIALIZING SECURE CHANNEL...</div>
-            <div class="terminal-eyebrow">&gt; CONNECTION ESTABLISHED. AWAITING INPUT.</div>
-        </div>
+{% block body %}
+<section class="contact-shell">
+    <header class="contact-shell__header">
+        <p class="terminal-kicker">{% trans "Secure comms // link live" %}</p>
+        <h1 class="contact-shell__title">Secure_Comm_Link</h1>
+        <div class="terminal-eyebrow">&gt; {% trans "INITIALIZING SECURE CHANNEL..." %}</div>
+        <div class="terminal-eyebrow terminal-eyebrow--success">&gt; {% trans "CONNECTION ESTABLISHED. AWAITING INPUT." %}</div>
     </header>
 
     {% if submitted %}
-        <div class="transmission-status transmission-status--ok">&gt; TRANSMISSION RECEIVED BY HQ.</div>
+        <div class="terminal-message success">&gt; {% trans "TRANSMISSION RECEIVED BY HQ." %}</div>
     {% endif %}
 
     {% if form.non_field_errors %}
-        <div class="transmission-status transmission-status--error">{{ form.non_field_errors|join:', ' }}</div>
+        <div class="terminal-message error">{{ form.non_field_errors|join:', ' }}</div>
     {% endif %}
 
-    <form class="terminal-form" method="post">
+    <form class="terminal-form contact-shell__form" method="post">
         {% csrf_token %}
-        <div class="form-row">
-            <label class="form-label" for="id_name">/home/user/name &gt;</label>
+        <div class="terminal-field">
+            <label class="terminal-field__label" for="id_name">/home/user/name &gt;</label>
             {{ form.name }}
+            {% if form.name.errors %}<div class="terminal-field-errors">{{ form.name.errors|join:', ' }}</div>{% endif %}
         </div>
-        {% if form.name.errors %}<div class="transmission-status transmission-status--error">{{ form.name.errors|join:', ' }}</div>{% endif %}
-        <div class="form-row">
-            <label class="form-label" for="id_email">/home/user/email &gt;</label>
+
+        <div class="terminal-field">
+            <label class="terminal-field__label" for="id_email">/home/user/email &gt;</label>
             {{ form.email }}
+            {% if form.email.errors %}<div class="terminal-field-errors">{{ form.email.errors|join:', ' }}</div>{% endif %}
         </div>
-        {% if form.email.errors %}<div class="transmission-status transmission-status--error">{{ form.email.errors|join:', ' }}</div>{% endif %}
-        <div class="form-row form-row--stacked">
-            <label class="form-label" for="id_message">/home/user/message &gt;</label>
+
+        <div class="terminal-field">
+            <label class="terminal-field__label" for="id_message">/home/user/message &gt;</label>
             {{ form.message }}
+            {% if form.message.errors %}<div class="terminal-field-errors">{{ form.message.errors|join:', ' }}</div>{% endif %}
         </div>
-        {% if form.message.errors %}<div class="transmission-status transmission-status--error">{{ form.message.errors|join:', ' }}</div>{% endif %}
+
         <div class="contact-shell__actions">
-            <button class="terminal-button terminal-button--primary contact-shell__submit" type="submit">[ TRANSMIT_DATA ]</button>
+            <button class="terminal-button contact-shell__submit" type="submit">[ {% trans "TRANSMIT_DATA" %} ]</button>
         </div>
     </form>
 
