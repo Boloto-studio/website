@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -101,3 +102,20 @@ class ContactRequest(models.Model):
 
     def __str__(self):
         return f"{self.name} <{self.email}>"
+
+
+class MainFocus(models.Model):
+    text = models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk and MainFocus.objects.exists():
+            raise ValidationError("Only one MainFocus instance is allowed.")
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return (self.text[:50] + '...') if self.text and len(self.text) > 50 else (self.text or 'Main Focus')

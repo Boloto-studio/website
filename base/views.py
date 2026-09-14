@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 from django.utils import timezone
 
 from .forms import ContactRequestForm
-from .models import BlogPost, Event, HeroSlide, StaffMember
+from .models import BlogPost, Event, HeroSlide, MainFocus, StaffMember
 
 # Create your views here.
 
@@ -43,28 +43,6 @@ def _build_terminal_logs():
         reverse=True,
     )
     return combined_logs[:6]
-
-
-def _studio_context(active_section):
-    return {
-        "nav_key": "studio",
-        "page_title": _("Studio") if active_section == "studio" else _("Team"),
-        "active_section": active_section,
-        "mission_lines": [
-            _("INITIALIZING BOLOTO PROTOCOL..."),
-            _("ESTABLISHED: 2021"),
-            _("DIRECTIVE: Engineer uncooperative, lore-drenched game worlds."),
-            _(""),
-            _("We are a collective of artists, coders, builders, and late-night troubleshooters."),
-            _("Our flagship project, PROJECT SWAMP, leans into survival systems, atmosphere,"),
-            _("and stories that feel like they were dug out of a forgotten bunker."),
-            _(""),
-            _("We build tools for players who like mud on their boots and mystery in the fog."),
-            _("END LOG."),
-        ],
-        "staff": StaffMember.objects.all(),
-    }
-
 
 def _donation_tiers():
     return [
@@ -110,12 +88,10 @@ def home(request):
 
 
 def studio(request):
-    return render(request, "base/studio.html", _studio_context("studio"))
-
-
-def team(request):
-    return render(request, "base/studio.html", _studio_context("team"))
-
+    return render(request, "base/studio.html", {
+        "staff": StaffMember.objects.all(),
+        "main_focus": MainFocus.objects.first(),
+    })
 
 def donation(request):
     return render(request, "base/donation.html", {

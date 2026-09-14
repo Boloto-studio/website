@@ -6,15 +6,10 @@
 
 {% block body %}
 <section class="terminal-page-header">
-    <p class="terminal-path">DIR: /usr/local/boloto/{% if active_section == 'team' %}team{% else %}studio{% endif %}</p>
-    <h1 class="terminal-title">{% if active_section == 'team' %}{% trans "Active personnel" %}{% else %}{% trans "Initiating Boloto protocol" %}{% endif %}</h1>
+    <p class="terminal-path">DIR: /usr/local/boloto/studio</p>
+    <h1 class="terminal-title">{% trans "Initiating Boloto protocol" %}</h1>
     <p class="terminal-subtitle">{% trans "A mission log for the studio and a live roster for the people building the worlds, systems, and stories behind Boloto Studio." %}</p>
 </section>
-
-<nav class="terminal-tabbar" aria-label="{% trans 'Studio sections' %}">
-    <a class="terminal-tab{% if active_section == 'studio' %} is-active{% endif %}" href="{% url 'studio' %}">mission_log.txt</a>
-    <a class="terminal-tab{% if active_section == 'team' %} is-active{% endif %}" href="{% url 'team' %}">active_personnel</a>
-</nav>
 
 <div class="terminal-grid terminal-grid--two">
     <section class="terminal-panel">
@@ -42,7 +37,7 @@
             <h2 class="terminal-section-title">{% trans "Field notes" %}</h2>
             <span class="terminal-badge">{% trans "Live status" %}</span>
         </div>
-        <p class="terminal-card-copy">{% trans "PROJECT SWAMP remains the primary theater of operations. Current work focuses on world-building, encounter design, and keeping the studio pipeline light enough for a small team to move fast." %}</p>
+        <p class="terminal-card-copy">{{ main_focus.text }}</p>
         <div class="terminal-inline-actions">
             <a class="terminal-inline-link" href="{% url 'home' %}">{% trans "Review public logs" %}</a>
             <a class="terminal-inline-link" href="{% url 'donation' %}">{% trans "Support the operation" %}</a>
@@ -67,8 +62,9 @@
                 {% endif %}
             </div>
             <div>
-                <h3 class="terminal-card-title">{{ member.name }}</h3>
-                <p class="terminal-staff-role">{{ member.role }}</p>
+                <h3 class="terminal-card-title">{{ member.user.username }}</h3>
+                <h5 class="terminal-card-subtitle">{{ member.name }}</h5>
+                <p class="terminal-staff-role">> {{ member.role }}</p>
             </div>
             {% if member.bio %}
             <p class="terminal-card-copy">{{ member.bio }}</p>

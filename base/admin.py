@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import BlogPost, ContactRequest, Event, HeroSlide, StaffMember
+from .models import BlogPost, ContactRequest, Event, HeroSlide, StaffMember, MainFocus
 
 # Register your models here.
 
@@ -29,3 +29,16 @@ class ContactRequestAdmin(admin.ModelAdmin):
     # list_filter = ['status', 'created_at']
     # list_editable = ['status']
     search_fields = ['name', 'email', 'message']
+
+
+@admin.register(MainFocus)
+class MainFocusAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        # Allow add only when no MainFocus instance exists
+        if MainFocus.objects.exists():
+            return False
+        return super().has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        # Disallow delete from admin for safety; allow via code if needed
+        return False
