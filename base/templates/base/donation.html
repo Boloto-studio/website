@@ -45,6 +45,26 @@
                 <a class="terminal-button tier-card__button{% if tier.featured %} tier-card__button--primary{% endif %}" href="{{ tier.link|default:'#' }}">{% trans "SELECT_" %}{{ tier.name }}.SH</a>
             </article>
         {% endfor %}
+
+        <h2 class="tier-grid__subtitle or">[ {% trans "OR" %} ]</h2>
+
+        <article class="tier-card tier-card--custom">
+            <div class="tier-card__head">
+                <h3 class="tier-card__name">{% trans "Custom Amount" %}</h3>
+                <div class="tier-card__price">
+                    <strong>{% trans "Any" %}</strong>
+                    <span>{% trans "one-time" %}</span>
+                </div>
+            </div>
+
+            <ul class="tier-card__features">
+                <li>{% trans "Single payment" %}</li>
+                <li>{% trans "Flexible support amount" %}</li>
+                <li>{% trans "If you're feeling generous" %}</li>
+            </ul>
+
+            <a class="terminal-button tier-card__button tier-card__button--accent" href="https://donate.stripe.com/dR6bKbbJ980K1xueUU">{% trans "DONATE_CUSTOM_AMOUNT.SH" %}</a>
+        </article>
     </section>
 </section>
 {% endblock %}

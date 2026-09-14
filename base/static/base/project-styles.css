@@ -740,6 +740,33 @@ body.under-construction .terminal-shell main .terminal-main__inner {
     letter-spacing: 0.08rem;
 }
 
+.tier-card--custom {
+    border-color: rgba(35, 242, 163, 0.48);
+    background: rgba(10, 18, 15, 0.98);
+    box-shadow: inset 0 0 0 1px rgba(35, 242, 163, 0.12);
+    grid-column: 1 / -1;
+}
+
+.tier-card--custom .tier-card__name {
+    color: var(--accent);
+}
+
+.tier-grid__subtitle.or {
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
+.tier-card__button--accent {
+    border-color: rgba(35, 242, 163, 0.72);
+    background: rgba(35, 242, 163, 0.08);
+    color: var(--accent);
+}
+
+.tier-card__button--accent:hover {
+    background: rgba(35, 242, 163, 0.12);
+    color: var(--accent);
+}
+
 .terminal-carousel {
     position: relative;
 }
