@@ -1,18 +1,46 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}frogs.net{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap">
     <link rel="stylesheet" href="{% static 'base/project-styles.css' %}">
 </head>
 <body class="auth-screen">
+    <div class="scanline-overlay" aria-hidden="true"></div>
+    <div class="auth-bg-logs" aria-hidden="true">
+        <div class="auth-log-line" style="--x: 8%; --y: 8%; --delay: -4s; --duration: 22s;">INIT_CORE_MODULES... OK</div>
+        <div class="auth-log-line" style="--x: 18%; --y: 22%; --delay: -12s; --duration: 28s;">CHECKING_V-RAM_ALLOCATION... 0x00F8A</div>
+        <div class="auth-log-line" style="--x: 32%; --y: 18%; --delay: -6s; --duration: 24s;">MOUNT_DRIVE: /dev/sda1... SUCCESS</div>
+        <div class="auth-log-line" style="--x: 52%; --y: 12%; --delay: -9s; --duration: 26s;">WARNING: UNEXPECTED_PING_FROM_IP:192.168.0.4</div>
+        <div class="auth-log-line" style="--x: 66%; --y: 26%; --delay: -7s; --duration: 25s;">ESTABLISHING_SECURE_HANDSHAKE...</div>
+        <div class="auth-log-line" style="--x: 74%; --y: 16%; --delay: -13s; --duration: 19s;">DECRYPTING_PAYLOAD_CHUNK_04...</div>
+        <div class="auth-log-line" style="--x: 12%; --y: 46%; --delay: -18s; --duration: 30s;">SYSTEM_TEMP: 42C (NOMINAL)</div>
+        <div class="auth-log-line" style="--x: 58%; --y: 44%; --delay: -10s; --duration: 21s;">AUTH_SERVER_REACHABLE: TRUE</div>
+        <div class="auth-log-line" style="--x: 70%; --y: 52%; --delay: -16s; --duration: 24s;">LOADING_UI_ASSETS...</div>
+        <div class="auth-log-line" style="--x: 20%; --y: 60%; --delay: -8s; --duration: 20s;">AWAITING_USER_INPUT_</div>
+        <div class="auth-log-line" style="--x: 46%; --y: 68%; --delay: -14s; --duration: 29s;">NODE_SYNC: ONLINE</div>
+        <div class="auth-log-line" style="--x: 82%; --y: 64%; --delay: -11s; --duration: 23s;">TRIAGE_QUEUE: STABLE</div>
+    </div>
     <main class="auth-stage">
         {% block auth_content %}{% endblock %}
     </main>
+    <footer class="auth-statusbar">
+        <div class="auth-statusbar__left">
+            <span class="auth-statusbar__pulse"></span>
+            <span>SYS_ONLINE</span>
+        </div>
+        <span class="auth-statusbar__divider">|</span>
+        <span>NODE: SECURE_09</span>
+        <div class="auth-statusbar__right">
+            <span class="material-symbols-outlined">lock</span>
+            <span>CONNECTION: ENCRYPTED</span>
+        </div>
+    </footer>
 </body>
 </html>
