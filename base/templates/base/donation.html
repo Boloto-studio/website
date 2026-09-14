@@ -1,25 +1,24 @@
 {% extends "base/layout.html" %}
+{% load i18n %}
 
-{% block title %}Boloto Studio - Donation{% endblock %}
+{% block title %}Donation{% endblock %}
 
 {% block body %}
-<section class="terminal-section terminal-section--narrow support-shell">
-    <header class="section-header support-header">
-        <div>
-            <h1 class="terminal-placeholder__title">Support Protocol Initiated</h1>
-            <p class="terminal-placeholder__text">Funding required for continued development and server maintenance.</p>
-        </div>
+<section class="support-shell">
+    <header class="support-header">
+        <h1 class="support-header__title">{% trans "Support Protocol Initiated" %}</h1>
+        <p class="support-header__subtitle">{% trans "Funding required for continued development and server maintenance." %}</p>
     </header>
 
     <section class="support-meter">
         <div class="support-meter__topline">
-            <h2 class="section-title">Maintenance Funds</h2>
-            <span class="support-meter__percent">{{ donation_progress.percent }}%</span>
+            <h2>{% trans "Maintenance Funds" %}</h2>
+            <span>{{ donation_progress.percent }}%</span>
         </div>
-        <div class="support-meter__track">
+        <div class="support-meter__track" aria-label="Maintenance funding bar">
             <div class="support-meter__fill" style="width: {{ donation_progress.percent }}%;"></div>
         </div>
-        <div class="support-meter__label">&gt; <span>[{{ donation_progress.display }}]</span> TARGET: {{ donation_progress.target }}</div>
+        <div class="support-meter__label">&gt; <span class="support-meter__display">[{{ donation_progress.display }}]</span> {% trans "TARGET" %}: ${{ donation_progress.target }}/{% trans "MO" %}</div>
     </section>
 
     <section class="tier-grid">
@@ -28,19 +27,22 @@
                 {% if tier.featured_label %}
                     <div class="tier-card__flag">{{ tier.featured_label }}</div>
                 {% endif %}
+
                 <div class="tier-card__head">
                     <h3 class="tier-card__name">{{ tier.name }}</h3>
                     <div class="tier-card__price">
-                        <strong>{{ tier.price }}</strong>
-                        <span>{{ tier.interval }}</span>
+                        <strong>${{ tier.price }}</strong>
+                        <span>/ {{ tier.interval }}</span>
                     </div>
                 </div>
+
                 <ul class="tier-card__features">
                     {% for feature in tier.features %}
-                        <li>&gt; {{ feature }}</li>
+                        <li>{{ feature }}</li>
                     {% endfor %}
                 </ul>
-                <a class="terminal-button{% if tier.featured %} terminal-button--primary{% endif %} tier-card__button" href="{{ tier.link|default:'#' }}">{{ tier.button_text }}</a>
+
+                <a class="terminal-button tier-card__button{% if tier.featured %} tier-card__button--primary{% endif %}" href="{{ tier.link|default:'#' }}">{% trans "SELECT_" %}{{ tier.name }}.SH</a>
             </article>
         {% endfor %}
     </section>

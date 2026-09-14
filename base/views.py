@@ -49,31 +49,29 @@ def _donation_tiers():
         {
             "slug": "scavenger",
             "name": _("Scavenger"),
-            "price": "$5",
+            "price": "5",
             "interval": _("month"),
             "features": [_("Discord role"), _("Early updates")],
-            "button_label": "select-scavenger.sh",
-            "link": "",
+            "link": "https://donate.stripe.com/14A4gz7Fybg9f1ndtG57W01",
             "featured": False,
         },
         {
             "slug": "operative",
             "name": _("Operative"),
-            "price": "$15",
+            "price": "15",
             "interval": _("month"),
             "features": [_("Discord role"), _("Early updates"), _("Beta server access")],
-            "button_label": "select-operative.sh",
-            "link": "",
+            "link": "https://donate.stripe.com/28EeVd0d6doh8CZdtG57W03",
             "featured": True,
+            "featured_label": "MOST SELECTED",
         },
         {
             "slug": "overseer",
             "name": _("Overseer"),
-            "price": "$30",
+            "price": "30",
             "interval": _("month"),
-            "features": [_("Discord role"), _("Beta server access"), _("Hall of fame")],
-            "button_label": "select-overseer.sh",
-            "link": "",
+            "features": [_("Discord role"), _("Early updates"), _("Beta server access"), _("Hall of fame")],
+            "link": "https://donate.stripe.com/8x25kDbVObg92eB89m57W04",
             "featured": False,
         },
     ]
@@ -95,7 +93,11 @@ def studio(request):
 
 def donation(request):
     return render(request, "base/donation.html", {
-        "funding_progress": 80,
+        "donation_progress": {
+            "percent": 80,
+            "display": "████████░░",
+            "target": "500",
+        },
         "donation_tiers": _donation_tiers(),
     })
 

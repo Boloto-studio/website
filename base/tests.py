@@ -18,6 +18,15 @@ class PublicPageTests(TestCase):
 				response = self.client.get(route)
 				self.assertEqual(response.status_code, 200)
 
+	def test_donation_page_uses_mockup_content(self):
+		response = self.client.get(reverse('donation'))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'Support Protocol Initiated')
+		self.assertContains(response, 'Maintenance Funds')
+		self.assertContains(response, '80%')
+		self.assertContains(response, 'TARGET: $500/MO')
+
 	def test_contact_form_creates_request(self):
 		response = self.client.post(
 			reverse('contact'),
