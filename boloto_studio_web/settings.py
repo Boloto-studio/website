@@ -214,14 +214,18 @@ LOGGING = {
         'verbose': {
             'format': '%(asctime)s %(levelname)s %(name)s %(module)s:%(lineno)d %(message)s'
         },
+        'dokploy': {
+            # Dokploy already prefixes with timestamp and level — avoid duplication.
+            'format': '%(name)s %(module)s:%(lineno)d %(message)s'
+        },
         'simple': {
-            'format': '%(levelname)s %(message)s'
+            'format': '%(message)s'
         },
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'formatter': 'dokploy',
             'level': 'DEBUG',
         },
         'file': {

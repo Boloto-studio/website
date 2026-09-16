@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.core.cache import cache
+from django.db import OperationalError, ProgrammingError, DatabaseError
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -62,7 +63,13 @@ def _build_terminal_logs():
     return combined_logs[:6]
 
 def _donation_tiers():
-    cached_tiers = cache.get(DONATION_TIER_CACHE_KEY)
+    try:
+        cached_tiers = cache.get(DONATION_TIER_CACHE_KEY)
+    except (OperationalError, ProgrammingError, DatabaseError):
+        # Cache table may not exist in fresh DBs (prod migrations not applied).
+        # Fall back to computing tiers and avoid raising 500.
+        cached_tiers = None
+
     if cached_tiers is not None:
         return cached_tiers
 
@@ -115,7 +122,11 @@ def _donation_tiers():
 
         tiers.append(tier)
     tiers.sort(key=lambda x: int(x["price"]))
-    cache.set(DONATION_TIER_CACHE_KEY, tiers, timeout=DONATION_TIER_CACHE_TIMEOUT)
+    try:
+        cache.set(DONATION_TIER_CACHE_KEY, tiers, timeout=DONATION_TIER_CACHE_TIMEOUT)
+    except (OperationalError, ProgrammingError, DatabaseError):
+        # Ignore cache set failures on partially-migrated DBs
+        pass
     return tiers
 
 
