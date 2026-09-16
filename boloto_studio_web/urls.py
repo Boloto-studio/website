@@ -20,8 +20,13 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
+from base.views import stripe_webhook
 
-urlpatterns = i18n_patterns(
+urlpatterns = [
+    path("stripe/webhook/", stripe_webhook, name="stripe_webhook"),
+]
+
+urlpatterns += i18n_patterns(
     path("", include("base.urls")),
     path("echoes-untamed", include("echoes_untamed.urls")),
     path("frogs/", include("frogsnet.urls")),

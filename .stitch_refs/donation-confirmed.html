@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Boloto Studio - Subscription Confirmed</title>
+<!-- Tailwind CSS v3 with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;family=VT323&amp;display=swap" rel="stylesheet"/>
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            swamp: {
+              950: '#030705',
+              900: '#071109',
+              850: '#0b190f',
+              800: '#0f2415',
+              border: '#1a3823',
+              accent: '#3bf589',
+              muted: '#4e7a5b'
+            },
+            hazard: {
+              yellow: '#FFCC00',
+              hover: '#E5B800',
+              dim: 'rgba(255, 204, 0, 0.15)'
+            }
+          },
+          fontFamily: {
+            mono: ['"Share Tech Mono"', 'monospace'],
+            vt: ['"VT323"', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+<style data-purpose="scanline-crt-overlay">
+    /* Scanline and phosphor screen overlay */
+    body {
+      background-color: #050b07;
+      color: #72a882;
+      font-family: 'Share Tech Mono', monospace;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: " ";
+      display: block;
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.45) 50%),
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      z-index: 100;
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    .crt-glow-green {
+      text-shadow: 0 0 6px rgba(59, 245, 137, 0.65), 0 0 14px rgba(59, 245, 137, 0.25);
+    }
+
+    .crt-glow-yellow {
+      text-shadow: 0 0 8px rgba(255, 204, 0, 0.75), 0 0 18px rgba(255, 204, 0, 0.35);
+    }
+
+    .border-glow-yellow {
+      box-shadow: 0 0 15px rgba(255, 204, 0, 0.25), inset 0 0 15px rgba(255, 204, 0, 0.08);
+    }
+
+    .border-glow-green {
+      box-shadow: 0 0 12px rgba(59, 245, 137, 0.25), inset 0 0 12px rgba(59, 245, 137, 0.05);
+    }
+  </style>
+<style data-purpose="decorative-patterns">
+    .matrix-hatch {
+      background-image: repeating-linear-gradient(
+        -45deg,
+        rgba(59, 245, 137, 0.08),
+        rgba(59, 245, 137, 0.08) 6px,
+        transparent 6px,
+        transparent 12px
+      );
+    }
+
+    .hazard-stripe {
+      background: repeating-linear-gradient(
+        -45deg,
+        #FFCC00,
+        #FFCC00 12px,
+        #071109 12px,
+        #071109 24px
+      );
+    }
+
+    /* Custom scrollbar for retro styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #030705;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1a3823;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3bf589;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex selection:bg-hazard-yellow selection:text-black">
+<!-- BEGIN: Sidebar -->
+<aside class="w-72 shrink-0 border-r border-[#152e1d] bg-[#040906] flex flex-col justify-between p-6 z-20" data-purpose="system-sidebar">
+<!-- Top Brand Section -->
+<div>
+<!-- ASCII Studio Logo -->
+<div class="mb-1">
+<pre class="font-mono text-[#FFCC00] text-[10px] leading-tight select-none tracking-widest font-black crt-glow-yellow"> ___   ___  _     ___  _____  ___  
+| _ ) / _ \| |   / _ \|_   _|/ _ \ 
+| _ \| (_) | |__| (_) | | | | (_) |
+|___/ \___/|____|\___/  |_|  \___/ </pre>
+<div class="text-[11px] tracking-widest text-[#3bf589] font-mono mt-1 mb-8 opacity-80">
+          [ BOLOTO STUDIO HQ ]
+        </div>
+</div>
+<!-- Navigation Tree -->
+<nav class="space-y-4 text-xs tracking-wider" data-purpose="terminal-nav">
+<!-- Home Link -->
+<a class="flex items-center gap-3 text-[#588566] hover:text-[#3bf589] transition-colors py-1" href="#home">
+<span class="text-sm">💻</span>
+<span>[ HOME ]</span>
+</a>
+<!-- Studio Link -->
+<a class="flex items-center gap-3 text-[#588566] hover:text-[#3bf589] transition-colors py-1" href="#studio">
+<span class="text-sm">👥</span>
+<span>[ STUDIO ]</span>
+</a>
+<!-- Community Section with Nested Subs -->
+<div class="space-y-2 pt-1">
+<a class="flex items-center gap-3 text-[#588566] hover:text-[#3bf589] transition-colors py-1" href="#community">
+<span class="text-sm">🌐</span>
+<span>[ COMMUNITY ]</span>
+</a>
+<div class="pl-7 space-y-2 border-l border-[#13261a] ml-2 text-[11px] text-[#426c4f]">
+<a class="block hover:text-[#3bf589] transition-colors py-0.5" href="#forum">[ FORUM ]</a>
+<a class="block hover:text-[#3bf589] transition-colors py-0.5 text-[#3bf589] font-bold" href="#profile">[ MY PROFILE ] &lt;</a>
+<a class="block hover:text-[#3bf589] transition-colors py-0.5" href="#friends">[ FRIENDS LIST ]</a>
+<a class="block hover:text-[#3bf589] transition-colors py-0.5" href="#servers">[ SERVERS LIST ]</a>
+</div>
+</div>
+<!-- Donation Hub (Active state) -->
+<div class="pt-2">
+<a class="flex items-center gap-3 text-[#3bf589] border border-[#1e4a2d] bg-[#0b1f13] px-3 py-2 crt-glow-green" href="#donation">
+<span class="text-sm">💚</span>
+<span class="font-bold tracking-widest">[ DONATION ]</span>
+</a>
+</div>
+<!-- Contact Link -->
+<a class="flex items-center gap-3 text-[#588566] hover:text-[#3bf589] transition-colors py-1" href="#contact">
+<span class="text-sm">✉️</span>
+<span>[ CONTACT ]</span>
+</a>
+</nav>
+</div>
+<!-- Bottom System Status -->
+<div class="pt-6 border-t border-[#122417] text-[11px] font-mono space-y-1" data-purpose="telemetry-status">
+<div class="text-[#3b6346] tracking-wider">SYS.VER: 4.2.0</div>
+<div class="flex items-center gap-2">
+<span class="text-[#3b6346] tracking-wider">STATUS:</span>
+<span class="text-[#3bf589] font-bold animate-pulse crt-glow-green">ONLINE</span>
+</div>
+</div>
+</aside>
+<!-- END: Sidebar -->
+<!-- BEGIN: MainContent -->
+<main class="flex-1 p-8 lg:p-12 overflow-y-auto z-10 flex flex-col justify-between" data-purpose="confirmation-terminal">
+<!-- Top System Header -->
+<header class="border-b border-[#183922] pb-6 mb-8">
+<div class="flex flex-wrap items-center justify-between text-xs tracking-widest text-[#41684c] mb-3">
+<span class="font-mono flex items-center gap-2">
+<span class="inline-block w-2 h-2 bg-[#3bf589]"></span>
+          SYS_ROUTING: /NET/DONATION/TX_ACKNOWLEDGE
+        </span>
+<span class="font-mono text-[#FFCC00]">TRANSMISSION_ID: #SUB-8849-OK</span>
+</div>
+<h1 class="text-3xl lg:text-4xl font-mono text-[#3bf589] crt-glow-green font-bold tracking-wider mb-2">
+        SUPPORT PROTOCOL : SUBSCRIPTION ACCEPTED
+      </h1>
+<p class="text-sm font-mono text-[#618b6e]">
+        &gt; TRANSMISSION CONFIRMED. OPERATIVE CLEARANCE ELEVATED ON MAINFRAME LEDGER.
+      </p>
+</header>
+<!-- Centerpiece: Confirmation Telemetry Frame -->
+<div class="max-w-4xl mx-auto w-full mb-8">
+<!-- Primary Card Frame -->
+<section class="border-2 border-[#FFCC00] bg-[#08120b] relative p-6 sm:p-10 border-glow-yellow">
+<!-- Corner Tech Accents -->
+<span class="absolute -top-3 -left-3 text-[#FFCC00] font-mono font-bold text-sm bg-[#08120b] px-1">[+]</span>
+<span class="absolute -top-3 -right-3 text-[#FFCC00] font-mono font-bold text-sm bg-[#08120b] px-1">[+]</span>
+<span class="absolute -bottom-3 -left-3 text-[#FFCC00] font-mono font-bold text-sm bg-[#08120b] px-1">[+]</span>
+<span class="absolute -bottom-3 -right-3 text-[#FFCC00] font-mono font-bold text-sm bg-[#08120b] px-1">[+]</span>
+<!-- Card Top Status Ribbon -->
+<div class="flex flex-wrap justify-between items-center gap-4 pb-6 border-b border-[#1e3c27]">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-[#0f2416] border border-[#3bf589] text-xs font-mono text-[#3bf589] crt-glow-green">
+<span class="inline-block w-2 h-2 rounded-full bg-[#3bf589] animate-ping"></span>
+            STATUS: 200 OK // VERIFIED_ON_LEDGER
+          </div>
+<div class="text-xs font-mono text-[#8ca393]">
+            TIMESTAMP: <span class="text-[#c1e2cb]">2025.02.24_22:04:19_UTC</span>
+</div>
+</div>
+<!-- Hero Status Readout: "YOU ARE NOW..." -->
+<div class="py-8 text-center border-b border-[#1e3c27] relative">
+<p class="text-xs lg:text-sm tracking-[0.3em] font-mono text-[#6ba37b] uppercase mb-1">
+            TERMINAL AUTHORIZATION LEVEL UPDATED
+          </p>
+<h2 class="text-2xl sm:text-3xl font-mono text-[#e3fdf0] tracking-widest font-black mb-3">
+            YOU ARE NOW AN
+          </h2>
+<!-- Massive Hazard Banner -->
+<div class="inline-block my-2">
+<div class="bg-[#FFCC00] text-black font-mono font-black text-4xl sm:text-6xl tracking-widest px-8 py-3 uppercase shadow-lg crt-glow-yellow border-2 border-yellow-200">
+              [ OPERATIVE ]
+            </div>
+</div>
+<p class="text-xs sm:text-sm text-[#FFCC00] font-mono mt-3 crt-glow-yellow tracking-wider">
+            &gt;&gt; LEVEL 2 SECURITY ACCESS KEYS DEPLOYED TO LOCAL NODE &lt;&lt;
+          </p>
+</div>
+<!-- Telemetry & Entitlements Breakdown -->
+<div class="py-6 grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-[#1e3c27]">
+<!-- Column 1: Unlocked Privileges -->
+<div class="bg-[#050c07] border border-[#183621] p-4">
+<div class="text-xs uppercase text-[#3bf589] font-mono tracking-wider mb-3 pb-2 border-b border-[#142e1d] flex items-center justify-between">
+<span>// ASSIGNED_PRIVILEGES</span>
+<span class="text-[10px] text-[#558262]">PERMS: 0755</span>
+</div>
+<ul class="text-xs font-mono space-y-2.5 text-[#a8d3b4]">
+<li class="flex items-center gap-2">
+<span class="text-[#3bf589] font-bold">&gt;</span>
+<span>DISCORD_ROLE:</span>
+<span class="text-[#FFCC00] font-bold">@OPERATIVE (SYNCED)</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="text-[#3bf589] font-bold">&gt;</span>
+<span>EARLY_UPDATE_FEED:</span>
+<span class="text-[#3bf589]">GRANTED</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="text-[#3bf589] font-bold">&gt;</span>
+<span>BETA_SERVER_PIPELINE:</span>
+<span class="text-[#3bf589] font-bold uppercase underline decoration-dashed">ACTIVE_NODE</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="text-[#3bf589] font-bold">&gt;</span>
+<span>HALL_OF_FAME_TAG:</span>
+<span class="text-[#5b8767]">TIER_2_ENROLLED</span>
+</li>
+</ul>
+</div>
+<!-- Column 2: Fiscal & Ledger Details -->
+<div class="bg-[#050c07] border border-[#183621] p-4">
+<div class="text-xs uppercase text-[#3bf589] font-mono tracking-wider mb-3 pb-2 border-b border-[#142e1d] flex items-center justify-between">
+<span>// SUBSCRIPTION_LEDGER</span>
+<span class="text-[10px] text-[#558262]">TX_MODE: AUTO-RENEW</span>
+</div>
+<ul class="text-xs font-mono space-y-2.5 text-[#a8d3b4]">
+<li class="flex items-center justify-between">
+<span class="text-[#649472]">&gt; MONTHLY_CONTRIBUTION:</span>
+<span class="text-[#3bf589] font-bold">$15.00 / MONTH</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-[#649472]">&gt; NEXT_CYCLE_DISPATCH:</span>
+<span class="text-[#e2fee8]">T-MINUS 30 DAYS</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-[#649472]">&gt; PROTOCOL_STATUS:</span>
+<span class="text-[#FFCC00]">RECURRING_ACTIVE</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-[#649472]">&gt; SERVER_CONTRIB_RATIO:</span>
+<span class="text-[#3bf589]">+3.00% MAINT_FUNDS</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Terminal Receipt Snippet / Cryptographic Hash -->
+<div class="py-4 font-mono text-[11px] text-[#4d7559] flex flex-wrap justify-between items-center gap-2">
+<div>
+<span class="text-[#2b4c35]">TX_HASH:</span>
+<span class="text-[#679172] select-all">0x88f2a93c40e61d49e17b8f05c09ac61a337</span>
+</div>
+<div class="text-[#3bf589] crt-glow-green text-[10px]">
+            &gt; WELCOME TO THE SWAMP LAB OPERATIVES DIVISION.
+          </div>
+</div>
+<!-- Action Controls -->
+<div class="mt-6 pt-6 border-t border-[#1a3823] flex flex-col sm:flex-row items-center justify-between gap-4">
+<!-- Secondary Action -->
+<a class="w-full sm:w-auto px-6 py-3 border border-[#2b5938] bg-[#07130a] hover:bg-[#0c2212] hover:border-[#3bf589] text-xs font-mono text-[#3bf589] tracking-widest text-center transition-all" href="#donation">
+            &lt; [ RETURN TO DONATION HUB ]
+          </a>
+<!-- Primary CTA Button (Hazard Yellow) -->
+<a class="w-full sm:w-auto px-8 py-3.5 bg-[#FFCC00] hover:bg-[#e6b800] text-black font-mono font-black tracking-widest text-xs uppercase text-center transition-all shadow-[0_0_15px_rgba(255,204,0,0.4)] flex items-center justify-center gap-2" href="#profile">
+<span>[ INITIALIZE OPERATIVE PROFILE ]</span>
+<span class="text-sm">→</span>
+</a>
+</div>
+</section>
+</div>
+<!-- Terminal Footer Breadcrumbs / System Prompt -->
+<footer class="pt-4 border-t border-[#122417] flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-[#36573f]">
+<div class="flex items-center gap-3">
+<span class="text-[#3bf589]">&gt;</span>
+<span>ROOT@BOLOTO-TERMINAL:~# sysctl --verify operative_subscription</span>
+</div>
+<div>
+<span class="text-[#527d5e]">SWAMP LABS DISTRIBUTED NETWORK © 2025</span>
+</div>
+</footer>
+</main>
+<!-- END: MainContent -->
+</body></html>

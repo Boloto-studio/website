@@ -11,6 +11,13 @@ class Frog(models.Model):
         ('ingame', 'In Game'),
         ('offline', 'Offline'),
     ]
+    
+    tier_choices = [
+        ('frog', 'Frog'),
+        ('scavenger', 'Scavenger'),
+        ('operative', 'Operative'),
+        ('overseer', 'Overseer'),
+    ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='frog')
     bio = models.TextField(blank=True)
@@ -19,6 +26,8 @@ class Frog(models.Model):
     status = models.CharField(max_length=255, choices=statuses, default='offline')
     last_active = models.DateTimeField(auto_now=True)
     minecraft_username = models.CharField(max_length=255, blank=True)
+    tier = models.CharField(max_length=255, blank=True, choices=tier_choices, default='frog')
+    stripe_customer_id = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return self.user.username

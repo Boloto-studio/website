@@ -1,0 +1,98 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Subscription Confirmed" %}{% endblock %}
+{% block body_class %}donation-confirmed{% endblock %}
+
+{% block body %}
+<div class="confirmation-shell">
+    <div class="confirmation-header">
+        <div class="confirmation-header__meta">
+            <span class="confirmation-header__label">SYS_ROUTING: /NET/DONATION/TX_ACKNOWLEDGE</span>
+            <span class="confirmation-header__label confirmation-header__label--right">TRANSMISSION_ID: #SUB-8849-OK</span>
+        </div>
+        <h1 class="confirmation-header__title">SUPPORT PROTOCOL : SUBSCRIPTION ACCEPTED</h1>
+        <p class="confirmation-header__subtitle">&gt; TRANSMISSION CONFIRMED. OPERATIVE CLEARANCE ELEVATED ON MAINFRAME LEDGER.</p>
+    </div>
+
+    <section class="confirmation-panel">
+        <div class="confirmation-panel__corners">
+            <span>[+]</span>
+            <span>[+]</span>
+            <span>[+]</span>
+            <span>[+]</span>
+        </div>
+
+        <div class="confirmation-status-bar">
+            <div class="confirmation-status-pill">
+                <span class="confirmation-status-pill__dot"></span>
+                <span>STATUS: 200 OK // VERIFIED_ON_LEDGER</span>
+            </div>
+            <div class="confirmation-status-time">TIMESTAMP: 2025.02.24_22:04:19_UTC</div>
+        </div>
+
+        <div class="confirmation-achievement">
+            <p class="confirmation-achievement__eyebrow">TERMINAL AUTHORIZATION LEVEL UPDATED</p>
+            <h2>YOU ARE NOW AN</h2>
+            <div class="confirmation-achievement__badge" id="role-badge">[ {{ tier }} ]</div>
+            <p class="confirmation-achievement__note">&gt;&gt; LEVEL {% if tier == "overseer" %} 3 {% elif tier == "operative" %} 2 {% else %} 1 {% endif %} SECURITY ACCESS KEYS DEPLOYED TO LOCAL NODE &lt;&lt;</p>
+        </div>
+
+        <div class="confirmation-grid">
+            <article class="confirmation-box">
+                <div class="confirmation-box__header">
+                    <span>// ASSIGNED_PRIVILEGES</span>
+                    <span>PERMS: 755</span>
+                </div>
+                <ul class="confirmation-list">
+                    <li><span>&gt;</span> DISCORD_ROLE: <strong>@OPERATIVE (SYNCED)</strong></li>
+                    <li><span>&gt;</span> EARLY_UPDATE_FEED: <strong>GRANTED</strong></li>
+                    <li><span>&gt;</span> BETA_SERVER_PIPELINE: <strong>ACTIVE_NODE</strong></li>
+                    <li><span>&gt;</span> HALL_OF_FAME_TAG: <strong>TIER_2_ENROLLED</strong></li>
+                </ul>
+            </article>
+
+            <article class="confirmation-box">
+                <div class="confirmation-box__header">
+                    <span>// SUBSCRIPTION_LEDGER</span>
+                    <span>TX_MODE: AUTO-RENEW</span>
+                </div>
+                <ul class="confirmation-list confirmation-list--ledger">
+                    <li><span>&gt; MONTHLY_CONTRIBUTION:</span> <strong>$15.00 / MONTH</strong></li>
+                    <li><span>&gt; NEXT_CYCLE_DISPATCH:</span> <strong>T-MINUS 30 DAYS</strong></li>
+                    <li><span>&gt; PROTOCOL_STATUS:</span> <strong>RECURRING_ACTIVE</strong></li>
+                    <li><span>&gt; SERVER_CONTRIB_RATIO:</span> <strong>+{{ percentage_contributed|floatformat:2 }}% MAINT_FUNDS</strong></li>
+                </ul>
+            </article>
+        </div>
+
+        <div class="confirmation-footerline">
+            <span>TX_HASH:</span>
+            <span class="confirmation-footerline__hash">0x88f2a93c40e61d49e17b8f05c09ac61a337</span>
+            <span class="confirmation-footerline__message">&gt; WELCOME TO THE SWAMP LAB OPERATIVES DIVISION.</span>
+        </div>
+
+        <div class="confirmation-actions">
+            <a class="confirmation-button confirmation-button--secondary" href="{% url 'donation' %}">&lt; [ RETURN TO DONATION HUB ]</a>
+            <a class="confirmation-button confirmation-button--primary" href="#">[ INITIALIZE OPERATIVE PROFILE ] <span>→</span></a>
+        </div>
+    </section>
+</div>
+
+<script>
+    const badge = document.getElementById("role-badge");
+    const badgeText = badge.textContent.slice(2, -2);
+
+    // Animate the badge text
+    badge.textContent = `[  ]`;
+    let index = 0;
+    function animateBadge() {
+        if (index < badgeText.length) {
+            badge.textContent = `[ ${badgeText.slice(0, index + 1)} ]`;
+            index++;
+            setTimeout(animateBadge, 100);
+        }
+    }
+    setTimeout(animateBadge, 1000);
+</script>
+{% endblock %}

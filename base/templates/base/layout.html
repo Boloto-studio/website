@@ -95,12 +95,15 @@
         <main class="terminal-main">
             <div class="terminal-main__inner">
                 {% if messages %}
-                <ul class="terminal-messages">
+                <ul class="terminal-messages" style="display:none;" aria-hidden="true">
                     {% for message in messages %}
                     <li class="terminal-message {{ message.tags|default:'info' }}">{{ message }}</li>
                     {% endfor %}
                 </ul>
                 {% endif %}
+
+                <!-- Toast container (pop-up toasts created from Django messages) -->
+                <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
                 {% block body %}{% endblock %}
             </div>
         </main>
@@ -200,5 +203,92 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 </script>
 {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toastContainer = document.getElementById('toast-container');
+
+    function clearTyping(el) {
+        if (el._typingDelay) { window.clearTimeout(el._typingDelay); }
+        if (el._typingTimer) { window.clearInterval(el._typingTimer); }
+        el._typingDelay = null; el._typingTimer = null; el.classList.remove('is-typing');
+    }
+
+    function typeText(el, delay) {
+        clearTyping(el);
+        const fullText = el.dataset.fullText || el.textContent.trim();
+        el.dataset.fullText = fullText;
+        el.textContent = '';
+        el.classList.add('is-typing');
+
+        el._typingDelay = window.setTimeout(function () {
+            let idx = 0;
+            el._typingTimer = window.setInterval(function () {
+                idx += 1;
+                el.textContent = fullText.slice(0, idx);
+                if (idx >= fullText.length) {
+                    clearTyping(el);
+                }
+            }, 22);
+        }, delay || 0);
+    }
+
+    function hideToast(toast) {
+        clearTyping(toast.querySelector('.toast__body'));
+        toast.classList.remove('is-show');
+        toast.classList.add('is-hide');
+        setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 260);
+    }
+
+    function createToast(msg) {
+        const tag = (msg.level || 'info').toLowerCase();
+        const toast = document.createElement('div');
+        toast.className = 'toast toast--' + (tag === 'success' ? 'success' : (tag === 'error' ? 'error' : (tag === 'warning' ? 'warning' : 'info')));
+        const title = document.createElement('div');
+        title.className = 'toast__title';
+        title.textContent = tag === 'success' ? 'Success' : tag === 'error' ? 'Error' : tag === 'warning' ? 'Warning' : 'Info';
+        const body = document.createElement('div');
+        body.className = 'toast__body';
+        body.dataset.fullText = msg.text || '';
+
+        toast.appendChild(title);
+        toast.appendChild(body);
+
+        // add to container
+        toastContainer.insertBefore(toast, toastContainer.firstChild);
+
+        // show with animation
+        requestAnimationFrame(function () { toast.classList.add('is-show'); });
+
+        // start typing immediately
+        typeText(body, 60);
+
+        // auto-hide after 5s
+        const hideAfter = 5000;
+        const hideTimer = setTimeout(function () { hideToast(toast); }, hideAfter);
+
+        // allow click to dismiss
+        toast.addEventListener('click', function () { clearTimeout(hideTimer); hideToast(toast); });
+    }
+
+    // Build messages array from Django messages (safe-escaped)
+    const djangoMessages = [
+    {% for message in messages %}
+        { level: "{{ message.tags|default:'info' }}", text: "{{ message|escapejs }}" }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+    ];
+
+    if (djangoMessages && djangoMessages.length) {
+        // hide the default stacked messages UI
+        const defaultList = document.querySelector('.terminal-messages');
+        if (defaultList) { defaultList.style.display = 'none'; defaultList.setAttribute('aria-hidden','true'); }
+
+        djangoMessages.forEach(function (m, i) {
+            // stagger entry slightly
+            setTimeout(function () { createToast(m); }, i * 160);
+        });
+    }
+});
+</script>
 {% endwith %}
 </html>
