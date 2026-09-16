@@ -164,7 +164,6 @@ def donation(request):
 
         for payment in payments.auto_paging_iter():
             # Process your payments
-            print(payment.id, payment.amount)
             if payment.amount is not None:
                 total_monthly_donations += payment.amount
     except stripe.error.StripeError:
@@ -172,8 +171,6 @@ def donation(request):
         donations_count = 0
 
     total_monthly_donations = total_monthly_donations / 100
-
-    print(f"Total monthly donations: {total_monthly_donations}, Donations count: {donations_count}")
 
     return render(request, "base/donation.html", {
         "donation_progress": {
