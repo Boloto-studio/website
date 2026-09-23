@@ -1,11 +1,12 @@
 from django.contrib import admin
 
-from .models import BlogPost, ContactRequest, Event, HeroSlide, StaffMember, MainFocus
+from .models import *
 
 # Register your models here.
 
 admin.site.register(Event)
 admin.site.register(BlogPost)
+admin.site.register(Modpack)
 
 
 @admin.register(StaffMember)

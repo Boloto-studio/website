@@ -10,3 +10,5 @@ dotenv
 dj_database_url
 Pillow
 stripe
+markdown2
+nh3

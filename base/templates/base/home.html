@@ -1,5 +1,6 @@
 {% extends "base/layout.html" %}
 {% load i18n %}
+{% load title_formatters %}
 
 {% block path_title %}{% trans "Home" %}{% endblock %}
 
@@ -9,13 +10,19 @@
     <div class="terminal-carousel" data-carousel>
         <div class="terminal-carousel-track">
             {% for slide in hero_slides %}
-            <article class="terminal-carousel-slide{% if forloop.first %} is-active{% endif %}" data-carousel-slide{% if slide.image %} style="background: url('{{ slide.image|escape }}')"{% endif %}>
+            <article class="terminal-carousel-slide{% if forloop.first %} is-active{% endif %}{% if slide.image %} has-background-image{% endif %}" data-carousel-slide{% if slide.image %} style="--panel-image: url('{{ slide.image|escape }}')"{% endif %}>
                 <div class="terminal-carousel-copy">
                     <span class="terminal-badge">{{ forloop.counter|stringformat:"02d" }}/{{ hero_slides|length|stringformat:"02d" }}</span>
-                    <h1 class="terminal-title">{{ slide.title }}</h1>
-                    {% if slide.subtitle %}
-                    <p class="terminal-subtitle">{{ slide.subtitle }}</p>
-                    {% endif %}
+                    <div class="terminal-carousel-text-stack">
+                        <div class="terminal-carousel-window terminal-carousel-window--title">
+                            <h1 class="terminal-title">{{ slide.title|highlight_after_semicolon }}</h1>
+                        </div>
+                        {% if slide.subtitle %}
+                        <div class="terminal-carousel-window terminal-carousel-window--body">
+                            <p class="terminal-subtitle">{{ slide.subtitle }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
                     <div class="terminal-carousel-actions">
                         {% if slide.link %}
                         <a class="terminal-button" href="{{ slide.link }}">{% if slide.link_text %}[{{ slide.link_text }}]{% else %}[{% trans "Access files" %}]{% endif %}</a>
@@ -29,8 +36,14 @@
             <article class="terminal-carousel-slide is-active" data-carousel-slide>
                 <div class="terminal-carousel-copy">
                     <span class="terminal-badge">01/01</span>
-                    <h1 class="terminal-title">{% trans "Project:" %} <span class="terminal-title__accent">{% trans "Swamp" %}</span></h1>
-                    <p class="terminal-subtitle">{% trans "The flagship modpack for survival systems, uncanny folklore, and hostile wetlands." %}</p>
+                    <div class="terminal-carousel-text-stack">
+                        <div class="terminal-carousel-window terminal-carousel-window--title">
+                            <h1 class="terminal-title">{% trans "Project:" %} <span class="terminal-title__accent">{% trans "Swamp" %}</span></h1>
+                        </div>
+                        <div class="terminal-carousel-window terminal-carousel-window--body">
+                            <p class="terminal-subtitle">{% trans "The flagship modpack for survival systems, uncanny folklore, and hostile wetlands." %}</p>
+                        </div>
+                    </div>
                     <div class="terminal-carousel-actions">
                         <a class="terminal-button" href="{% url 'studio' %}">{% trans "Access files" %}</a>
                     </div>

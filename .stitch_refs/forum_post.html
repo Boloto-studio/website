@@ -1,0 +1,404 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BOLOTO_OS // THREAD_#9482</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&amp;family=Noto+Sans:wght@400;500;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary-fixed": "#56ffa8",
+            "surface-dim": "#02170b",
+            "primary-fixed-dim": "#f0c100",
+            "on-tertiary-fixed": "#001f25",
+            "background": "#02170b",
+            "inverse-primary": "#745b00",
+            "on-primary-container": "#6b5500",
+            "on-secondary": "#00391f",
+            "secondary-fixed-dim": "#00e38b",
+            "surface-container-highest": "#233a2b",
+            "on-tertiary-container": "#00606f",
+            "on-primary": "#3d2f00",
+            "surface": "#02170b",
+            "on-secondary-fixed-variant": "#00522f",
+            "on-error": "#690005",
+            "on-secondary-container": "#006e41",
+            "tertiary-container": "#39e0ff",
+            "on-secondary-fixed": "#002110",
+            "primary-fixed": "#ffe089",
+            "on-primary-fixed": "#241a00",
+            "on-background": "#cee9d4",
+            "surface-tint": "#f0c100",
+            "secondary-container": "#00f999",
+            "error-container": "#93000a",
+            "outline": "#9a9078",
+            "outline-variant": "#4e4632",
+            "secondary": "#ddffe4",
+            "inverse-on-surface": "#1f3527",
+            "surface-bright": "#273e2f",
+            "tertiary-fixed": "#a7edff",
+            "on-error-container": "#ffdad6",
+            "tertiary-fixed-dim": "#2bd9f7",
+            "inverse-surface": "#cee9d4",
+            "surface-container-low": "#092013",
+            "surface-variant": "#233a2b",
+            "primary-container": "#f9c806",
+            "error": "#ffb4ab",
+            "on-surface": "#cee9d4",
+            "tertiary": "#c1f2ff",
+            "surface-container": "#0d2417",
+            "on-surface-variant": "#d1c5ab",
+            "surface-container-high": "#182f21",
+            "on-tertiary": "#00363f",
+            "surface-container-lowest": "#001207",
+            "primary": "#ffe8ae",
+            "on-tertiary-fixed-variant": "#004e5b",
+            "on-primary-fixed-variant": "#574400"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "baseline": "4px",
+            "gutter": "1.5rem",
+            "section-gap": "4rem",
+            "main-padding": "3rem",
+            "sidebar-width": "30%"
+          },
+          "fontFamily": {
+            "headline-lg": ["Space Mono"],
+            "display-xl-mobile": ["Space Mono"],
+            "body-md": ["Space Mono"],
+            "label-sm": ["Space Mono"],
+            "display-xl": ["Space Mono"],
+            "code-snippet": ["Space Mono"]
+          },
+          "fontSize": {
+            "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700" }],
+            "display-xl-mobile": ["48px", { "lineHeight": "1.1", "fontWeight": "700" }],
+            "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+            "label-sm": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.15em", "fontWeight": "700" }],
+            "display-xl": ["72px", { "lineHeight": "1.0", "letterSpacing": "-0.05em", "fontWeight": "700" }],
+            "code-snippet": ["14px", { "lineHeight": "1.4", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      display: inline-block;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+    }
+
+    /* CRT scanlines effect */
+    .crt-overlay {
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.35) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.03),
+        rgba(0, 255, 0, 0.01),
+        rgba(0, 0, 255, 0.03)
+      );
+      background-size: 100% 4px, 6px 100%;
+      pointer-events: none;
+    }
+
+    /* CRT subtle flicker */
+    @keyframes crt-flicker {
+      0% { opacity: 0.985; }
+      50% { opacity: 1; }
+      52% { opacity: 0.95; }
+      54% { opacity: 0.99; }
+      80% { opacity: 0.98; }
+      100% { opacity: 0.995; }
+    }
+    .crt-flicker-layer {
+      animation: crt-flicker 0.18s infinite;
+      pointer-events: none;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #001207;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #233a2b;
+      border-radius: 2px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #00f999;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen overflow-x-hidden selection:bg-secondary-container selection:text-on-secondary-container relative">
+<!-- CRT Scanlines and Ambient Screen Glare -->
+<div class="fixed inset-0 crt-overlay z-40"></div>
+<div class="fixed inset-0 crt-flicker-layer bg-secondary-fixed-dim/5 z-30 mix-blend-screen pointer-events-none"></div>
+<div class="relative z-10 flex min-h-screen w-full flex-col lg:flex-row">
+<!-- LEFT SIDEBAR: Boloto_OS Navigation -->
+<aside class="w-full lg:w-[280px] xl:w-[320px] bg-surface-container-lowest border-r border-surface-container-highest flex flex-col justify-between p-4 shrink-0">
+<div class="flex flex-col gap-6">
+<!-- System Identifier -->
+<div class="flex items-center gap-3 border-b border-surface-container-highest pb-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-1 ring-secondary-container" data-alt="Monochrome cybernetic avatar icon displayed in retro glowing phosphor aesthetic, high-contrast digital emblem for Boloto OS with terminal tech markings." style="background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAPW3pj8mz25ptGpCuSJ8IR5oQrWJA1-HA91lAnN8Sg_Sk_Yjev5w5G3jI-Fck_VEvxQgdDeHa2_oJxCUEyOjs21P_AM_-FLS6yzqzH-N4m3SYfYUrbVIJoOCGDU2z0YobszTwvOF27mEWtwv_qV59eGJaEI0q_wEruHvsjvZfqmgv7VMTNoOYVTfNP1A00ubg5WedbnR9Y_JRPAkePZg1MlYVMnbjBbi25au8rPjpy&quot;);"></div>
+<div class="flex flex-col">
+<h1 class="text-primary font-headline-lg text-base tracking-wider">BOLOTO_OS</h1>
+<p class="text-secondary-fixed text-xs font-code-snippet flex items-center gap-1.5">
+<span class="inline-block size-1.5 rounded-full bg-secondary-container animate-ping"></span>
+              V2.4.1_ONLINE
+            </p>
+</div>
+</div>
+<!-- Navigation Menus -->
+<nav class="flex flex-col gap-1.5 font-label-sm tracking-wider">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface hover:bg-surface-container-high transition-colors" href="#">
+<div class="text-on-surface" data-icon="Folder" data-size="24px" data-weight="regular">
+<svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40ZM216,200H40V88H216Z"></path>
+</svg>
+</div>
+<span class="text-sm">/BIN/EXEC</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded bg-surface-container-high border-l-2 border-primary-container text-primary font-bold shadow-[0_0_15px_rgba(249,200,6,0.15)]" href="#">
+<div class="text-primary-container" data-icon="ChatDots" data-size="24px" data-weight="fill">
+<svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M216,48H40A16,16,0,0,0,24,64V224a15.84,15.84,0,0,0,9.25,14.5A16.05,16.05,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78.69.69,0,0,0,.13-.11L82.5,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM84,140a12,12,0,1,1,12-12A12,12,0,0,1,84,140Zm44,0a12,12,0,1,1,12-12A12,12,0,0,1,128,140Zm44,0a12,12,0,1,1,12-12A12,12,0,0,1,172,140Z"></path>
+</svg>
+</div>
+<span class="text-sm tracking-widest">/FORUM</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface hover:bg-surface-container-high transition-colors" href="#">
+<div class="text-on-surface" data-icon="FileText" data-size="24px" data-weight="regular">
+<svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-32-80a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,136Zm0,32a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,168Z"></path>
+</svg>
+</div>
+<span class="text-sm">/SYS_LOGS</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface hover:bg-surface-container-high transition-colors" href="#">
+<div class="text-on-surface" data-icon="TerminalWindow" data-size="24px" data-weight="regular">
+<svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,128a8,8,0,0,1-3,6.25l-40,32a8,8,0,1,1-10-12.5L107.19,128,75,102.25a8,8,0,1,1,10-12.5l40,32A8,8,0,0,1,128,128Zm48,24H136a8,8,0,0,0,0,16h40a8,8,0,0,0,0-16Zm56-96V200a16,16,0,0,1-16,16H40a16,16,0,0,1-16-16V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56ZM216,200V56H40V200H216Z"></path>
+</svg>
+</div>
+<span class="text-sm">/TERMINAL</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface hover:bg-surface-container-high transition-colors" href="#">
+<div class="text-on-surface" data-icon="Gear" data-size="24px" data-weight="regular">
+<svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"></path>
+</svg>
+</div>
+<span class="text-sm">/CONFIG</span>
+</a>
+</nav>
+<!-- Sub-channel monitor info -->
+<div class="mt-4 p-3 bg-surface-container-low border border-outline-variant text-[11px] font-code-snippet leading-relaxed text-on-surface-variant">
+<div class="text-secondary-fixed flex items-center justify-between pb-1 border-b border-outline-variant">
+<span class="">SOCKET: SEC_09</span>
+<span class="text-primary">128.4 KB/S</span>
+</div>
+<p class="pt-1.5">&gt; BUFFER: STABLE</p>
+<p class="">&gt; MESH: PEER_TO_PEER</p>
+</div>
+</div>
+<!-- Action -->
+<div class="pt-6">
+<button class="w-full flex cursor-pointer items-center justify-center rounded h-10 px-4 bg-primary-container text-on-primary font-bold text-sm tracking-wider uppercase hover:bg-primary transition-all shadow-[0_0_10px_rgba(249,200,6,0.3)]">
+          LOG_OUT
+        </button>
+</div>
+</aside>
+<!-- MAIN AREA: Thread View -->
+<main class="flex-1 flex flex-col min-w-0 bg-surface overflow-y-auto custom-scrollbar">
+<!-- Top Bar / Breadcrumb Path -->
+<header class="border-b border-surface-container-highest px-6 py-4 bg-surface-container-low/80 backdrop-blur sticky top-0 z-20 flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center flex-wrap gap-2 text-sm font-label-sm">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">/BIN</a>
+<span class="text-outline-variant">/</span>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">FORUM</a>
+<span class="text-outline-variant">/</span>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">TECH_SUPPORT</a>
+<span class="text-outline-variant">/</span>
+<span class="text-primary font-bold tracking-widest bg-surface-container px-2 py-0.5 border border-primary/20">THREAD_#9482</span>
+</div>
+<div class="flex items-center gap-3 text-xs font-code-snippet text-secondary-fixed">
+<span class="size-2 rounded-full bg-secondary-container inline-block"></span>
+<span class="">SYNC: ACTIVE [CH_9482]</span>
+</div>
+</header>
+<!-- Thread Content Container -->
+<div class="p-6 md:p-8 max-w-5xl w-full mx-auto flex flex-col gap-8">
+<!-- 2. Original Post (Card with 1px emerald/secondary border) -->
+<article class="relative bg-surface-container-lowest border border-secondary-container shadow-[0_0_20px_rgba(0,249,153,0.08)] p-6 md:p-8 rounded-DEFAULT">
+<!-- Terminal top bar indicator -->
+<div class="flex items-center justify-between border-b border-surface-container-highest pb-3 mb-6">
+<div class="flex items-center gap-2">
+
+
+
+<span class="ml-2 text-xs font-code-snippet text-on-surface-variant uppercase tracking-widest">TRANSMISSION://NODE_741_OP</span>
+</div>
+<span class="text-xs font-code-snippet text-secondary-fixed bg-surface-container px-2 py-0.5">STATUS: OPEN</span>
+</div>
+<!-- Title -->
+<h1 class="text-secondary-fixed font-headline-lg text-xl md:text-2xl lg:text-3xl tracking-wide uppercase mb-3">
+            OPTIMIZING SCANLINE RENDERER IN WEBGL
+          </h1>
+<!-- Author & Meta -->
+<div class="flex flex-wrap items-center gap-4 text-xs font-code-snippet text-on-surface-variant mb-6 pb-4 border-b border-surface-container-high">
+<span class="text-primary font-bold tracking-wider">&gt; AUTHOR: NULL_POINTER</span>
+<span class="text-outline-variant">//</span>
+<span class="">TIMESTAMP: T-MINUS 02_HOURS_AGO</span>
+<span class="text-outline-variant">//</span>
+<span class="">TARGET_SYS: GL_ES_3.0</span>
+</div>
+<!-- Body Text (Green Monospace) -->
+<div class="font-code-snippet text-secondary-fixed/90 leading-relaxed text-sm md:text-base space-y-4">
+<p class="border-l-2 border-secondary-container/40 pl-3">
+              &gt; Encountering severe frame drop in WebGL scanline pass. CRT phosphor bloom shader causes excessive fillrate overhead on low-end silicon. Fragment shader math requires aggressive optimization.
+            </p>
+<div class="bg-surface-container-lowest/80 p-4 border border-surface-container-highest font-code-snippet text-xs text-on-background overflow-x-auto">
+<code>
+                // CURRENT FRAGMENT BOTTLENECK<br>
+                vec4 bloom = texture2D(u_buffer, uv) * 0.36;<br>
+                bloom += gaussian_blur_16tap(u_buffer, uv, u_spread);<br>
+                float scanline = sin(uv.y * u_resolution.y * 3.14159);<br>
+                gl_FragColor = mix(bloom, vec4(0.0), scanline * u_scan_intensity);
+              </code>
+</div>
+<p class="text-xs text-on-surface-variant">
+              &gt; Note: Disabling the secondary blur pass restores 60fps, but compromises visual fidelity. Looking for analytical scanline approximations.
+            </p>
+</div>
+<!-- Interactive Elements (Bracketed buttons) -->
+<div class="mt-8 pt-4 border-t border-surface-container-highest flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<button class="cursor-pointer text-xs font-code-snippet text-primary hover:text-primary-container px-3 py-1.5 border border-outline-variant hover:border-primary transition-all bg-surface-container-low flex items-center gap-1.5 active:translate-y-0.5">
+<span class="">[</span> <span class="font-bold">UPVOTE<br></span> <span class="text-secondary-fixed">#34</span> <span class="">]</span>
+</button>
+
+</div>
+<div class="text-xs font-code-snippet text-outline">
+              ID: 0x88942A
+            </div>
+</div>
+</article>
+<!-- 3. Replies Section -->
+<section class="space-y-4">
+<div class="flex items-center justify-between text-xs font-label-sm tracking-widest text-on-surface-variant px-1">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-secondary-container">forum</span>
+              INCOMING_LOG_ENTRIES [2 RESPONSES]
+            </span>
+<span class="text-outline">FILTER: CHRONOLOGICAL</span>
+</div>
+<!-- Reply 1: SYS_ADMIN -->
+<div class="bg-surface-container-low border border-surface-container-highest hover:border-outline transition-colors p-4 md:p-5 rounded-DEFAULT">
+<div class="flex items-center justify-between mb-3 text-xs font-code-snippet">
+<div class="flex items-center gap-2">
+<span class="size-2 bg-primary-container inline-block"></span>
+<span class="font-bold text-primary-container">&gt; SYS_ADMIN</span>
+<span class="text-outline-variant">[ROOT_PRIVILEGE]</span>
+</div>
+<span class="text-outline text-[11px]">T-MINUS 01_HOUR_AGO</span>
+</div>
+<p class="font-code-snippet text-secondary-fixed text-sm pl-4 border-l border-primary-container/40 leading-relaxed">
+              Checking the shader math now. Expect a patch.
+            </p>
+<div class="mt-4 pt-2 flex items-center justify-between text-xs font-code-snippet text-on-surface-variant">
+<div class="flex items-center gap-2">
+<button class="hover:text-primary transition-colors">[ UPVOTE +9 ]</button>
+<button class="hover:text-secondary-fixed transition-colors">[ QUOTE ]</button>
+</div>
+<span class="text-[10px] text-outline">LOG://9482-1</span>
+</div>
+</div>
+<!-- Reply 2: GHOST_PROTO -->
+<div class="bg-surface-container-low border border-surface-container-highest hover:border-outline transition-colors p-4 md:p-5 rounded-DEFAULT">
+<div class="flex items-center justify-between mb-3 text-xs font-code-snippet">
+<div class="flex items-center gap-2">
+<span class="size-2 bg-secondary-container inline-block"></span>
+<span class="font-bold text-secondary-container">&gt; GHOST_PROTO</span>
+<span class="text-outline-variant">[NET_RUNNER]</span>
+</div>
+<span class="text-outline text-[11px]">T-MINUS 42_MINUTES_AGO</span>
+</div>
+<div class="font-code-snippet text-secondary text-sm pl-4 border-l border-secondary-container/40 leading-relaxed space-y-2">
+<p class="">Try disabling the curvature offset in the config.</p>
+<p class="text-xs text-on-surface-variant">
+                Barrel distortion lookup maps introduce dependent texture reads that stall the pipeline on mobile Mali chips. Drop that pass and you will save ~4.2ms per frame.
+              </p>
+</div>
+<div class="mt-4 pt-2 flex items-center justify-between text-xs font-code-snippet text-on-surface-variant">
+<div class="flex items-center gap-2">
+<button class="hover:text-primary transition-colors">[ UPVOTE +14 ]</button>
+<button class="hover:text-secondary-fixed transition-colors">[ QUOTE ]</button>
+</div>
+<span class="text-[10px] text-outline">LOG://9482-2</span>
+</div>
+</div>
+</section>
+<!-- 4. Quick Reply Terminal Input -->
+<section class="bg-surface-container-lowest border border-outline-variant p-4 md:p-5 rounded-DEFAULT shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
+<div class="flex items-center justify-between mb-3 text-xs font-code-snippet">
+<span class="text-primary font-bold flex items-center gap-2">
+<span class="animate-pulse">&gt;</span> APPEND_LOG_ENTRY
+            </span>
+<span class="text-outline-variant text-[11px]">TTY_INPUT://STDIN</span>
+</div>
+<div class="relative">
+<textarea class="w-full bg-surface-container text-secondary font-code-snippet text-sm border border-surface-container-highest p-3 focus:outline-none focus:border-secondary-container placeholder:text-outline/50 transition-colors resize-none rounded-DEFAULT" placeholder="Inject technical telemetry, code snippet, or diagnostic feedback..." rows="3"></textarea>
+</div>
+<div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-3 text-xs font-code-snippet text-outline">
+<span class="">FORMAT: PLAIN_TEXT_ONLY</span>
+<span class="">//</span>
+<span class="">MAX_PAYLOAD: 4KB</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-4 py-2 bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-on-surface text-xs font-code-snippet cursor-pointer transition-colors">
+                [ CLEAR ]
+              </button>
+<button class="px-5 py-2 bg-secondary-container hover:bg-secondary-fixed-dim text-on-secondary-container text-xs font-code-snippet font-bold cursor-pointer transition-all shadow-[0_0_12px_rgba(0,249,153,0.25)] flex items-center gap-1.5 active:scale-95">
+<span class="">[ TRANSMIT_ENTRY ]</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer system diagnostics -->
+<footer class="mt-auto border-t border-surface-container-highest px-6 py-4 text-center text-xs font-code-snippet text-outline-variant flex flex-wrap justify-between items-center gap-2 bg-surface-container-lowest">
+<span class="">HOST: BOLOTO_CORE_DAEMON</span>
+<span class="">LATENCY: 14MS // FRAME_TIME: 16.6MS</span>
+<span class="">ENCRYPTION: QUANTUM_ECC_256</span>
+</footer>
+</main>
+</div>
+
+
+</body></html>

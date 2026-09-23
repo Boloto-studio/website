@@ -1,6 +1,9 @@
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+import markdown2
+import nh3
+from django.utils.text import slugify
 
 # Create your models here.
 
@@ -65,14 +68,27 @@ class Event(models.Model):
     def is_upcoming(self):
         return self.date >= timezone.now()
 
-
-class BlogPost(models.Model):
+class AbstractPost(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     published_date = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        abstract = True
+
+    def parse_html_content(self):
+        """
+        Parses the content of the blog post and returns it as HTML.
+        """
+        unsafe_html = markdown2.markdown(self.content)
+        safe_html = nh3.clean(unsafe_html)
+        return safe_html
+
     def __str__(self):
         return self.title
+
+class BlogPost(AbstractPost):
+    author = models.ForeignKey("auth.User", on_delete=models.CASCADE, related_name="blog_posts")
 
 class StaffMember(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='staff_profile')
@@ -119,3 +135,16 @@ class MainFocus(models.Model):
 
     def __str__(self):
         return (self.text[:50] + '...') if self.text and len(self.text) > 50 else (self.text or 'Main Focus')
+
+class Modpack(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def icon_asset_name(self):
+        return f"{slugify(self.name).replace('-', '_')}_icon.png"
+
+    def __str__(self):
+        return self.name

@@ -1,0 +1,324 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block path_title %}{% trans "Edit Profile" %}{% endblock %}
+{% block body_class %}profile-page profile-page--edit{% endblock %}
+
+{% block body %}
+<section class="profile-edit-terminal">
+    <div class="profile-breadcrumbs" aria-label="Path">
+        <span class="profile-breadcrumbs__segment profile-breadcrumbs__segment--muted">{% trans "ROOT" %}</span>
+        <span>/</span>
+        <span class="profile-breadcrumbs__segment">{% trans "home" %}</span>
+        <span>/</span>
+        <span class="profile-breadcrumbs__segment">{% trans "user" %}</span>
+        <span>/</span>
+        <span class="profile-breadcrumbs__segment profile-breadcrumbs__segment--active">{% trans "profile" %}</span>
+        <span>/</span>
+        <span class="profile-breadcrumbs__segment profile-breadcrumbs__segment--active">{% trans "edit_identity" %}</span>
+        <span class="profile-breadcrumbs__meta">{% trans "[NODE_SEC: LEVEL_0_AUTHORITY]" %}</span>
+    </div>
+
+    <div class="profile-edit-window">
+        <header class="profile-window__header">
+            <div class="profile-window__title">
+                <span class="material-symbols-outlined">{% trans "edit" %}</span>
+                <span>{% trans "[WINDOW: /sys/user/identity/recalibrate.sh]" %}</span>
+            </div>
+            <div class="profile-window__meta">
+                <span>{% trans "UID:" %} <strong>{{ user.id|default:'1001' }}</strong></span>
+                <span>{% trans "GID:" %} <strong>{{ user.id|default:'1001' }}</strong></span>
+                <span class="profile-window__status profile-window__status--playing">● {% trans "EDIT_ACTIVE" %}</span>
+            </div>
+        </header>
+
+        <form method="post" enctype="multipart/form-data" class="profile-edit-body">
+            {% csrf_token %}
+
+            <div class="profile-edit-grid">
+                <aside class="profile-edit-sidebar">
+                    <div class="profile-edit-avatar-header">// {% trans "AVATAR_MATRIX" %}</div>
+                    <div class="profile-edit-avatar-wrap">
+                        <img id="avatar-preview" data-default-src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhM2OW238foHZ-ju8QmksT2TFDvJMfP11MtqC8MJwO1J9n44J1OwINVWKURW8pr-g-8JTSSNY-_xtIUYNdDpyhhSJK8WopIbM6sXrQZ54F6DWs-HpwWiCo10zq6QmfNdFop72aCkavJ2Q9IENb8Kq9W1tV9NqME4965Olsmkz11ncOl_mdx--FVFmpuuH5DBba6qX6D6djOThc8foLb-fzaJI8ikqn2VQfOW1UpvcG-X8ofRj0D0xR5g" src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}https://lh3.googleusercontent.com/aida-public/AB6AXuAhM2OW238foHZ-ju8QmksT2TFDvJMfP11MtqC8MJwO1J9n44J1OwINVWKURW8pr-g-8JTSSNY-_xtIUYNdDpyhhSJK8WopIbM6sXrQZ54F6DWs-HpwWiCo10zq6QmfNdFop72aCkavJ2Q9IENb8Kq9W1tV9NqME4965Olsmkz11ncOl_mdx--FVFmpuuH5DBba6qX6D6djOThc8foLb-fzaJI8ikqn2VQfOW1UpvcG-X8ofRj0D0xR5g{% endif %}" alt="{% trans 'Profile avatar' %}" class="profile-edit-avatar">
+                        {% comment %} <span class="profile-edit-avatar-level">{% trans "LVL." %}{{ profile.tier|default:'frog'|upper }}</span> {% endcomment %}
+                    </div>
+
+                    <div class="profile-edit-actions">
+                        {{ form.avatar }}
+                        <label class="profile-edit-upload" for="id_avatar">
+                            {% trans "[ UPLOAD_AVATAR.BIN ]" %}
+                        </label>
+                        <button type="button" class="profile-edit-button profile-edit-button--ghost" data-avatar-reset>{% trans "[ REVERT_DEFAULT ]" %}</button>
+                        {{ form.clear_avatar }}
+                        <p>{% trans "MAX: 2048KB // FORMATS: PNG, JPG, RAW_MATRIX" %}</p>
+                    </div>
+                </aside>
+
+                <div class="profile-edit-fields">
+                    <div class="profile-edit-field-grid">
+                        <div class="profile-edit-field">
+                            <label for="id_username">{% trans "CALLSIGN / HANDLE <UNIQUE>" %}</label>
+                            <div class="profile-edit-input-wrap">
+                                <span>{% trans "handle:~$" %}</span>
+                                {{ form.username }}
+                            </div>
+                        </div>
+
+                        <div class="profile-edit-field">
+                            <label for="id_first_name">{% trans "LEGAL IDENTITY / FIRST NAME" %}</label>
+                            <div class="profile-edit-input-wrap">
+                                {{ form.first_name }}
+                            </div>
+                        </div>
+
+                        <div class="profile-edit-field">
+                            <label>{% trans "TACTICAL OPERATOR RANK" %}</label>
+                            <div class="profile-edit-rank-wrap">
+                                <div class="profile-edit-rank-current">
+                                    <span class="status-dot"></span>
+                                    {{ user.frog.tier }}
+                                </div>
+                                <a href="{% url 'donation' %}" class="profile-edit-button profile-edit-button--highlight">{% trans "[ UPGRADE_RANK ]" %}</a>
+                            </div>
+                        </div>
+
+                        <div class="profile-edit-field">
+                            <label for="id_location">{% trans "ASSIGNED LOCALE / NODE" %}</label>
+                            <div class="profile-edit-input-wrap">
+                                {{ form.location }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-edit-field profile-edit-field--full">
+                        <label for="id_minecraft_username">{% trans "MINECRAFT USERNAME / IGN" %}</label>
+                        <div class="profile-edit-input-wrap">
+                            <span>{% trans "ign:~$" %}</span>
+                            {{ form.minecraft_username }}
+                        </div>
+                    </div>
+
+                    <div class="profile-edit-field profile-edit-field--full">
+                        <div class="profile-edit-field-title-row">
+                            <label for="id_bio">{% trans "BIO / TELEMETRY TRANSMISSION (TERMINAL BUFFER)" %}</label>
+                            <span id="bio-char-count">{% trans "0/256 CHARS" %}</span>
+                        </div>
+                        <div class="profile-edit-textarea-wrap">
+                            <div class="profile-edit-line-numbers">
+                                <span>01</span>
+                                <span>02</span>
+                                <span>03</span>
+                            </div>
+                            {{ form.bio }}
+                        </div>
+                    </div>
+
+                    <div class="profile-edit-field profile-edit-field--full profile-edit-field--security">
+                        <div class="profile-edit-field-title-row">
+                            <label>// {% trans "SECURITY ACCESS KEY / PASSWORD UPDATE" %}</label>
+                            <span>{% trans "[AUTH_HASH: SHA-512]" %}</span>
+                        </div>
+                        <div class="profile-edit-password-grid">
+                            <div>
+                                <label for="id_current_password">{% trans "CURRENT_KEY:" %}</label>
+                                <div class="profile-edit-input-wrap profile-edit-input-wrap--password">
+                                    {{ form.current_password }}
+                                </div>
+                            </div>
+                            <div>
+                                <label for="id_new_password">{% trans "NEW_KEY / PASSWORD:" %}</label>
+                                <div class="profile-edit-input-wrap profile-edit-input-wrap--password">
+                                    {{ form.new_password }}
+                                </div>
+                            </div>
+                            <div>
+                                <label for="id_confirm_password">{% trans "CONFIRM_KEY:" %}</label>
+                                <div class="profile-edit-input-wrap profile-edit-input-wrap--password">
+                                    {{ form.confirm_password }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-edit-submit-wrap">
+                            <button type="submit" class="profile-edit-submit">{% trans "[ UPDATE_KEY.SH ]" %}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-edit-panels">
+                <div class="profile-edit-panel">
+                    <div class="profile-edit-panel-header">
+                        <span>{% trans "[WINDOW: /sys/user/modpack_preferences]" %}</span>
+                        <span>{% trans "FLAGS: 4" %}</span>
+                    </div>
+                    <div class="profile-edit-panel-body">
+                        <div class="profile-edit-checkbox-row">
+                            {{ form.show_active_modpacks }}
+                            <label for="id_show_active_modpacks">{% trans "[X] SHOW ACTIVE MODPACKS IN DOSSIER" %}</label>
+                        </div>
+                        <div class="profile-edit-checkbox-row">
+                            {{ form.show_last_played_server }}
+                            <label for="id_show_last_played_server">{% trans "[X] BROADCAST LAST PLAYED SERVER TELEMETRY ON CONNECT" %}</label>
+                        </div>
+                        <div class="profile-edit-checkbox-row">
+                            {{ form.allow_friend_requests }}
+                            <label for="id_allow_friend_requests">{% trans "[ ] ALLOW DIRECT SQUAD INVITES" %}</label>
+                        </div>
+                        <div class="profile-edit-checkbox-row">
+                            {{ form.show_achievements }}
+                            <label for="id_show_achievements">{% trans "[X] SHOW ACHIVEMENTS" %}</label>
+                        </div>
+                    </div>
+                    <div class="profile-edit-panel-footer">// {% trans "SYNC STATE: CACHED_LOCAL" %}</div>
+                </div>
+
+                <div class="profile-edit-panel">
+                    <div class="profile-edit-panel-header">
+                        <span>☄ {% trans "[WINDOW: /net/squad/privacy_rules]" %}</span>
+                        <span>{% trans "NETWORK: ACTIVE" %}</span>
+                    </div>
+                    <div class="profile-edit-panel-body profile-edit-panel-body--privacy">
+                        <div class="profile-edit-radio-group">
+                            <span>{% trans "REAL NAME VISIBILITY:" %}</span>
+                            {{ form.show_real_name }}
+                        </div>
+                        <div class="profile-edit-checkbox-row profile-edit-checkbox-row--panel">
+                            {{ form.allow_external_wall_posts }}
+                            <label for="id_allow_external_wall_posts">{% trans "[X] ALLOW EXTERNAL TRANSMISSIONS TO WALL" %}</label>
+                        </div>
+                    </div>
+                    <div class="profile-edit-panel-footer">// {% trans "FIREWALL: RUNNING (ALLOW_SEC_INBOUND)" %}</div>
+                </div>
+            </div>
+
+            <div class="profile-edit-action-bar">
+                <div class="profile-edit-action-bar__prompt">
+                    <span class="profile-edit-action-bar__shell">{% trans "root@swamp-node:~#" %}</span>
+                    <span id="pending-changes-text" class="profile-edit-action-bar__meta profile-edit-action-bar__meta--hidden">{% trans "pending changes: 0 fields modified" %}</span>
+                    <span class="profile-edit-action-bar__cursor"></span>
+                </div>
+                <div class="profile-edit-action-bar__buttons">
+                    <a href="{% url 'frogs-profile-own' %}" class="profile-edit-button profile-edit-button--secondary">{% trans "[ CANCEL_ABORT.SH ]" %}</a>
+                    <button type="submit" class="profile-edit-button profile-edit-button--commit">{% trans "[ COMMIT_CHANGES.EXE ]" %}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    (function () {
+        const bioField = document.getElementById('id_bio');
+        const bioCount = document.getElementById('bio-char-count');
+        const pendingText = document.getElementById('pending-changes-text');
+        if (bioField && bioCount) {
+            const updateBioCount = () => {
+                const length = bioField.value.length;
+                bioCount.textContent = length + '/256 CHARS';
+            };
+            bioField.addEventListener('input', updateBioCount);
+            updateBioCount();
+        }
+
+        const avatarInput = document.getElementById('id_avatar');
+        const avatarPreview = document.getElementById('avatar-preview');
+        const defaultAvatarSrc = avatarPreview ? avatarPreview.dataset.defaultSrc : '';
+        const resetAvatarButton = document.querySelector('[data-avatar-reset]');
+        const clearAvatarField = document.getElementById('id_clear_avatar');
+
+        if (avatarInput && avatarPreview) {
+            const updateAvatarPreview = () => {
+                const file = avatarInput.files && avatarInput.files[0];
+                if (file) {
+                    avatarPreview.src = URL.createObjectURL(file);
+                    if (clearAvatarField) {
+                    clearAvatarField.value = '';
+                    clearAvatarField.checked = false;
+                }
+                return;
+            }
+            if (clearAvatarField && clearAvatarField.value === 'on') {
+                avatarPreview.src = defaultAvatarSrc;
+                return;
+            }
+            avatarPreview.src = avatarPreview.getAttribute('src') || defaultAvatarSrc;
+        };
+
+        avatarInput.addEventListener('change', updateAvatarPreview);
+    }
+
+    if (resetAvatarButton && avatarInput && avatarPreview) {
+        resetAvatarButton.addEventListener('click', () => {
+            avatarInput.value = '';
+            if (clearAvatarField) {
+                clearAvatarField.value = 'on';
+                clearAvatarField.checked = true;
+            }
+            avatarPreview.src = defaultAvatarSrc;
+        });
+    }
+        const form = document.querySelector('.profile-edit-body');
+        if (form && pendingText) {
+            const fields = Array.from(form.elements).filter((el) => {
+                return el && el.name && !['csrfmiddlewaretoken', 'avatar', 'clear_avatar'].includes(el.name) && ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName);
+            });
+
+            const initialValues = new Map();
+            fields.forEach((field) => {
+                if (field.type === 'checkbox' || field.type === 'radio') {
+                    initialValues.set(field.name + ':' + field.value, field.checked);
+                } else {
+                    initialValues.set(field.name, field.value);
+                }
+            });
+
+            const typewriter = (text, element) => {
+                element.textContent = '';
+                let index = 0;
+                const tick = () => {
+                    if (index <= text.length) {
+                        element.textContent = text.slice(0, index);
+                        index += 1;
+                        setTimeout(tick, 18);
+                    }
+                };
+                tick();
+            };
+
+            const updatePendingChanges = () => {
+                let changedFields = 0;
+                fields.forEach((field) => {
+                    const key = field.name;
+                    let initialValue = initialValues.get(key);
+                    if (field.type === 'checkbox' || field.type === 'radio') {
+                        const checkKey = field.name + ':' + field.value;
+                        initialValue = initialValues.get(checkKey);
+                        if (initialValue !== undefined && field.checked !== initialValue) {
+                            changedFields += 1;
+                        }
+                    } else if (initialValue !== undefined && field.value !== initialValue) {
+                        changedFields += 1;
+                    }
+                });
+
+                if (changedFields > 0) {
+                    const message = 'pending changes: ' + changedFields + ' field' + (changedFields === 1 ? '' : 's') + ' modified';
+                    pendingText.classList.remove('profile-edit-action-bar__meta--hidden');
+                    typewriter(message, pendingText);
+                } else {
+                    pendingText.classList.add('profile-edit-action-bar__meta--hidden');
+                    pendingText.textContent = 'pending changes: 0 fields modified';
+                }
+            };
+
+            fields.forEach((field) => {
+                field.addEventListener('input', updatePendingChanges);
+                field.addEventListener('change', updatePendingChanges);
+            });
+
+            updatePendingChanges();
+        }
+    })();
+</script>
+{% endblock %}

@@ -1,60 +1,446 @@
-{% extends "frogsnet/layout.html" %}
+{% extends "base/layout.html" %}
+{% load i18n %}
+{% load static %}
 
-{% block title %}frogs.net - Profile{% endblock %}
+{% block path_title %}Profile{% endblock %}
+{% block body_class %}profile-page{% endblock %}
 
-{% block frogs_content %}
-<header class="frogs-header">
-    <div>
-        <div class="terminal-eyebrow">root@boloto :~ &gt; cd /home/user/profile_</div>
-        <h1 class="frogs-title">BOLOTO_OS v2.4</h1>
+{% block body %}
+<section class="profile-terminal">
+    <div class="profile-breadcrumbs" aria-label="Path">
+        <span class="profile-breadcrumbs__segment profile-breadcrumbs__segment--muted">ROOT</span>
+        <span>/</span>
+        <span class="profile-breadcrumbs__segment">home</span>
+        <span>/</span>
+        <span class="profile-breadcrumbs__segment">user</span>
+        <span>/</span>
+        <span class="profile-breadcrumbs__segment profile-breadcrumbs__segment--active">profile</span>
+        <span class="profile-breadcrumbs__meta">[NODE_SEC: LEVEL_0_AUTHORITY]</span>
     </div>
-    <span class="frogs-chip">OPERATOR: ACTIVE</span>
-</header>
 
-<section class="profile-summary">
-    <img class="profile-summary__avatar" src="{{ profile.avatar }}" alt="{{ profile.callsign }} avatar">
-    <div>
-        <h2 class="profile-summary__name">{{ profile.callsign }}</h2>
-        <p>{{ profile.identity }}</p>
-        <p>CLAN: {{ profile.clan }}</p>
-        <p class="profile-summary__status">STATUS: {{ profile.status }}</p>
+    <div class="profile-window">
+        <header class="profile-window__header">
+            <div class="profile-window__title">
+                <span class="material-symbols-outlined">badge</span>
+                <span>[WINDOW: /sys/user/identity]</span>
+            </div>
+                <div class="profile-window__meta">
+                    <span>UID: {{ user.id|default:'1001' }}</span>
+                    {# Use derived activity state when available #}
+
+                </div>
+        </header>
+
+        <div class="profile-window__body profile-window__body--identity">
+            <div class="profile-identity">
+                <div class="profile-avatar-wrap">
+                    <img class="profile-avatar" src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}https://lh3.googleusercontent.com/aida-public/AB6AXuADSc7cjN8BrBGa47oppDj71OJ67Wo4yoGFeKJNqm940wwG5oml_wju3ONotPxDd1WblQdExuEFy70Zj1O6qzz1DssCbXbSCm1O6-nS_PJlWaOsI_L3F4bnVRHaAfpOYGS0VGvMJSOxVW4R071H_JX1QlFU45UFk0Uz0i-703FZWpW17Rci0bAa7UyNRWowkAdT1LM9jsVUSK2q8Zbc7rkbcd-7MgkYbDNXW2aIn4WMU0mivdRyatwccA{% endif %}" alt="{{ profile.callsign|default:'User profile' }}">
+                    {% comment %} <span class="profile-avatar__level">LVL.74</span> {% endcomment %}
+                </div>
+
+                <div class="profile-copy">
+                    <div class="profile-copy__topline">
+                        <h1>{{ profile.user.username|default:'user@swamp-node' }}</h1>
+                        <span class="profile-copy__badge {% if profile.tier != "Frog" %}filled{% endif %}">RANK: {{ profile.tier|default:'FROG' }}</span>
+                    </div>
+
+                    <div class="profile-copy__meta">
+                        <span class="profile-copy__label">{% trans "Real Name:" %}</span>
+                        {% if profile.show_real_name == 'public' %}
+                            {{ user.first_name|default:'N/A' }}
+                        {% elif profile.show_real_name == 'squad_only' and friend_status == "friends" %}
+                            {{ user.first_name|default:'N/A' }}
+                        {% else %}
+                            [ CLASSIFIED ]
+                        {% endif %}
+                        <span class="profile-copy__divider">//</span>
+                        {% if activity.in_game_status %}
+                            <span class="profile-window__status profile-window__status--playing">● {% trans "PLAYING" %} {{ activity.in_game_status }}</span>
+                        {% else %}
+                            {% if activity.is_active %}
+                                <span class="profile-window__status">● {% trans "ACTIVE" %}</span>
+                            {% else %}
+                                <span class="profile-window__status profile-window__status--inactive">● {% trans "INACTIVE" %} (last online: {{ activity.last_online_display }})</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <div class="profile-copy__details">
+                        <span><strong>{% trans "Last server:" %}</strong> {{ profile.ip|default:'192.168.4.12' }}</span>
+                        <span>|</span>
+                        <span><strong>{% trans "Minecraft username:" %}</strong> {{ profile.minecraft_username|default:'Not set' }}</span>
+                        {% if profile.location %}
+                            <span>|</span>
+                            <span><strong>{% trans "Location:" %}</strong> {{ profile.location|default:'SwampNode-East-04' }}</span>
+                        {% endif %}
+                    </div>
+                    {% if profile.bio %}
+                        <p class="profile-copy__tagline">"{{ profile.bio }}"</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                {% if own_profile %}
+                    <a href="{% url 'frogs-profile-edit' %}" class="profile-button profile-button--primary">
+                        <span class="material-symbols-outlined">edit_note</span>
+                        <span>{% trans "EDIT_IDENTITY" %}</span>
+                    </a>
+                {% else %}
+                    <button type="button" data-friend-status="{{ friend_status }}" class="profile-button profile-button--primary {% if not friend_status %}highlighted{% endif %}" id="friend-request-interaction-btn">
+                        <span class="material-symbols-outlined">
+                            {% if friend_status == "sent" %}
+                                person_check
+                            {% elif friend_status == "friends" %}
+                                person
+                            {% else %}
+                                person_add
+                            {% endif %}
+                        </span>
+                        <span>
+                            {% if friend_status == "sent" %}
+                                {% trans "REQUEST_SENT" %}
+                            {% elif friend_status == "friends" %}
+                                {% trans "FRIENDS" %}
+                            {% else %}
+                                {% trans "ADD_FRIEND" %}
+                            {% endif %}
+                        </span>
+                    </button>
+                {% endif %}
+                <button type="button" class="profile-button profile-button--secondary" id="export_key-btn">
+                    <span class="material-symbols-outlined">share</span>
+                    <span>{% trans "EXPORT_KEY" %}</span>
+                </button>
+            </div>
+        </div>
     </div>
-    <button class="terminal-button profile-summary__button" type="button">[ ASS_CONTACT ]</button>
-</section>
 
-<div class="profile-grid">
-    <section class="panel">
-        <div class="panel__title">MODPACKS_LINKED &gt;&gt;</div>
-        <ul class="modpack-list">
-            {% for modpack in profile.modpacks %}
-                <li>
-                    <span class="material-symbols-outlined">{{ modpack.icon }}</span>
-                    <span>{{ modpack.name }}</span>
-                </li>
-            {% endfor %}
-        </ul>
-    </section>
-    <section class="panel">
-        <div class="panel__title">SQUAD_ROSTER &gt;&gt;</div>
-        <ul class="roster-list">
-            {% for squadmate in profile.squad %}
-                <li><span class="roster-list__dot"></span>{{ squadmate }}</li>
-            {% endfor %}
-        </ul>
-    </section>
-    <section class="panel panel--wide">
-        <div class="panel__title">COMMS_HISTORY &gt;&gt;</div>
-        <div class="history-list">
-            {% for entry in profile.history %}
-                <article class="history-list__entry">
-                    <header>
-                        <span>{{ entry.log }}</span>
-                        <span>{{ entry.time }}</span>
-                    </header>
-                    <p>{{ entry.text }}</p>
-                </article>
+    <div class="profile-grid">
+        <div class="profile-window">
+            <header class="profile-window__header">
+                <div class="profile-window__title">
+                    <span class="material-symbols-outlined">layers</span>
+                    <span>[WINDOW: /sys/user/modpacks_linked]</span>
+                </div>
+                <span class="profile-window__meta profile-window__meta--muted">COUNT: {{ modpacks|length|default:'0' }}_SYNCED</span>
+            </header>
+
+            <div class="profile-list">
+                {% for stat in modpacks %}
+                <div class="profile-list__item">
+                    <div class="profile-list__meta">
+                        <div class="profile-list__icon profile-list__icon--{{ forloop.counter0|default:0 }}">
+                            <span class="material-symbols-outlined">
+                                <img src="{% static 'base/icons/'|add:stat.modpack.icon_asset_name %}" alt="{{stat.modpack.title}} icon">
+                            </span>
+                        </div>
+                        <div>
+                            <div class="profile-list__name">
+                                <a href="#">{{ stat.modpack.name }}</a>
+                                {% comment %} {% if stat.modpack.active|default:True %}
+                                <span class="profile-pill">ACTIVE</span>
+                                {% endif %} {% endcomment %}
+                            </div>
+                            <div class="profile-list__subtext">{{ stat.hours_played|default:'384' }} {% trans "HRS LOGGED" %} // Hash: {{ stat.modpack.hash|default:'0x9f4a...21c' }}</div>
+                        </div>
+                    </div>
+                    {% comment %} <button type="button" class="profile-list__action is-primary">{% trans 'LAUNCH' %}</button> {% endcomment %}
+                </div>
+                {% empty %}
+                <div class="profile-empty-state">
+                    <span class="material-symbols-outlined profile-empty-state__icon">layers_clear</span>
+                    <div class="profile-empty-state__content">
+                        <div class="profile-empty-state__title">&gt; NO_ACTIVE_MODPACKS_MOUNTED</div>
+                        <div class="profile-empty-state__text">&gt; Telemetry pipeline idle. No local or remote archives currently synchronized.</div>
+                        <div class="profile-empty-state__status">// STATUS: UNLINKED_NODE</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="profile-window__footer">
+                <a href="#">[+] {% trans "LINK_NEW_ARCHIVE_MODPACK" %}</a>
+            </div>
+        </div>
+
+        <div class="profile-window">
+            <header class="profile-window__header">
+                <div class="profile-window__title">
+                    <span class="material-symbols-outlined">groups</span>
+                    <span>[WINDOW: /net/squad/roster]</span>
+                </div>
+                <span class="profile-window__meta profile-window__meta--accent">{{ profile.friends.count|default:'0' }}/{{ profile.friends.count|default:'0' }} ONLINE</span>
+            </header>
+
+            <div class="profile-squad">
+                {% for friend in profile.friends.all %}
+                <div class="profile-squad__row {% if not friend.frog.status.is_active %}is-offline{% endif %}">
+                    <div class="profile-squad__identity">
+                        <div class="profile-squad__avatar {% if not friend.frog.status.is_active %}is-offline{% endif %}">
+                            <img src="{% if friend.frog.avatar %}{{ friend.frog.avatar.url }}{% else %}https://lh3.googleusercontent.com/aida-public/AB6AXuAhM2OW238foHZ-ju8QmksT2TFDvJMfP11MtqC8MJwO1J9n44J1OwINVWKURW8pr-g-8JTSSNY-_xtIUYNdDpyhhSJK8WopIbM6sXrQZ54F6DWs-HpwWiCo10zq6QmfNdFop72aCkavJ2Q9IENb8Kq9W1tV9NqME4965Olsmkz11ncOl_mdx--FVFmpuuH5DBba6qX6D6djOThc8foLb-fzaJI8ikqn2VQfOW1UpvcG-X8ofRj0D0xR5g{% endif %}" alt="{{ friend.username|default:'nox_phantom' }} profile picture">
+                        </div>
+                        <div>
+                            <div class="profile-squad__handle">{{ friend.username|default:'nox_phantom' }}</div>
+                            <div class="profile-squad__status">{{ friend.frog.status.string_status|default:'In Session: BIO_OVERGROWTH' }}</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'frogs-profile' friend.id %}" type="button" class="profile-squad__ping">CAT</a>
+                </div>
+                {% empty %}
+                <div class="profile-empty-state profile-empty-state--squad">
+                    <span class="material-symbols-outlined profile-empty-state__icon">group_off</span>
+                    <div class="profile-empty-state__content">
+                        <div class="profile-empty-state__title">&gt; SQUAD_ARRAY: EMPTY</div>
+                        <div class="profile-empty-state__text">&gt; No registered operative nodes detected in peer frequency.</div>
+                        <div class="profile-empty-state__status">&gt; Standalone node configuration active.</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="profile-window__cta">
+                <button type="button">{% trans "+ BROADCAST_SQUAD_INVITE" %}</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-window profile-window--logs">
+        <header class="profile-window__header">
+            <div class="profile-window__title">
+                <span class="material-symbols-outlined">terminal</span>
+                <span>[WINDOW: /var/log/comms_history]</span>
+            </div>
+                <div class="profile-window__meta profile-window__meta--muted">
+                <span class="profile-live-dot"></span>
+                {% blocktrans count number=profile.user.wall.posts.all|length %}
+                <span>LOG_BUFFER: {{ number }} RECORD</span>
+                {% plural %}
+                <span>LOG_BUFFER: {{ number }} RECORDS</span>
+                {% endblocktrans %}
+            </div>
+        </header>
+
+        <div class="profile-log-list">
+            {% for entry in user_wall %}
+                {% include "frogsnet/includes/wall_post.html" with entry=entry %}
+            {% empty %}
+            <article class="profile-log profile-log--empty">
+                <div class="profile-log__meta">
+                    <span class="profile-log__stamp">[LOG_BUFFER: EMPTY] :: NO_TRANSMISSIONS_RECORDED</span>
+                    <span class="profile-log__tag">TAG: #INIT_STANDBY</span>
+                </div>
+                <div class="profile-log__body">
+                    <p>&gt; Local communications ledger contains 0 broadcast events.</p>
+                    <p>&gt; Operative has not transmitted any telemetry, patches, or tactical logs.</p>
+                </div>
+                <div class="profile-log__status">// TRANSMISSION_PIPE: LISTENING...</div>
+            </article>
             {% endfor %}
         </div>
-    </section>
-</div>
+        {% if request.user.is_authenticated %}
+        {% if own_profile or profile.allow_external_wall_posts %}
+        <form
+            class="profile-terminal-field"
+            data-wall-form
+            action="{% url 'frogs-wall-post-create' profile.user.id %}"
+            method="post"
+        >
+            {% csrf_token %}
+            <span class="profile-terminal-field__prompt">{{ request.user.username }}@swamp:~$</span>
+            {{ wall_post_form.text }}
+            <button type="submit">{% trans "TRANSMIT" %}</button>
+        </form>
+        {% endif %}
+        {% endif %}
+    </div>
+</section>
+<script src="{% static 'frogsnet/typewriter.js' %}"></script>
+<script>
+    (() => {
+        const wallForm = document.querySelector('[data-wall-form]');
+        const wallList = document.querySelector('.profile-log-list');
+        const countContainer = document.querySelector('.profile-window--logs .profile-window__meta--muted');
+        if (!wallForm || !wallList) {
+            return;
+        }
+
+        const input = wallForm.querySelector('[name="text"]');
+        const submitButton = wallForm.querySelector('button[type="submit"]');
+
+        const animatePost = (postElement) => {
+            postElement.classList.add('profile-log--incoming');
+            const contentElement = postElement.querySelector('[data-wall-post-content]');
+            if (contentElement) {
+                typewriter(contentElement.dataset.wallPostContent || '', contentElement);
+            }
+            requestAnimationFrame(() => {
+                postElement.classList.add('profile-log--visible');
+            });
+        };
+
+        const updateCount = (count) => {
+            if (!countContainer) {
+                return;
+            }
+            const label = count === 1 ? 'LOG_BUFFER: 1 RECORD' : 'LOG_BUFFER: ' + count + ' RECORDS';
+            countContainer.innerHTML = '<span class="profile-live-dot"></span><span>' + label + '</span>';
+        };
+
+        wallForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (!input || !input.value.trim()) {
+                input?.focus();
+                return;
+            }
+
+            submitButton.disabled = true;
+            wallForm.classList.remove('profile-terminal-field--error');
+
+            try {
+                const response = await fetch(wallForm.action, {
+                    method: 'POST',
+                    body: new FormData(wallForm),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload.error || 'Transmission failed.');
+                }
+
+                const emptyState = wallList.querySelector('.profile-log--empty');
+                if (emptyState) {
+                    emptyState.remove();
+                }
+
+                const fragment = document.createRange().createContextualFragment(payload.html);
+                const postElement = fragment.firstElementChild;
+                if (!postElement) {
+                    throw new Error('Transmission returned no entry.');
+                }
+
+                wallList.prepend(postElement);
+                animatePost(postElement);
+                updateCount(payload.count);
+                wallForm.reset();
+                input.focus();
+            } catch (error) {
+                wallForm.classList.add('profile-terminal-field--error');
+                if (input) {
+                    input.value = error.message;
+                    input.select();
+                }
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+
+        wallList.querySelectorAll('[data-wall-post-id]').forEach((postElement) => {
+            const contentElement = postElement.querySelector('[data-wall-post-content]');
+            if (contentElement) {
+                contentElement.textContent = contentElement.dataset.wallPostContent || '';
+            }
+        });
+    })();
+</script>
+
+<script>
+    document.querySelector("#export_key-btn").addEventListener("click", () => {
+        navigator.clipboard.writeText("{{ request.build_absolute_uri }}")
+        createToast({level: "success", text: "{% trans 'Profile URL copied to clipboard!' %}" });
+    });
+</script>
+
+<script>
+    const friendRequestInteractionBtn = document.querySelector("#friend-request-interaction-btn");
+    friendRequestInteractionBtn?.addEventListener("click", async () => {
+        if (friendRequestInteractionBtn.dataset.friendStatus === "") {
+            try {
+                const response = await fetch("{% url 'frogs-friend-request' profile.user.id %}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                });
+    
+                const data = await response.json();
+                if (data.success) {
+                    createToast({level: "success", text: data.success || "{% trans 'Friend request sent!' %}" });
+                    friendRequestInteractionBtn.dataset.friendStatus = "sent";
+                    friendRequestInteractionBtn.classList.remove("highlighted");
+                    friendRequestInteractionBtn.querySelector("span:first-child").textContent = "person_check";
+                    typewriter("{% trans 'REQUEST_SENT' %}", friendRequestInteractionBtn.querySelector("span:last-child"));
+                } else {
+                    throw new Error(data.error || "{% trans 'Failed to send friend request.' %}");
+                }
+            } catch (error) {
+                createToast({level: "error", text: error.message });
+            }
+        } else if (friendRequestInteractionBtn.dataset.friendStatus === "sent") {
+            try {
+                const response = await fetch("{% url 'frogs-friend-request' profile.user.id %}", {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                });
+    
+                const data = await response.json();
+                if (data.success) {
+                    createToast({level: "success", text: data.success || "{% trans 'Friend request cancelled!' %}" });
+                    friendRequestInteractionBtn.dataset.friendStatus = "";
+                    friendRequestInteractionBtn.classList.add("highlighted");
+                    friendRequestInteractionBtn.querySelector("span:first-child").textContent = "person_add";
+                    typewriter("{% trans 'ADD_FRIEND' %}", friendRequestInteractionBtn.querySelector("span:last-child"));
+                } else {
+                    throw new Error(data.error || "{% trans 'Failed to send friend request.' %}");
+                }
+            } catch (error) {
+                createToast({level: "error", text: error.message });
+            }
+        } else if (friendRequestInteractionBtn.dataset.friendStatus === "friends") {
+            try {
+                const response = await fetch("{% url 'frogs-friend-delete' profile.user.id %}", {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                });
+    
+                const data = await response.json();
+                if (data.success) {
+                    createToast({level: "success", text: data.success || "{% trans 'Friend removed!' %}" });
+                    friendRequestInteractionBtn.dataset.friendStatus = "";
+                    friendRequestInteractionBtn.classList.add("highlighted");
+                    friendRequestInteractionBtn.querySelector("span:first-child").textContent = "person_add";
+                    typewriter("{% trans 'ADD_FRIEND' %}", friendRequestInteractionBtn.querySelector("span:last-child"));
+                } else {
+                    throw new Error(data.error || "{% trans 'Failed to remove friend.' %}");
+                }
+            } catch (error) {
+                createToast({level: "error", text: error.message });
+            }
+        }
+    });
+    friendRequestInteractionBtn?.addEventListener("mouseenter", () => {
+        if (friendRequestInteractionBtn.dataset.friendStatus === "friends") {
+            typewriter("{% trans 'REMOVE_FRIEND' %}", friendRequestInteractionBtn.querySelector("span:last-child"));
+            friendRequestInteractionBtn.querySelector("span:first-child").textContent = "person_remove";
+        } else if (friendRequestInteractionBtn.dataset.friendStatus === "sent") {
+            typewriter("{% trans 'CANCEL_REQUEST' %}", friendRequestInteractionBtn.querySelector("span:last-child"));
+            friendRequestInteractionBtn.querySelector("span:first-child").textContent = "person_remove";
+        }
+    });
+    friendRequestInteractionBtn?.addEventListener("mouseleave", () => {
+        if (friendRequestInteractionBtn.dataset.friendStatus === "friends") {
+            typewriter("{% trans 'FRIENDS' %}", friendRequestInteractionBtn.querySelector("span:last-child"));
+            friendRequestInteractionBtn.querySelector("span:first-child").textContent = "person";
+        } else if (friendRequestInteractionBtn.dataset.friendStatus === "sent") {
+            typewriter("{% trans 'REQUEST_SENT' %}", friendRequestInteractionBtn.querySelector("span:last-child"));
+            friendRequestInteractionBtn.querySelector("span:first-child").textContent = "person_check";
+        }
+    });
+</script>
 {% endblock %}

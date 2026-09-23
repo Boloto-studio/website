@@ -1,0 +1,328 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SYS.LOGS.READ - BOLOTO TERMINAL OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#002110",
+                        "inverse-primary": "#745b00",
+                        "surface-variant": "#233a2b",
+                        "surface-container-low": "#092013",
+                        "on-secondary-fixed-variant": "#00522f",
+                        "tertiary": "#c1f2ff",
+                        "on-tertiary-fixed": "#001f25",
+                        "surface-container-highest": "#233a2b",
+                        "primary-fixed-dim": "#f0c100",
+                        "outline-variant": "#4e4632",
+                        "on-error": "#690005",
+                        "on-surface-variant": "#d1c5ab",
+                        "surface-container": "#0d2417",
+                        "inverse-surface": "#cee9d4",
+                        "on-surface": "#cee9d4",
+                        "on-primary-fixed-variant": "#574400",
+                        "surface-tint": "#f0c100",
+                        "on-error-container": "#ffdad6",
+                        "secondary-container": "#00f999",
+                        "primary-fixed": "#ffe089",
+                        "on-primary": "#3d2f00",
+                        "outline": "#9a9078",
+                        "on-secondary": "#00391f",
+                        "tertiary-fixed": "#a7edff",
+                        "surface-container-lowest": "#001207",
+                        "on-tertiary-container": "#00606f",
+                        "on-primary-fixed": "#241a00",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "secondary-fixed": "#56ffa8",
+                        "background": "#02170b",
+                        "surface-dim": "#02170b",
+                        "primary-container": "#f9c806",
+                        "tertiary-container": "#39e0ff",
+                        "on-background": "#cee9d4",
+                        "secondary-fixed-dim": "#00e38b",
+                        "on-primary-container": "#6b5500",
+                        "surface-container-high": "#182f21",
+                        "primary": "#ffe8ae",
+                        "on-secondary-container": "#006e41",
+                        "surface": "#02170b",
+                        "on-tertiary": "#00363f",
+                        "on-tertiary-fixed-variant": "#004e5b",
+                        "inverse-on-surface": "#1f3527",
+                        "secondary": "#ddffe4",
+                        "tertiary-fixed-dim": "#2bd9f7",
+                        "surface-bright": "#273e2f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "main-padding": "3rem",
+                        "gutter": "1.5rem",
+                        "baseline": "4px",
+                        "sidebar-width": "30%",
+                        "section-gap": "4rem"
+                    },
+                    "fontFamily": {
+                        "display-xl-mobile": ["Space Mono"],
+                        "label-sm": ["Space Mono"],
+                        "body-md": ["Space Mono"],
+                        "headline-lg": ["Space Mono"],
+                        "display-xl": ["Space Mono"],
+                        "code-snippet": ["Space Mono"]
+                    },
+                    "fontSize": {
+                        "display-xl-mobile": ["48px", { "lineHeight": "1.1", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.15em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "display-xl": ["72px", { "lineHeight": "1.0", "letterSpacing": "-0.05em", "fontWeight": "700" }],
+                        "code-snippet": ["14px", { "lineHeight": "1.4", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-surface');
+            position: relative;
+        }
+        
+        /* CRT Scanlines Overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        /* Glitch/Flicker Animation */
+        @keyframes crtFlicker {
+            0% { opacity: 0.95; }
+            5% { opacity: 0.85; }
+            10% { opacity: 0.95; }
+            15% { opacity: 1; }
+            100% { opacity: 1; }
+        }
+        .flicker-effect {
+            animation: crtFlicker 0.15s infinite;
+        }
+
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .glow-sm {
+            box-shadow: 0 0 15px rgba(240,193,0,0.1);
+        }
+        .glow-active {
+            box-shadow: 0 0 15px rgba(249, 200, 6, 0.3);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.background');
+            border-left: 1px solid theme('colors.outline-variant');
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.outline-variant');
+            border-radius: theme('borderRadius.DEFAULT');
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.primary-fixed-dim');
+        }
+    </style>
+</head>
+<body class="flicker-effect min-h-screen flex flex-col md:flex-row bg-background" style="background-color: #02170b;">
+<!-- TopAppBar (Mobile Only) -->
+<header class="md:hidden flex items-center justify-between px-gutter w-full h-16 border-b border-outline-variant bg-surface/90 bg-background/80 backdrop-blur-sm z-50 fixed top-0 right-0">
+<div class="font-headline-lg text-headline-lg text-primary-fixed animate-pulse">BOLOTO_TERMINAL_OS</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-primary-fixed">sensors</span>
+<span class="material-symbols-outlined text-primary-fixed">terminal</span>
+<span class="material-symbols-outlined text-primary-fixed">memory</span>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col h-full p-main-padding gap-gutter fixed left-0 top-0 w-[30%] border-r border-outline-variant bg-surface-container-low flat glow-sm shadow-[0_0_15px_rgba(240,193,0,0.1)] z-40">
+<div class="mb-section-gap">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 bg-primary-fixed-dim rounded flex items-center justify-center font-display-xl text-headline-lg font-bold text-background">B</div>
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary-fixed-dim">BOLOTO SYSTEM v2.0</h1>
+<p class="font-code-snippet text-code-snippet text-primary-fixed text-xs mt-1">KERNEL_ACCESS: GRANTED</p>
+</div>
+</div>
+</div>
+<ul class="flex flex-col gap-4 flex-grow">
+<!-- Inactive -->
+<li class="">
+<a class="flex items-center gap-3 p-2 font-code-snippet text-code-snippet uppercase tracking-widest text-on-surface-variant hover:text-primary-fixed transition-colors duration-200 hover:bg-surface-container-highest hover:text-secondary-fixed-dim cursor-pointer active:scale-[0.99]" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="">HOME</span>
+</a>
+</li>
+<!-- Active (Semantic match for "Read", "Logs", "Transmission") -->
+<li class="">
+<a class="flex items-center gap-3 p-2 font-code-snippet text-code-snippet uppercase tracking-widest text-secondary-fixed-dim font-bold before:content-['['] after:content-[']'] border-l-4 border-secondary-fixed-dim pl-2 bg-surface-container-highest" href="#">
+<span class="material-symbols-outlined">factory</span>
+<span class="">STUDIO</span>
+</a>
+</li>
+<!-- Inactive -->
+<li class="">
+<a class="flex items-center gap-3 p-2 font-code-snippet text-code-snippet uppercase tracking-widest text-on-surface-variant hover:text-primary-fixed transition-colors duration-200 hover:bg-surface-container-highest hover:text-secondary-fixed-dim cursor-pointer active:scale-[0.99]" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="">COMMUNITY</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-3 p-2 font-code-snippet text-code-snippet uppercase tracking-widest text-on-surface-variant hover:text-primary-fixed transition-colors duration-200 hover:bg-surface-container-highest hover:text-secondary-fixed-dim cursor-pointer active:scale-[0.99]" href="#">
+<span class="material-symbols-outlined">volunteer_activism</span>
+<span class="">DONATION</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-3 p-2 font-code-snippet text-code-snippet uppercase tracking-widest text-on-surface-variant hover:text-primary-fixed transition-colors duration-200 hover:bg-surface-container-highest hover:text-secondary-fixed-dim cursor-pointer active:scale-[0.99]" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="">CONTACT</span>
+</a>
+</li>
+</ul>
+<button class="w-full py-4 border border-primary-fixed text-primary-fixed font-label-sm text-label-sm uppercase hover:bg-primary-fixed hover:text-background transition-colors duration-200 glow-active">
+            SYSTEM REBOOT
+        </button>
+<div class="mt-section-gap flex justify-between border-t border-outline-variant pt-4">
+<a class="flex items-center gap-2 font-code-snippet text-code-snippet text-on-surface-variant hover:text-primary-fixed" href="#"><span class="material-symbols-outlined">settings</span> SETTINGS</a>
+<a class="flex items-center gap-2 font-code-snippet text-code-snippet text-on-surface-variant hover:text-error" href="#"><span class="material-symbols-outlined">logout</span> LOGOUT</a>
+</div>
+</nav>
+<!-- Main Content Area (Terminal) -->
+<main class="flex-1 md:ml-[30%] h-screen overflow-y-auto p-gutter md:p-main-padding mt-16 md:mt-0 relative bg-background" style="background-color: #02170b;">
+<!-- Breadcrumbs / Top Metadata -->
+<div class="mb-8 border-b border-outline-variant pb-4 flex justify-between items-center">
+<div class="font-code-snippet text-code-snippet text-secondary-fixed-dim opacity-80 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">folder</span>
+<span class="">DIR: /SYS/LOGS/TRANSMISSION_492</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-primary-fixed-dim rounded-full animate-pulse glow-active"></span>
+<span class="font-code-snippet text-code-snippet text-primary-fixed-dim text-xs">LIVE</span>
+</div>
+</div>
+<!-- Terminal Window Container -->
+<article class="border border-secondary-fixed-dim bg-surface-container rounded p-8 relative glow-sm">
+<!-- Terminal Header Bar -->
+<div class="absolute top-0 left-0 right-0 h-8 bg-secondary-fixed-dim/10 border-b border-secondary-fixed-dim flex items-center px-4 justify-between">
+<span class="font-code-snippet text-label-sm text-secondary-fixed-dim">sys_read_process.exe</span>
+<div class="flex gap-2">
+<div class="w-3 h-3 border border-secondary-fixed-dim rounded-sm"></div>
+<div class="w-3 h-3 border border-secondary-fixed-dim rounded-sm"></div>
+<div class="w-3 h-3 border border-secondary-fixed-dim rounded-sm bg-secondary-fixed-dim"></div>
+</div>
+</div>
+<div class="mt-8">
+<!-- Article Title & Meta -->
+<header class="mb-10">
+<h1 class="font-display-xl text-headline-lg md:text-display-xl text-on-surface uppercase mb-4 leading-tight">
+                        SECTOR 7 OVERHAUL:<br>
+<span class="text-primary-fixed-dim">THE SHADER UPDATE</span><span class="cursor-blink">_</span>
+</h1>
+<div class="flex flex-wrap gap-4 font-code-snippet text-label-sm text-on-surface-variant bg-surface-container-highest p-4 border-l-2 border-primary-fixed-dim">
+<span class="">OPERATOR: NULL_POINTER</span>
+<span class="text-outline-variant">|</span>
+<span class="">TS: T-MINUS 04_HOURS_AGO</span>
+<span class="text-outline-variant">|</span>
+<span class="text-error font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">warning</span> PRIORITY: HIGH</span>
+</div>
+</header>
+<!-- Article Body -->
+<div class="font-body-md text-body-md text-on-surface-variant space-y-6">
+<p class="leading-relaxed">
+                        &gt; INITIALIZING LOG DECRYPTION...<br>
+                        &gt; DECRYPTION COMPLETE.<br><br>
+                        Attention all operatives. The Sector 7 visual fidelity matrices have undergone a critical re-alignment. The implementation of dynamic ray-traced shadow cascades and ambient occlusion protocols has been finalized in build v0.8.4-BETA.
+                    </p>
+<div class="my-8 border border-outline-variant p-2 bg-surface-container-lowest">
+<div class="aspect-video relative overflow-hidden bg-black flex items-center justify-center group cursor-crosshair">
+<!-- Placeholder for dithered image -->
+<img alt="Matrix code" class="w-full h-full object-cover opacity-60 grayscale contrast-150 mix-blend-screen" data-alt="A monochromatic, highly dithered digital rendering of a futuristic cityscape viewed through a simulated CRT monitor. The image features extreme contrast, primarily deep blacks and stark whites, with subtle green phosphor glowing artifacts. Scanlines are heavily visible across the frame. The aesthetic is heavily inspired by 1980s cyberpunk interfaces and low-resolution terminal graphics, depicting towering monolithic structures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRV-zD98ox8ity2mboEOFo-AbdNGuwx658fA4leC_qBAmO3vNfUpG8rfAYe_OsLDKNqeRvp05mhG28m5woB_GWBhy8kiNcqU71EKpKpvvMWM8g16zT3XZb5EyEzCh07yBYbHAA7Jl7kKjwBlj9mX_LIGjuh73Z3wTmZnKK7CbnGn66AOauiRlGK9oo_eBeUnOKkBKI4k9ELV5KPqQ9_I1k1ZgGIHQEXPu1cOz2KcH2FrQ66Q4Vdd6_Cb5n277WAbrlQ6Fge1VVaHqV">
+<div class="absolute inset-0 border-2 border-transparent group-hover:border-secondary-fixed-dim transition-colors duration-300 pointer-events-none"></div>
+<div class="absolute bottom-2 right-2 bg-background/80 px-2 py-1 font-code-snippet text-label-sm text-secondary-fixed-dim border border-secondary-fixed-dim backdrop-blur-sm">
+                                FIG_01: RENDER_TARGET_ALPHA
+                            </div>
+</div>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-primary-fixed uppercase mt-12 mb-4 border-b border-outline-variant pb-2 inline-block">
+                        // CORE MODIFICATIONS
+                    </h2>
+<ul class="list-none space-y-4 pl-4 border-l border-outline-variant ml-2">
+<li class="flex items-start gap-2">
+<span class="text-secondary-fixed-dim mt-1">&gt;</span>
+<span class=""><strong class="text-on-surface">Volumetric Fog Integration:</strong> Atmospheric density algorithms recalibrated to support scattered photon tracing in low-light environments (Sub-Level 4).</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="text-secondary-fixed-dim mt-1">&gt;</span>
+<span class=""><strong class="text-on-surface">Texture Streaming Optimization:</strong> Memory buffer overflow incidents reduced by 43%. VRAM allocation now utilizes aggressive culling outside the primary viewport.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="text-error mt-1">&gt;</span>
+<span class=""><strong class="text-error">KNOWN ANOMALY:</strong> Temporal anti-aliasing artifacts occasionally manifest near high-velocity particle emitters. Engineering team is currently isolating the variable.</span>
+</li>
+</ul>
+<p class="leading-relaxed mt-8 bg-primary-fixed-dim/10 p-4 border border-primary-fixed-dim text-primary-fixed-dim">
+                        WARNING: Operators utilizing legacy optical cybernetics (Gen-2 or older) may experience localized rendering glitches or artificial scanline persistence. Upgrade to Gen-3 ocular implants recommended before traversing Sector 7.
+                    </p>
+</div>
+<!-- Tags / Categories -->
+<div class="mt-12 flex gap-4 pt-6 border-t border-outline-variant">
+<span class="font-code-snippet text-label-sm text-secondary-fixed-dim px-2 py-1 border border-secondary-fixed-dim/30 hover:border-secondary-fixed-dim cursor-pointer transition-colors">[ DEVELOPMENT ]</span>
+<span class="font-code-snippet text-label-sm text-secondary-fixed-dim px-2 py-1 border border-secondary-fixed-dim/30 hover:border-secondary-fixed-dim cursor-pointer transition-colors">[ GRAPHICS ]</span>
+<span class="font-code-snippet text-label-sm text-secondary-fixed-dim px-2 py-1 border border-secondary-fixed-dim/30 hover:border-secondary-fixed-dim cursor-pointer transition-colors">[ PATCH_NOTES ]</span>
+</div>
+</div>
+</article>
+<!-- Article Navigation -->
+<div class="mt-8 flex justify-between items-center font-code-snippet text-code-snippet">
+<a class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors group flex items-center gap-2" href="#">
+<span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_left</span>
+<span class="group-hover:text-primary-fixed-dim before:content-['['] after:content-[']'] text-on-surface-variant group-hover:before:text-secondary-fixed-dim group-hover:after:text-secondary-fixed-dim transition-colors"> PREVIOUS_LOG </span>
+</a>
+<a class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors group flex items-center gap-2" href="#">
+<span class="group-hover:text-primary-fixed-dim before:content-['['] after:content-[']'] text-on-surface-variant group-hover:before:text-secondary-fixed-dim group-hover:after:text-secondary-fixed-dim transition-colors"> NEXT_LOG </span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_right</span>
+</a>
+</div>
+</main>
+
+
+</body></html>

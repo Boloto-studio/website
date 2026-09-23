@@ -4,6 +4,7 @@ from django.db import OperationalError, ProgrammingError, DatabaseError
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 from django.utils import timezone
 from datetime import timedelta
@@ -16,6 +17,13 @@ from django.conf import settings
 
 from .forms import ContactRequestForm
 from .models import BlogPost, Event, HeroSlide, MainFocus, StaffMember
+
+
+def blog_post(request, pk):
+    post = get_object_or_404(BlogPost, pk=pk)
+    return render(request, "base/blog_post.html", {
+        "post": post,
+    })
 
 # Create your views here.
 
@@ -51,7 +59,7 @@ def _build_terminal_logs():
         "timestamp": post.published_date,
         "kind": _("TEXT_LOG"),
         "action_label": _("Read full log"),
-        "url": "",
+        "url": reverse("blog_post", args=[post.pk]),
         "thumbnail": "",
     } for post in BlogPost.objects.all().order_by('-published_date')[:6]]
 

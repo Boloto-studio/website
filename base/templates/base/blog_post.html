@@ -1,0 +1,77 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+{% load title_formatters %}
+
+{% block body_class %}blog-post{% endblock %}
+{% block path_title %}{% blocktrans with title=post.title %}{{ title }}{% endblocktrans %}{% endblock %}
+
+{% block body %}
+<section class="blog-post-shell" aria-labelledby="blog-post-title">
+    <div class="blog-post-header">
+        <div class="blog-post-header__crumbs">
+            <span class="material-symbols-outlined blog-post-header__icon">folder</span>
+            <span>{% blocktrans with title=post.title %}DIR: /SYS/LOGS/TRANSMISSION {{ title|upper }}{% endblocktrans %}</span>
+        </div>
+        <div class="blog-post-status">
+            <span class="blog-post-status__dot"></span>
+            <span>{% trans 'LIVE' %}</span>
+        </div>
+    </div>
+
+    <article class="blog-post-panel" aria-live="polite">
+        <div class="blog-post-panel__chrome">
+            <span class="blog-post-panel__label">sys_read_process.exe</span>
+            <div class="blog-post-panel__controls" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span class="is-active"></span>
+            </div>
+        </div>
+
+        <div class="blog-post-content">
+            <header class="blog-post-intro">
+                <h1 id="blog-post-title" class="blog-post-title">
+                    {% if post.title %}
+                        {{ post.title|upper|highlight_after_semicolon }}
+                    {% else %}
+                        {% trans 'SYSTEM UPDATE' %}
+                    {% endif %}
+                </h1>
+                <div class="blog-post-meta">
+                    <span>{% trans 'OPERATOR:' %} {% if post.author %}{{ post.author.username }}{% else %}{% trans 'NULL_POINTER' %}{% endif %}</span>
+                    <span class="blog-post-meta__divider">|</span>
+                    <span>{% trans 'TS:' %} {{ post.published_date|date:'Y-m-d H:i' }}</span>
+                    <span class="blog-post-meta__divider">|</span>
+                    <span class="blog-post-priority">
+                        <span class="material-symbols-outlined">warning</span>
+                        {% trans 'PRIORITY: HIGH' %}
+                    </span>
+                </div>
+            </header>
+
+            <div class="blog-post-body">
+                {% autoescape off %}
+                    {{ post.parse_html_content|safe }}
+                {% endautoescape %}
+            </div>
+
+            <div class="blog-post-tags" aria-label="{% trans 'Post tags' %}">
+                <span>{% trans '[ DEVELOPMENT ]' %}</span>
+                <span>{% trans '[ GRAPHICS ]' %}</span>
+                <span>{% trans '[ PATCH_NOTES ]' %}</span>
+            </div>
+        </div>
+    </article>
+
+    <nav class="blog-post-navigation" aria-label="{% trans 'Post navigation' %}">
+        <a class="blog-post-navigation__link" href="{% url 'home' %}">
+            <span class="material-symbols-outlined">arrow_left</span>
+            <span>{% trans 'PREVIOUS_LOG' %}</span>
+        </a>
+        <a class="blog-post-navigation__link" href="{% url 'home' %}">
+            <span>{% trans 'NEXT_LOG' %}</span>
+            <span class="material-symbols-outlined">arrow_right</span>
+        </a>
+    </nav>
+</section>
+{% endblock %}

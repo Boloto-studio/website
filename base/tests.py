@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
-from base.models import ContactRequest
+from base.models import BlogPost, ContactRequest
 
 
 class PublicPageTests(TestCase):
@@ -26,6 +27,20 @@ class PublicPageTests(TestCase):
 		self.assertContains(response, 'Maintenance Funds')
 		self.assertContains(response, '80%')
 		self.assertContains(response, 'TARGET: $500/MO')
+
+	def test_blog_post_detail_renders_html_content(self):
+		post = BlogPost.objects.create(
+			title='Sector 7 Overhaul',
+			content='**Kernel update**\n\nAttention all operatives.',
+			published_date=timezone.now(),
+		)
+
+		response = self.client.get(reverse('blog_post', args=[post.pk]))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'Sector 7 Overhaul')
+		self.assertContains(response, 'Kernel update')
+		self.assertContains(response, 'Attention all operatives.')
 
 	def test_contact_form_creates_request(self):
 		response = self.client.post(
