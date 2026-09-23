@@ -34,7 +34,7 @@
         <div class="profile-window__body profile-window__body--identity">
             <div class="profile-identity">
                 <div class="profile-avatar-wrap">
-                    <img class="profile-avatar" src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}https://lh3.googleusercontent.com/aida-public/AB6AXuADSc7cjN8BrBGa47oppDj71OJ67Wo4yoGFeKJNqm940wwG5oml_wju3ONotPxDd1WblQdExuEFy70Zj1O6qzz1DssCbXbSCm1O6-nS_PJlWaOsI_L3F4bnVRHaAfpOYGS0VGvMJSOxVW4R071H_JX1QlFU45UFk0Uz0i-703FZWpW17Rci0bAa7UyNRWowkAdT1LM9jsVUSK2q8Zbc7rkbcd-7MgkYbDNXW2aIn4WMU0mivdRyatwccA{% endif %}" alt="{{ profile.callsign|default:'User profile' }}">
+                    <img class="profile-avatar" src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static "frogsnet/avatar.webp" %}{% endif %}" alt="{{ profile.callsign|default:'User profile' }}">
                     {% comment %} <span class="profile-avatar__level">LVL.74</span> {% endcomment %}
                 </div>
 
@@ -71,7 +71,7 @@
                         <span><strong>{% trans "Minecraft username:" %}</strong> {{ profile.minecraft_username|default:'Not set' }}</span>
                         {% if profile.location %}
                             <span>|</span>
-                            <span><strong>{% trans "Location:" %}</strong> {{ profile.location|default:'SwampNode-East-04' }}</span>
+                            <span><strong>{% trans "Location:" %}</strong> {{ profile.location|default:'[ NULL ]' }}</span>
                         {% endif %}
                     </div>
                     {% if profile.bio %}
@@ -82,7 +82,7 @@
 
             <div class="profile-actions">
                 {% if own_profile %}
-                    <a href="{% url 'frogs-profile-edit' %}" class="profile-button profile-button--primary">
+                    <a href="{% url 'frogs-profile-edit' %}" class="profile-button profile-button--primary highlighted">
                         <span class="material-symbols-outlined">edit_note</span>
                         <span>{% trans "EDIT_IDENTITY" %}</span>
                     </a>
@@ -123,7 +123,7 @@
                     <span class="material-symbols-outlined">layers</span>
                     <span>[WINDOW: /sys/user/modpacks_linked]</span>
                 </div>
-                <span class="profile-window__meta profile-window__meta--muted">COUNT: {{ modpacks|length|default:'0' }}_SYNCED</span>
+                <span class="profile-window__meta profile-window__meta--muted">{% trans "COUNT" %}: {{ modpacks|length|default:'0' }}_{% trans "SYNCED" %}</span>
             </header>
 
             <div class="profile-list">
@@ -151,9 +151,9 @@
                 <div class="profile-empty-state">
                     <span class="material-symbols-outlined profile-empty-state__icon">layers_clear</span>
                     <div class="profile-empty-state__content">
-                        <div class="profile-empty-state__title">&gt; NO_ACTIVE_MODPACKS_MOUNTED</div>
-                        <div class="profile-empty-state__text">&gt; Telemetry pipeline idle. No local or remote archives currently synchronized.</div>
-                        <div class="profile-empty-state__status">// STATUS: UNLINKED_NODE</div>
+                        <div class="profile-empty-state__title">&gt; {% trans "NO_ACTIVE_MODPACKS_MOUNTED" %}</div>
+                        <div class="profile-empty-state__text">&gt; {% trans "Telemetry pipeline idle. No local or remote archives currently synchronized." %}</div>
+                        <div class="profile-empty-state__status">// {% trans "STATUS: UNLINKED_NODE" %}</div>
                     </div>
                 </div>
                 {% endfor %}
@@ -190,9 +190,9 @@
                 <div class="profile-empty-state profile-empty-state--squad">
                     <span class="material-symbols-outlined profile-empty-state__icon">group_off</span>
                     <div class="profile-empty-state__content">
-                        <div class="profile-empty-state__title">&gt; SQUAD_ARRAY: EMPTY</div>
-                        <div class="profile-empty-state__text">&gt; No registered operative nodes detected in peer frequency.</div>
-                        <div class="profile-empty-state__status">&gt; Standalone node configuration active.</div>
+                        <div class="profile-empty-state__title">&gt; {% trans "SQUAD_ARRAY: EMPTY" %}</div>
+                        <div class="profile-empty-state__text">&gt; {% trans "No registered operative nodes detected in peer frequency." %}</div>
+                        <div class="profile-empty-state__status">&gt; {% trans "Standalone node configuration active." %}</div>
                     </div>
                 </div>
                 {% endfor %}
@@ -208,7 +208,7 @@
         <header class="profile-window__header">
             <div class="profile-window__title">
                 <span class="material-symbols-outlined">terminal</span>
-                <span>[WINDOW: /var/log/comms_history]</span>
+                <span>[WINDOW: /var/log/wall]</span>
             </div>
                 <div class="profile-window__meta profile-window__meta--muted">
                 <span class="profile-live-dot"></span>
@@ -226,14 +226,14 @@
             {% empty %}
             <article class="profile-log profile-log--empty">
                 <div class="profile-log__meta">
-                    <span class="profile-log__stamp">[LOG_BUFFER: EMPTY] :: NO_TRANSMISSIONS_RECORDED</span>
-                    <span class="profile-log__tag">TAG: #INIT_STANDBY</span>
+                    <span class="profile-log__stamp">[LOG_BUFFER: EMPTY] :: {% trans "NO_TRANSMISSIONS_RECORDED" %}</span>
+                    <span class="profile-log__tag">{% trans "TAG: #INIT_STANDBY" %}</span>
                 </div>
                 <div class="profile-log__body">
-                    <p>&gt; Local communications ledger contains 0 broadcast events.</p>
-                    <p>&gt; Operative has not transmitted any telemetry, patches, or tactical logs.</p>
+                    <p>&gt; {% trans "Local communications ledger contains 0 broadcast events." %}</p>
+                    <p>&gt; {% trans "Operative has not transmitted any telemetry, patches, or tactical logs." %}</p>
                 </div>
-                <div class="profile-log__status">// TRANSMISSION_PIPE: LISTENING...</div>
+                <div class="profile-log__status">// {% trans "TRANSMISSION_PIPE: LISTENING..." %}</div>
             </article>
             {% endfor %}
         </div>
@@ -246,7 +246,7 @@
             method="post"
         >
             {% csrf_token %}
-            <span class="profile-terminal-field__prompt">{{ request.user.username }}@swamp:~$</span>
+            <span class="profile-terminal-field__prompt">{{ request.user.username }}@boloto:~$</span>
             {{ wall_post_form.text }}
             <button type="submit">{% trans "TRANSMIT" %}</button>
         </form>

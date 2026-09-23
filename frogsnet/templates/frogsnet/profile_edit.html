@@ -40,7 +40,7 @@
                 <aside class="profile-edit-sidebar">
                     <div class="profile-edit-avatar-header">// {% trans "AVATAR_MATRIX" %}</div>
                     <div class="profile-edit-avatar-wrap">
-                        <img id="avatar-preview" data-default-src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhM2OW238foHZ-ju8QmksT2TFDvJMfP11MtqC8MJwO1J9n44J1OwINVWKURW8pr-g-8JTSSNY-_xtIUYNdDpyhhSJK8WopIbM6sXrQZ54F6DWs-HpwWiCo10zq6QmfNdFop72aCkavJ2Q9IENb8Kq9W1tV9NqME4965Olsmkz11ncOl_mdx--FVFmpuuH5DBba6qX6D6djOThc8foLb-fzaJI8ikqn2VQfOW1UpvcG-X8ofRj0D0xR5g" src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}https://lh3.googleusercontent.com/aida-public/AB6AXuAhM2OW238foHZ-ju8QmksT2TFDvJMfP11MtqC8MJwO1J9n44J1OwINVWKURW8pr-g-8JTSSNY-_xtIUYNdDpyhhSJK8WopIbM6sXrQZ54F6DWs-HpwWiCo10zq6QmfNdFop72aCkavJ2Q9IENb8Kq9W1tV9NqME4965Olsmkz11ncOl_mdx--FVFmpuuH5DBba6qX6D6djOThc8foLb-fzaJI8ikqn2VQfOW1UpvcG-X8ofRj0D0xR5g{% endif %}" alt="{% trans 'Profile avatar' %}" class="profile-edit-avatar">
+                        <img id="avatar-preview" data-default-src="{% static "frogsnet/avatar.webp" %}" src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static "frogsnet/avatar.webp" %}{% endif %}" alt="{% trans 'Profile avatar' %}" class="profile-edit-avatar">
                         {% comment %} <span class="profile-edit-avatar-level">{% trans "LVL." %}{{ profile.tier|default:'frog'|upper }}</span> {% endcomment %}
                     </div>
 
