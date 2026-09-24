@@ -1,8 +1,14 @@
 {% extends "base/layout.html" %}
 {% load i18n %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'base/contact.css' %}">
+{% endblock %}
 
 {% block title %}{% trans "Contact" %}{% endblock %}
 {% block path_title %}{% trans "Contact" %}{% endblock %}
+{% block body_class %}contact-page{% endblock %}
 
 {% block body %}
 <section class="contact-shell">
@@ -21,30 +27,38 @@
         <div class="terminal-message error">{{ form.non_field_errors|join:', ' }}</div>
     {% endif %}
 
-    <form class="terminal-form contact-shell__form" method="post">
-        {% csrf_token %}
-        <div class="terminal-field">
-            <label class="terminal-field__label" for="id_name">/home/user/name &gt;</label>
-            {{ form.name }}
-            {% if form.name.errors %}<div class="terminal-field-errors">{{ form.name.errors|join:', ' }}</div>{% endif %}
-        </div>
+    <div class="contact-shell__panel">
+        <form class="terminal-form contact-shell__form" method="post">
+            {% csrf_token %}
+            <div class="terminal-field contact-shell__field contact-shell__field--inline">
+                <label class="terminal-field__label" for="id_name">/home/user/name &gt;</label>
+                <div class="contact-shell__input-wrap">
+                    {{ form.name }}
+                    {% if form.name.errors %}<div class="terminal-field-errors">{{ form.name.errors|join:', ' }}</div>{% endif %}
+                </div>
+            </div>
 
-        <div class="terminal-field">
-            <label class="terminal-field__label" for="id_email">/home/user/email &gt;</label>
-            {{ form.email }}
-            {% if form.email.errors %}<div class="terminal-field-errors">{{ form.email.errors|join:', ' }}</div>{% endif %}
-        </div>
+            <div class="terminal-field contact-shell__field contact-shell__field--inline">
+                <label class="terminal-field__label" for="id_email">/home/user/email &gt;</label>
+                <div class="contact-shell__input-wrap">
+                    {{ form.email }}
+                    {% if form.email.errors %}<div class="terminal-field-errors">{{ form.email.errors|join:', ' }}</div>{% endif %}
+                </div>
+            </div>
 
-        <div class="terminal-field">
-            <label class="terminal-field__label" for="id_message">/home/user/message &gt;</label>
-            {{ form.message }}
-            {% if form.message.errors %}<div class="terminal-field-errors">{{ form.message.errors|join:', ' }}</div>{% endif %}
-        </div>
+            <div class="terminal-field contact-shell__field contact-shell__field--stack">
+                <label class="terminal-field__label" for="id_message">/home/user/message &gt;</label>
+                <div class="contact-shell__input-wrap">
+                    {{ form.message }}
+                    {% if form.message.errors %}<div class="terminal-field-errors">{{ form.message.errors|join:', ' }}</div>{% endif %}
+                </div>
+            </div>
 
-        <div class="contact-shell__actions">
-            <button class="terminal-button contact-shell__submit" type="submit">[ {% trans "TRANSMIT_DATA" %} ]</button>
-        </div>
-    </form>
+            <div class="contact-shell__actions">
+                <button class="terminal-button contact-shell__submit" type="submit">[ {% trans "TRANSMIT_DATA" %} ]</button>
+            </div>
+        </form>
+    </div>
 
     <footer class="contact-shell__footer">© BOLOTO STUDIO. END OF LINE.</footer>
 </section>

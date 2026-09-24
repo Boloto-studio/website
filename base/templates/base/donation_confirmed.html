@@ -1,5 +1,10 @@
 {% extends "base/layout.html" %}
 {% load i18n %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'base/donation_confirmed.css' %}">
+{% endblock %}
 
 {% block title %}{% trans "Subscription Confirmed" %}{% endblock %}
 {% block body_class %}donation-confirmed{% endblock %}

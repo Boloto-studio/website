@@ -1,5 +1,10 @@
 {% extends "base/layout.html" %}
 {% load i18n %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'base/donation.css' %}">
+{% endblock %}
 
 {% block title %}Donation{% endblock %}
 

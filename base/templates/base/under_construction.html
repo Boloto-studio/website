@@ -1,17 +1,15 @@
 {% extends "base/layout.html" %}
 {% load i18n %}
+{% load static %}
 {% block title %}Under Construction{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'base/under_construction.css' %}">
+{% endblock %}
 
 {% block body_class %}under-construction{% endblock %}
 
 {% block body %}
-
-    <style>
-        .terminal-button {
-            cursor: pointer;
-        }
-    </style>
-
     <h1>{% trans "Under Construction" %}</h1>
     <p>{% trans "The frogs are still working on this website. You can take a peek, but it is pretty ugly rn. -_-" %}</p>
     <button class="terminal-button">[ {% trans "TAKE A PEEK" %} ]</button>

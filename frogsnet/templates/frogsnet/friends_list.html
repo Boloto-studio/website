@@ -2,6 +2,10 @@
 {% load i18n %}
 {% load static %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'frogsnet/friends_list.css' %}">
+{% endblock %}
+
 {% block path_title %}{% trans "Friends List" %}{% endblock %}
 {% block body_class %}friends-page{% endblock %}
 

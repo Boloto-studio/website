@@ -1,0 +1,13 @@
+body.under-construction .terminal-shell {
+    grid-template-columns: auto;
+}
+
+body.under-construction .terminal-shell main,
+body.under-construction .terminal-shell main .terminal-main__inner {
+    display: grid;
+    place-items: center;
+}
+
+.terminal-button {
+    cursor: pointer;
+}

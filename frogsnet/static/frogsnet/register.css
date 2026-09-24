@@ -1,0 +1,32 @@
+.transmission-status {
+    margin-top: 1rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid rgba(154, 144, 120, 0.6);
+    background: rgba(9, 19, 14, 0.45);
+    color: var(--accent-soft);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.transmission-status--error {
+    color: var(--danger);
+    border-color: rgba(255, 180, 171, 0.45);
+}
+
+.auth-input-wrap--icon {
+    padding-left: 0.65rem;
+}
+
+.terminal-button--primary {
+    border-color: rgba(249, 200, 6, 0.9);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0)),
+        repeating-linear-gradient(
+            180deg,
+            rgba(255,255,255,0.12) 0 2px,
+            rgba(255,255,255,0.02) 2px 4px
+        ),
+        linear-gradient(180deg, rgba(249,200,6,0.95), rgba(240,193,0,0.9));
+    color: var(--bg);
+}

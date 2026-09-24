@@ -1,6 +1,12 @@
-{% extends "base/public_layout.html" %}
+{% extends "base/layout.html" %}
+
+{% load static %}
 
 {% block title %}Boloto Studio - {{ page_title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'base/simple_page.css' %}">
+{% endblock %}
 
 {% block content %}
 <section class="terminal-section terminal-section--narrow">

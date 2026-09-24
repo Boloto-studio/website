@@ -1,4 +1,9 @@
 {% extends "frogsnet/auth_layout.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'frogsnet/login.css' %}">
+{% endblock %}
 
 {% block title %}frogs.net - Login{% endblock %}
 

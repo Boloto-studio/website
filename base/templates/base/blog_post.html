@@ -1,6 +1,11 @@
 {% extends "base/layout.html" %}
 {% load i18n %}
+{% load static %}
 {% load title_formatters %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'base/blog_post.css' %}">
+{% endblock %}
 
 {% block body_class %}blog-post{% endblock %}
 {% block path_title %}{% blocktrans with title=post.title %}{{ title }}{% endblocktrans %}{% endblock %}

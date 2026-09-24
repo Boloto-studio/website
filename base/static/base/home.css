@@ -1,0 +1,230 @@
+.terminal-page-header {
+    margin-bottom: 1.5rem;
+}
+
+.terminal-page-header--hero {
+    margin-bottom: 2rem;
+}
+
+.terminal-carousel {
+    position: relative;
+}
+
+.terminal-carousel-track {
+    position: relative;
+    min-height: 25rem;
+}
+
+.terminal-carousel-slide {
+    display: none;
+    min-height: 25rem;
+    padding: clamp(1.6rem, 4vw, 2.8rem);
+    border: 1px solid var(--line);
+    background: linear-gradient(90deg, rgba(10, 14, 12, 0.94), rgba(6, 8, 7, 0.6));
+    overflow: hidden;
+    background-size: cover !important;
+    background-position: center !important;
+}
+
+.terminal-carousel-slide.is-active {
+    display: grid;
+    align-items: end;
+}
+
+.terminal-carousel-slide.has-background-image {
+    background-image:
+        linear-gradient(90deg, rgba(7, 10, 8, 0.68) 0%, rgba(7, 10, 8, 0.54) 34%, rgba(7, 10, 8, 0.16) 100%),
+        var(--panel-image);
+    background-size: cover;
+    background-position: center;
+}
+
+.terminal-carousel-copy {
+    max-width: 38rem;
+    display: grid;
+    gap: 0.9rem;
+}
+
+.terminal-carousel-copy .terminal-title {
+    text-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+
+.terminal-carousel-text-stack {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.terminal-carousel-window {
+    position: relative;
+    padding: 0.95rem 1.1rem;
+    background: rgba(8, 16, 12, 0.5);
+    border: 1px solid var(--line);
+    box-shadow: 0 0 18px rgba(35, 242, 163, 0.04);
+    backdrop-filter: blur(3px);
+}
+
+.terminal-carousel-window::before,
+.terminal-carousel-window::after {
+    content: "";
+    position: absolute;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-color: rgba(35, 242, 163, 0.85);
+    border-style: solid;
+}
+
+.terminal-carousel-window::before {
+    top: 0;
+    left: 0;
+    border-top-width: 1px;
+    border-left-width: 1px;
+}
+
+.terminal-carousel-window::after {
+    right: 0;
+    bottom: 0;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+}
+
+.terminal-carousel-window--title {
+    background: rgba(7, 13, 10, 0.56);
+}
+
+.terminal-carousel-window--body {
+    background: rgba(10, 18, 13, 0.48);
+}
+
+.terminal-carousel-window .terminal-title,
+.terminal-carousel-window .terminal-subtitle {
+    margin: 0;
+}
+
+.terminal-carousel-actions {
+    margin-top: 1.4rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+}
+
+.terminal-carousel-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.9rem;
+}
+
+.terminal-carousel-controls,
+.terminal-carousel-dots {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.terminal-icon-button,
+.terminal-dot {
+    width: 2.45rem;
+    height: 2.45rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    background: rgba(10, 16, 13, 0.86);
+    color: var(--text);
+}
+
+.terminal-dot {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 999px;
+    padding: 0;
+}
+
+.terminal-dot.is-active {
+    background: var(--highlight);
+    border-color: var(--highlight);
+}
+
+.terminal-logs-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.terminal-log-card {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    background: rgba(9, 15, 11, 0.88);
+}
+
+.terminal-log-card--media {
+    grid-template-columns: minmax(10rem, 16rem) 1fr;
+}
+
+.terminal-log-media {
+    position: relative;
+    min-height: 12rem;
+    border: 1px solid rgba(137, 162, 122, 0.34);
+    background: linear-gradient(135deg, rgba(11, 18, 14, 0.95), rgba(18, 25, 20, 0.85));
+    overflow: hidden;
+}
+
+.terminal-log-media.has-thumbnail {
+    background-image: var(--media-image);
+    background-size: cover;
+    background-position: center;
+}
+
+.terminal-log-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4));
+}
+
+.terminal-log-play {
+    position: absolute;
+    inset: auto auto 1rem 1rem;
+    z-index: 1;
+    width: 3rem;
+    height: 3rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(35, 242, 163, 0.72);
+    background: rgba(5, 10, 8, 0.86);
+    color: var(--accent);
+}
+
+.terminal-log-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--accent);
+    font-size: 0.64rem;
+    letter-spacing: 0.08rem;
+    text-transform: uppercase;
+}
+
+.terminal-log-title {
+    margin: 0;
+    font-size: clamp(1.05rem, 2vw, 1.45rem);
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.terminal-log-body {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.84rem;
+    line-height: 1.7;
+}
+
+.terminal-empty {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+}

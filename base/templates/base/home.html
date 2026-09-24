@@ -1,6 +1,11 @@
 {% extends "base/layout.html" %}
 {% load i18n %}
+{% load static %}
 {% load title_formatters %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'base/home.css' %}">
+{% endblock %}
 
 {% block path_title %}{% trans "Home" %}{% endblock %}
 
