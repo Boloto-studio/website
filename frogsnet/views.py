@@ -3,12 +3,14 @@ from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 import random
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.utils.timesince import timesince
 from django.views.decorators.http import require_POST
 
 from .forms import FrogProfileEditForm, FrogRegistrationForm, WallPostForm
@@ -193,6 +195,103 @@ def profile_page(request, profile_id=None):
         'wall_post_form': WallPostForm(),
         })
 
+def _friend_display_name(user):
+    frog = getattr(user, 'frog', None)
+    if frog is None:
+        return user.username
+
+    if frog.show_real_name in {'public', 'squad_only'} and user.first_name:
+        return user.first_name
+
+    return user.username
+
+
+def _friend_card_context(user):
+    friend_frog = user.frog
+    status = friend_frog.status
+    last_seen_display = status['last_online_display'] or 'unknown'
+    return {
+        'user': user,
+        'frog': friend_frog,
+        'display_name': _friend_display_name(user),
+        'subtitle': friend_frog.location or friend_frog.minecraft_username or '',
+        'status': status,
+        'avatar_url': friend_frog.avatar.url if friend_frog.avatar else None,
+        'last_seen_code': last_seen_display.replace(' ', '_').upper(),
+        'profile_name_index': ' '.join([
+            _friend_display_name(user),
+            user.username,
+            friend_frog.location or '',
+            friend_frog.minecraft_username or '',
+            last_seen_display,
+        ]).lower(),
+    }
+
+
+@login_required
+def friends_list(request):
+    frog = request.user.frog
+    search_query = request.GET.get('q', '').strip()
+
+    friends = list(frog.friends.select_related('frog').all())
+    friends.sort(key=lambda friend: (
+        0 if friend.frog.status['is_active'] or friend.frog.status['in_game_status'] else 1,
+        friend.username.lower(),
+    ))
+
+    incoming_requests = list(
+        FriendRequest.objects.filter(to_user=request.user).select_related('from_user__user').order_by('-created_at')
+    )
+
+    friend_cards = []
+    for friend in friends:
+        friend_cards.append(_friend_card_context(friend))
+
+    grid_cards = friend_cards
+    is_search_results = bool(search_query)
+    if is_search_results:
+        search_users = User.objects.select_related('frog').exclude(id=request.user.id).filter(
+            Q(username__icontains=search_query)
+            | Q(first_name__icontains=search_query)
+            | Q(frog__minecraft_username__icontains=search_query)
+            | Q(frog__location__icontains=search_query)
+        ).distinct().order_by('username')
+        grid_cards = [_friend_card_context(user) for user in search_users]
+
+    request_cards = []
+    for incoming_request in incoming_requests:
+        source_user = incoming_request.from_user.user
+        source_frog = incoming_request.from_user
+        request_cards.append({
+            'user': source_user,
+            'frog': source_frog,
+            'display_name': _friend_display_name(source_user),
+            'subtitle': source_frog.location or source_frog.minecraft_username or '',
+            'received_at': incoming_request.created_at,
+            'received_label': timesince(incoming_request.created_at),
+            'avatar_url': source_frog.avatar.url if source_frog.avatar else None,
+            'profile_name_index': ' '.join([
+                _friend_display_name(source_user),
+                source_user.username,
+                source_frog.location or '',
+                source_frog.minecraft_username or '',
+            ]).lower(),
+        })
+
+    online_count = sum(1 for card in grid_cards if card['status']['is_active'] or card['status']['in_game_status'])
+
+    return render(request, 'frogsnet/friends_list.html', {
+        'friend_cards': friend_cards,
+        'grid_cards': grid_cards,
+        'incoming_requests': request_cards,
+        'online_count': online_count,
+        'total_count': len(grid_cards),
+        'incoming_count': len(request_cards),
+        'profile': frog,
+        'search_query': search_query,
+        'is_search_results': is_search_results,
+    })
+
 @login_required
 def friend_request(request, profile_id):
     if request.method == 'POST':
@@ -213,6 +312,8 @@ def friend_request(request, profile_id):
         target_user = get_object_or_404(User, id=profile_id)
         friend_request = FriendRequest.objects.filter(from_user=request.user.frog, to_user=target_user).first()
         if not friend_request:
+            friend_request = FriendRequest.objects.filter(from_user=target_user.frog, to_user=request.user).first()
+        if not friend_request:
             return JsonResponse({'error': 'No friend request found to cancel.'}, status=400)
 
         friend_request.delete()
@@ -223,10 +324,17 @@ def friend_request(request, profile_id):
         if not friend_request:
             return JsonResponse({'error': 'No friend request found to accept.'}, status=400)
 
-        request.user.frog.friends.add(target_user)
-        target_user.frog.friends.add(request.user)
+        request.user.frog.friends.through.objects.get_or_create(
+            frog=request.user.frog,
+            user=target_user,
+        )
         friend_request.delete()
-        return JsonResponse({'success': 'Friend request accepted.'})
+        accepted_friend = _friend_card_context(target_user)
+        friend_html = render_to_string('frogsnet/includes/friend_card.html', {'friend': accepted_friend}, request=request)
+        return JsonResponse({
+            'success': 'Friend request accepted.',
+            'friend_html': friend_html,
+        })
 
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
 
@@ -235,10 +343,13 @@ def delete_friend(request, profile_id):
     if request.method == 'DELETE':
         target_user = get_object_or_404(User, id=profile_id)
         frog = request.user.frog
-        if not frog.friends.filter(id=target_user.frog.id).exists():
+        friendship = frog.friends.through.objects.filter(frog=frog, user=target_user).first()
+        if friendship is None:
+            friendship = frog.friends.through.objects.filter(frog=target_user.frog, user=request.user).first()
+        if friendship is None:
             return JsonResponse({'error': 'You are not friends with this user.'}, status=400)
 
-        frog.friends.remove(target_user)
+        friendship.delete()
         return JsonResponse({'success': 'Friend removed.'})
 
     return JsonResponse({'error': 'Invalid request method.'}, status=405)

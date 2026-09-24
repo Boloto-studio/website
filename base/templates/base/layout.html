@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <a class="terminal-nav-sublink{% if current == 'frogs-profile' %} is-active{% endif %}" href="{% url 'frogs-profile-own' %}">
                             <span class="nav-sublink__label" data-type-label>{% trans 'My Profile' %}</span>
                         </a>
-                        <a class="terminal-nav-sublink{% if current == 'frogs-friends' %} is-active{% endif %}" href="">
+                        <a class="terminal-nav-sublink{% if current == 'frogs-friends' %} is-active{% endif %}" href="{% url 'frogs-friends' %}">
                             <span class="nav-sublink__label" data-type-label>{% trans 'Friends List' %}</span>
                         </a>
                         <a class="terminal-nav-sublink{% if current == 'frogs-servers' %} is-active{% endif %}" href="">
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <a class="terminal-nav-sublink{% if current == 'frogs-profile' %} is-active{% endif %}" href="{% url 'frogs-profile-own' %}">
                         <span class="nav-sublink__label" data-type-label>{% trans 'My Profile' %}</span>
                     </a>
-                    <a class="terminal-nav-sublink{% if current == 'frogs-friends' %} is-active{% endif %}" href="">
+                    <a class="terminal-nav-sublink{% if current == 'frogs-friends' %} is-active{% endif %}" href="{% url 'frogs-friends' %}">
                         <span class="nav-sublink__label" data-type-label>{% trans 'Friends List' %}</span>
                     </a>
                     <a class="terminal-nav-sublink{% if current == 'frogs-servers' %} is-active{% endif %}" href="">

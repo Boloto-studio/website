@@ -1,0 +1,258 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Swampy Terminal - Friends List</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary": "#3d2f00",
+                        "on-tertiary": "#00363f",
+                        "on-primary-fixed": "#241a00",
+                        "surface-container-high": "#182f21",
+                        "surface-container-highest": "#233a2b",
+                        "primary-fixed": "#ffe089",
+                        "secondary-fixed-dim": "#00e38b",
+                        "primary-container": "#f9c806",
+                        "secondary-fixed": "#56ffa8",
+                        "on-surface-variant": "#d1c5ab",
+                        "background": "#02170b",
+                        "inverse-primary": "#745b00",
+                        "outline-variant": "#4e4632",
+                        "surface-container-lowest": "#001207",
+                        "surface-variant": "#233a2b",
+                        "tertiary-fixed": "#a7edff",
+                        "inverse-on-surface": "#1f3527",
+                        "on-tertiary-container": "#00606f",
+                        "error": "#ffb4ab",
+                        "on-primary-container": "#6b5500",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#9a9078",
+                        "on-error": "#690005",
+                        "on-background": "#cee9d4",
+                        "tertiary-container": "#39e0ff",
+                        "on-secondary-fixed-variant": "#00522f",
+                        "surface": "#02170b",
+                        "on-secondary-fixed": "#002110",
+                        "primary-fixed-dim": "#f0c100",
+                        "surface-bright": "#273e2f",
+                        "on-tertiary-fixed-variant": "#004e5b",
+                        "inverse-surface": "#cee9d4",
+                        "on-tertiary-fixed": "#001f25",
+                        "on-secondary-container": "#006e41",
+                        "on-surface": "#cee9d4",
+                        "tertiary": "#c1f2ff",
+                        "on-secondary": "#00391f",
+                        "surface-tint": "#f0c100",
+                        "primary": "#ffe8ae",
+                        "on-primary-fixed-variant": "#574400",
+                        "surface-container-low": "#092013",
+                        "tertiary-fixed-dim": "#2bd9f7",
+                        "secondary": "#ddffe4",
+                        "surface-container": "#0d2417",
+                        "secondary-container": "#00f999",
+                        "error-container": "#93000a",
+                        "surface-dim": "#02170b"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "section-gap": "4rem",
+                        "main-padding": "3rem",
+                        "sidebar-width": "30%",
+                        "gutter": "1.5rem"
+                    },
+                    fontFamily: {
+                        "display-xl-mobile": ["Space Mono"],
+                        "headline-lg": ["Space Mono"],
+                        "display-xl": ["Space Mono"],
+                        "label-sm": ["Space Mono"],
+                        "code-snippet": ["Space Mono"],
+                        "body-md": ["Space Mono"]
+                    },
+                    fontSize: {
+                        "display-xl-mobile": ["48px", { lineHeight: "1.1", fontWeight: "700" }],
+                        "headline-lg": ["32px", { lineHeight: "1.2", letterSpacing: "0.05em", fontWeight: "700" }],
+                        "display-xl": ["72px", { lineHeight: "1.0", letterSpacing: "-0.05em", fontWeight: "700" }],
+                        "label-sm": ["12px", { lineHeight: "1.0", letterSpacing: "0.15em", fontWeight: "700" }],
+                        "code-snippet": ["14px", { lineHeight: "1.4", fontWeight: "400" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .crt-flicker {
+            animation: flicker 0.15s infinite;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.95; }
+            100% { opacity: 1; }
+        }
+        .glow-text {
+            text-shadow: 0 0 10px currentColor;
+        }
+        .glow-box {
+            box-shadow: 0 0 15px rgba(86, 255, 168, 0.2);
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md h-screen w-screen overflow-hidden selection:bg-primary-container selection:text-on-primary-container crt-flicker">
+<div class="scanlines"></div>
+<div class="flex h-full w-full">
+<!-- SideNavBar -->
+<nav class="hidden md:flex fixed left-0 top-0 h-full w-sidebar-width border-r border-outline-variant bg-surface-container flex-col p-main-padding gap-gutter shadow-[0_0_15px_rgba(240,193,0,0.1)] z-40"><div class="layout-container flex h-full grow flex-col"><div class="flex flex-1 justify-center py-5"><div class="layout-content-container flex flex-col w-full flex-1"><div class="flex h-full flex-col justify-between p-4"><div class="flex flex-col gap-8"><div class="flex flex-col text-center border-b border-outline-variant pb-4"><pre class="text-primary-container text-xs font-bold leading-none tracking-widest mx-auto"> ____  __  __    __  ____  __  
+(  _ \/  \(  )  /  \(_  _)/  \ 
+ ) _ (  O )) (_(  O ) )( (  O )
+(____/\__/(____/\__/ (__) \__/ 
+                                </pre><p class="text-outline text-xs mt-2">[ BOLOTO STUDIO HQ ]</p></div><nav class="flex flex-col gap-2"><a class="flex items-center gap-3 px-3 py-2 rounded bg-surface-container-high border border-outline-variant shadow-[0_0_8px_rgba(86,255,168,0.2)]" href="#"><div class="text-secondary-fixed" data-icon="TerminalWindow"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">terminal</span></div><p class="text-secondary-fixed text-sm font-bold leading-normal">[ HOME ]</p></a><a class="flex items-center gap-3 px-3 py-2 group hover:bg-surface-container-highest transition-colors" href="#"><div class="text-on-surface group-hover:text-secondary-fixed transition-colors"><span class="material-symbols-outlined">precision_manufacturing</span></div><p class="text-on-surface text-sm font-medium leading-normal group-hover:text-white"><span class="text-outline group-hover:text-secondary-fixed">[</span> STUDIO <span class="text-outline group-hover:text-secondary-fixed">]</span></p></a><div class="flex flex-col"><button class="flex items-center justify-between w-full px-3 py-2 group hover:bg-surface-container-highest transition-colors text-left focus:outline-none"><div class="flex items-center gap-3"><div class="text-on-surface group-hover:text-secondary-fixed transition-colors"><span class="material-symbols-outlined">groups</span></div><p class="text-on-surface text-sm font-medium leading-normal group-hover:text-white"><span class="text-outline group-hover:text-secondary-fixed">[</span> COMMUNITY <span class="text-outline group-hover:text-secondary-fixed">]</span></p></div><span class="material-symbols-outlined text-outline group-hover:text-secondary-fixed text-sm">expand_less</span></button><div class="flex flex-col pl-10 pr-3 py-1 gap-1 border-l border-outline-variant ml-5 mt-1 mb-2"><a class="flex items-center px-2 py-1 group hover:bg-surface-container-highest transition-colors" href="#"><p class="text-secondary-fixed text-xs font-medium leading-normal"><span class="text-secondary-fixed opacity-100">&gt;</span> /FRIENDS_LIST</p></a><a class="flex items-center px-2 py-1 group hover:bg-surface-container-highest transition-colors" href="#"><p class="text-outline text-xs font-medium leading-normal group-hover:text-white"><span class="text-secondary-fixed opacity-0 group-hover:opacity-100 transition-opacity">&gt;</span> /CLANS</p></a><a class="flex items-center px-2 py-1 group hover:bg-surface-container-highest transition-colors" href="#"><p class="text-outline text-xs font-medium leading-normal group-hover:text-white"><span class="text-secondary-fixed opacity-0 group-hover:opacity-100 transition-opacity">&gt;</span> /GLOBAL_CHAT</p></a></div></div><a class="flex items-center gap-3 px-3 py-2 group hover:bg-surface-container-highest transition-colors" href="#"><div class="text-on-surface group-hover:text-secondary-fixed transition-colors"><span class="material-symbols-outlined">volunteer_activism</span></div><p class="text-on-surface text-sm font-medium leading-normal group-hover:text-white"><span class="text-outline group-hover:text-secondary-fixed">[</span> DONATION <span class="text-outline group-hover:text-secondary-fixed">]</span></p></a><a class="flex items-center gap-3 px-3 py-2 group hover:bg-surface-container-highest transition-colors" href="#"><div class="text-on-surface group-hover:text-secondary-fixed transition-colors"><span class="material-symbols-outlined">alternate_email</span></div><p class="text-on-surface text-sm font-medium leading-normal group-hover:text-white"><span class="text-outline group-hover:text-secondary-fixed">[</span> CONTACT <span class="text-outline group-hover:text-secondary-fixed">]</span></p></a></nav></div><div class="mt-auto border-t border-outline-variant pt-4 flex flex-col gap-2"><a class="flex items-center gap-3 px-3 py-2 group hover:bg-surface-container-highest transition-colors" href="#"><div class="text-on-surface group-hover:text-secondary-fixed transition-colors"><span class="material-symbols-outlined">forum</span></div><p class="text-on-surface text-sm font-medium leading-normal group-hover:text-white"><span class="text-outline group-hover:text-secondary-fixed">[</span> FORUM <span class="text-outline group-hover:text-secondary-fixed">]</span></p></a><a class="flex items-center gap-3 px-3 py-2 group hover:bg-surface-container-highest transition-colors" href="#"><div class="text-on-surface group-hover:text-secondary-fixed transition-colors"><span class="material-symbols-outlined">account_circle</span></div><p class="text-on-surface text-sm font-medium leading-normal group-hover:text-white"><span class="text-outline group-hover:text-secondary-fixed">[</span> MY PROFILE <span class="text-outline group-hover:text-secondary-fixed">]</span></p></a><a class="flex items-center gap-3 px-3 py-2 group hover:bg-surface-container-highest transition-colors" href="#"><div class="text-on-surface group-hover:text-secondary-fixed transition-colors"><span class="material-symbols-outlined">group</span></div><p class="text-on-surface text-sm font-medium leading-normal group-hover:text-white"><span class="text-outline group-hover:text-secondary-fixed">[</span> FRIENDS LIST <span class="text-outline group-hover:text-secondary-fixed">]</span></p></a><a class="flex items-center gap-3 px-3 py-2 group hover:bg-surface-container-highest transition-colors" href="#"><div class="text-on-surface group-hover:text-secondary-fixed transition-colors"><span class="material-symbols-outlined">dns</span></div><p class="text-on-surface text-sm font-medium leading-normal group-hover:text-white"><span class="text-outline group-hover:text-secondary-fixed">[</span> SERVERS LIST <span class="text-outline group-hover:text-secondary-fixed">]</span></p></a><div class="mt-4"><p class="text-xs text-outline uppercase tracking-widest">SYS.VER: 4.2.0</p><p class="text-xs text-secondary-fixed uppercase tracking-widest mt-1 animate-pulse">STATUS: ONLINE</p></div></div></div></div></div></div></nav>
+<!-- Main Terminal Area -->
+<main class="flex-1 md:ml-[30%] flex flex-col h-full relative z-30 bg-background">
+<!-- TopAppBar -->
+
+<!-- Content Canvas -->
+<div class="flex-1 overflow-y-auto p-main-padding scrollbar-hide">
+<!-- Section Header -->
+<div class="mb-12 border-b border-outline-variant pb-4 flex justify-between items-end">
+<h2 class="font-headline-lg text-headline-lg text-primary glow-text uppercase">/SYS/COMMS/FRIENDS</h2>
+<span class="font-code-snippet text-code-snippet text-secondary-fixed">STATUS: ONLINE [3] / TOTAL [12]</span>
+</div><div class="mb-8 border border-outline-variant bg-surface-container p-4 font-code-snippet text-code-snippet flex items-center gap-2"><span class="text-primary-container">/sys/comms&gt;</span><span class="text-primary">grep_roster</span><span class="w-2 h-4 bg-primary animate-pulse"></span></div>
+<!-- Bento Grid Layout for Friends -->
+<div class="mb-8 flex flex-col gap-3"><div class="flex items-center justify-between border-b border-outline-variant/60 pb-2"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-sm animate-pulse">radar</span><h3 class="font-label-sm text-label-sm text-primary-container tracking-widest uppercase">// PENDING INCOMING TRANSMISSIONS [1]</h3></div><span class="text-xs font-code-snippet text-outline">&gt; ACTION_REQUIRED</span></div><div class="border border-primary-container/80 bg-surface-container-high rounded p-6 relative overflow-hidden group shadow-[0_0_15px_rgba(240,193,0,0.1)]"><div class="absolute top-0 right-0 p-4"><span class="inline-block px-2 py-0.5 text-xs font-label-sm uppercase bg-primary-container/20 text-primary-container border border-primary-container/50 animate-pulse">SIGNAL_DETECTED</span></div><div class="flex flex-col md:flex-row md:items-center justify-between gap-6"><div class="flex items-center gap-6"><div class="w-16 h-16 border border-primary-container bg-background flex items-center justify-center relative"><span class="material-symbols-outlined text-4xl text-primary-container">security</span><div class="absolute inset-0 border border-primary-container opacity-50"></div></div><div class="flex-1"><div class="flex items-center gap-3"><h4 class="font-headline-lg text-headline-lg text-primary text-xl mb-1">VOID_WALKER</h4><span class="text-xs px-2 py-0.5 border border-outline-variant text-secondary-fixed bg-surface-container-lowest font-code-snippet">INCOMING</span></div><p class="font-code-snippet text-code-snippet text-outline">LVL: 67 | CLAN: [NEO_CORP]</p><p class="font-code-snippet text-xs text-primary-container mt-1">&gt; REQUEST_RECEIVED: 10_MINUTES_AGO</p></div></div><div class="flex items-center gap-3 shrink-0"><button class="flex items-center gap-2 px-4 py-2 bg-primary-container text-on-primary font-bold text-xs uppercase tracking-widest rounded hover:bg-surface-tint transition-colors shadow-[0_0_8px_rgba(240,193,0,0.3)] focus:outline-none"><span class="material-symbols-outlined text-sm">check_circle</span>[ ACCEPT_LINK ]</button><button class="flex items-center gap-2 px-4 py-2 bg-surface-container border border-outline-variant text-outline hover:text-error hover:border-error text-xs font-bold uppercase tracking-widest rounded transition-colors focus:outline-none"><span class="material-symbols-outlined text-sm">cancel</span>[ DECLINE ]</button></div></div></div></div><div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+<!-- Online Friend Card (Bento Style) -->
+<div class="border border-secondary-fixed-dim bg-surface-container-high rounded p-6 relative overflow-hidden group hover:bg-surface-container-highest transition-colors cursor-pointer glow-box">
+<div class="absolute top-0 right-0 p-4">
+<div class="w-3 h-3 rounded-full bg-secondary-fixed shadow-[0_0_10px_#56ffa8] animate-pulse"></div>
+</div>
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 border border-outline-variant bg-background flex items-center justify-center relative">
+<img alt="Profile Avatar" class="w-full h-full object-cover opacity-80 mix-blend-luminosity" data-alt="A gritty, high-contrast portrait of a cyberpunk character wearing tactical gear, illuminated by harsh green neon light. The background is pitch black, emphasizing the harsh shadows on the subject's face. The overall aesthetic is dark, military, and retro-futuristic, matching a 1980s terminal UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUcSYv5owDuvepLmnqkaR1rQhd_-1ojQ6WblzwshebZGUcTLUvZwvNGIYR6cw6yYXNkU4e9stFVQdLFVKagwQG0dy_tkTb4IeVLWqHZcMjL7EaXlyNEEpZI6qbBoXyRF499d377j-PF1Oh4N68atBOK7mul4neKqM2Cs-ZDIQZrWnURpFx_re9dipHDOji7O9o2-pxOiev6brAZVrUAS8EPa2l1XO3Pv4p9rC5Y7eue0QdKjePW2TI8IFMsDZcJ8Q4Tos9d6ya0Q_U">
+<div class="absolute inset-0 border border-secondary-fixed-dim opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-lg text-headline-lg text-primary text-xl mb-1">CYBER_HOUND</h3>
+<p class="font-code-snippet text-code-snippet text-outline">LVL: 42 | CLAN: [NULL]</p>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/50 flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-secondary-fixed">&gt; IN_MATCH: SECTOR_7</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chat</span>
+</div>
+</div>
+<!-- Online Friend Card -->
+<div class="border border-secondary-fixed-dim bg-surface-container-high rounded p-6 relative overflow-hidden group hover:bg-surface-container-highest transition-colors cursor-pointer glow-box">
+<div class="absolute top-0 right-0 p-4">
+<div class="w-3 h-3 rounded-full bg-secondary-fixed shadow-[0_0_10px_#56ffa8] animate-pulse"></div>
+</div>
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 border border-outline-variant bg-background flex items-center justify-center relative">
+<span class="material-symbols-outlined text-4xl text-outline-variant">smart_toy</span>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-lg text-headline-lg text-primary text-xl mb-1">GLITCH_MECH</h3>
+<p class="font-code-snippet text-code-snippet text-outline">LVL: 89 | CLAN: [VOID]</p>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/50 flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-secondary-fixed">&gt; IDLE: ORBITAL_STATION</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chat</span>
+</div>
+</div>
+<!-- Online Friend Card -->
+<div class="border border-secondary-fixed-dim bg-surface-container-high rounded p-6 relative overflow-hidden group hover:bg-surface-container-highest transition-colors cursor-pointer glow-box">
+<div class="absolute top-0 right-0 p-4">
+<div class="w-3 h-3 rounded-full bg-secondary-fixed shadow-[0_0_10px_#56ffa8] animate-pulse"></div>
+</div>
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 border border-outline-variant bg-background flex items-center justify-center relative">
+<span class="material-symbols-outlined text-4xl text-outline-variant">person</span>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-lg text-headline-lg text-primary text-xl mb-1">USER_9942</h3>
+<p class="font-code-snippet text-code-snippet text-outline">LVL: 12 | CLAN: NONE</p>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/50 flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-primary-container">&gt; BROWSING_FORUMS</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chat</span>
+</div>
+</div>
+<!-- Offline Friend Card -->
+<div class="border border-outline-variant bg-surface-container-low rounded p-6 relative opacity-70 hover:opacity-100 transition-opacity cursor-pointer">
+<div class="absolute top-0 right-0 p-4">
+<div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+</div>
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 border border-outline-variant bg-background flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl text-outline-variant">skull</span>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-lg text-headline-lg text-outline text-xl mb-1">DEAD_DROP</h3>
+<p class="font-code-snippet text-code-snippet text-outline-variant">LVL: ?? | CLAN: [NULL]</p>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/50 flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-outline-variant">&gt; LAST_SEEN: 42_HOURS_AGO</span>
+<span class="material-symbols-outlined text-outline-variant">history</span>
+</div>
+</div>
+<!-- Offline Friend Card -->
+<div class="border border-outline-variant bg-surface-container-low rounded p-6 relative opacity-70 hover:opacity-100 transition-opacity cursor-pointer">
+<div class="absolute top-0 right-0 p-4">
+<div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+</div>
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 border border-outline-variant bg-background flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl text-outline-variant">rocket</span>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-lg text-headline-lg text-outline text-xl mb-1">STAR_DUST</h3>
+<p class="font-code-snippet text-code-snippet text-outline-variant">LVL: 55 | CLAN: [NOVA]</p>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/50 flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-outline-variant">&gt; LAST_SEEN: 2_DAYS_AGO</span>
+<span class="material-symbols-outlined text-outline-variant">history</span>
+</div>
+</div>
+</div>
+<!-- Input Terminal Simulation at bottom -->
+
+</div>
+</main>
+</div>
+
+
+</body></html>

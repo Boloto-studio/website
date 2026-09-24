@@ -1,0 +1,39 @@
+{% load i18n %}
+<a class="friends-card-link" href="{% url 'frogs-profile' friend.user.id %}" data-friend-card-link data-profile-name="{{ friend.profile_name_index }}">
+    <article class="friends-card{% if not friend.status.is_active and not friend.status.in_game_status %} is-offline{% endif %}">
+        <div class="friends-card__status-dot{% if not friend.status.is_active and not friend.status.in_game_status %} friends-card__status-dot--offline{% endif %}"></div>
+        <div class="friends-card__identity">
+            <div class="friends-avatar">
+                {% if friend.avatar_url %}
+                    <img src="{{ friend.avatar_url }}" alt="{% blocktrans with name=friend.display_name %}{{ name }} profile avatar{% endblocktrans %}">
+                {% else %}
+                    <div class="friends-avatar__fallback" aria-hidden="true"><span class="material-symbols-outlined">{% if friend.status.is_active or friend.status.in_game_status %}smart_toy{% else %}person{% endif %}</span></div>
+                {% endif %}
+                <div class="friends-avatar__frame"></div>
+            </div>
+            <div class="friends-card__details">
+                <h2 class="friends-card__name">{{ friend.display_name }}</h2>
+                <div class="friends-card__meta">
+                    {% blocktrans with level=friend.frog.tier clan=friend.frog.location|default:_('NONE') %}LVL: {{ level }} | CLAN: [{{ clan }}]{% endblocktrans %}
+                </div>
+            </div>
+        </div>
+
+        <div class="friends-card__footer">
+            {% if friend.status.in_game_status %}
+                <span class="friends-card__note friends-card__note--highlight">
+                    {% blocktrans with area=friend.status.in_game_status %}&gt; IN_MATCH: {{ area }}{% endblocktrans %}
+                </span>
+            {% elif friend.status.is_active %}
+                <span class="friends-card__note friends-card__note--highlight">
+                    {% blocktrans with state=friend.subtitle|default:_('SESSION_ACTIVE') %}&gt; ACTIVE: {{ state }}{% endblocktrans %}
+                </span>
+            {% else %}
+                <span class="friends-card__note">
+                    {% blocktrans with last=friend.last_seen_code %}&gt; LAST_SEEN: {{ last }}{% endblocktrans %}
+                </span>
+            {% endif %}
+            <span class="friends-card__icon material-symbols-outlined">{% if friend.status.is_active or friend.status.in_game_status %}chat{% else %}history{% endif %}</span>
+        </div>
+    </article>
+</a>

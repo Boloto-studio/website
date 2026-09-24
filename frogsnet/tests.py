@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .forms import FrogProfileEditForm, WallPostForm
-from .models import Frog, ForumPost
+from .models import Frog, ForumPost, FriendRequest
 
 
 class FrogProfileEditTests(TestCase):
@@ -138,3 +138,75 @@ class WallPostTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
         self.assertFalse(ForumPost.objects.filter(topic=self.target.wall).exists())
+
+
+class FriendsListTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='rosterlead', password='secret123', first_name='Lead')
+        self.friend_online = User.objects.create_user(username='signal_one', password='secret123', first_name='Signal')
+        self.friend_offline = User.objects.create_user(username='signal_two', password='secret123', first_name='Static')
+        self.incoming = User.objects.create_user(username='incoming_node', password='secret123', first_name='Incoming')
+
+        self.user.frog.location = 'Main Node'
+        self.user.frog.save()
+
+        self.friend_online.frog.location = 'Sector 7'
+        self.friend_online.frog.minecraft_username = 'SignalCraft'
+        self.friend_online.frog.save()
+
+        self.friend_offline.frog.location = 'Outpost 19'
+        self.friend_offline.frog.save()
+        self.friend_offline.frog.last_active = self.friend_offline.frog.last_active.replace(year=2025)
+        self.friend_offline.frog.save()
+
+        self.user.frog.friends.add(self.friend_online, self.friend_offline)
+        self.incoming_request = self.incoming.frog
+        self.incoming_request.allow_friend_requests = True
+        self.incoming_request.save()
+        FriendRequest.objects.create(from_user=self.incoming_request, to_user=self.user)
+
+    def test_friends_list_view_renders_roster_and_requests(self):
+        self.client.login(username='rosterlead', password='secret123')
+
+        response = self.client.get(reverse('frogs-friends'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '/SYS/COMMS/FRIENDS')
+        self.assertContains(response, 'PENDING INCOMING TRANSMISSIONS')
+        self.assertContains(response, 'Signal')
+        self.assertContains(response, 'Static')
+        self.assertContains(response, 'Incoming')
+        self.assertContains(response, reverse('frogs-profile', args=[self.friend_online.id]))
+        self.assertContains(response, 'name="q"')
+        self.assertContains(response, 'data-friend-request-action="accept"')
+
+    def test_friends_list_view_shows_search_results_when_q_present(self):
+        stranger = User.objects.create_user(username='swamp_scanner', password='secret123', first_name='Scanner')
+        stranger.frog.location = 'Search Sector'
+        stranger.frog.save()
+
+        self.client.login(username='rosterlead', password='secret123')
+
+        response = self.client.get(reverse('frogs-friends'), {'q': 'scanner'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'swamp_scanner')
+        self.assertNotContains(response, 'Static')
+        self.assertContains(response, 'STATUS: MATCHES')
+
+    def test_friend_request_delete_accepts_inbound_request(self):
+        self.client.login(username='rosterlead', password='secret123')
+
+        response = self.client.delete(reverse('frogs-friend-request', args=[self.incoming.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(FriendRequest.objects.filter(from_user=self.incoming.frog, to_user=self.user).exists())
+
+    def test_friend_request_put_accepts_inbound_request(self):
+        self.client.login(username='rosterlead', password='secret123')
+
+        response = self.client.put(reverse('frogs-friend-request', args=[self.incoming.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.user.frog.friends.filter(id=self.incoming.id).exists())
+        self.assertFalse(FriendRequest.objects.filter(from_user=self.incoming.frog, to_user=self.user).exists())

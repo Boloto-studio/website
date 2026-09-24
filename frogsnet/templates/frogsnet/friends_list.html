@@ -1,0 +1,266 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block path_title %}{% trans "Friends List" %}{% endblock %}
+{% block body_class %}friends-page{% endblock %}
+
+{% block body %}
+<section class="friends-terminal">
+    <div class="friends-terminal__headline">
+        <h1 class="friends-terminal__title">{% trans "/SYS/COMMS/FRIENDS" %}</h1>
+        <div class="friends-terminal__status">
+            {% if is_search_results %}
+                {% blocktrans with online=online_count total=total_count %}STATUS: MATCHES [{{ total }}] / ONLINE [{{ online }}]{% endblocktrans %}
+            {% else %}
+                {% blocktrans with online=online_count total=total_count %}STATUS: ONLINE [{{ online }}] / TOTAL [{{ total }}]{% endblocktrans %}
+            {% endif %}
+        </div>
+    </div>
+
+    <form class="friends-terminal__command" aria-label="{% trans 'System command' %}" role="search" method="get">
+        <label class="visually-hidden" for="friends-roster-search">{% trans "Search friends" %}</label>
+        <span class="friends-terminal__command-shell">{% trans "/sys/comms&gt;" %}</span>
+        <input
+            id="friends-roster-search"
+            name="q"
+            type="search"
+            class="friends-terminal__search"
+            placeholder="{% trans 'grep_roster --query=' %}"
+            value="{{ search_query }}"
+            autocomplete="off"
+            spellcheck="false"
+        >
+        <button type="submit" class="friends-terminal__submit">{% trans "[ RUN ]" %}</button>
+    </form>
+
+    <div class="friends-terminal__section">
+        {% if incoming_requests %}
+        <div class="friends-terminal__section-header">
+            <div>
+                <strong>{% trans "PENDING INCOMING TRANSMISSIONS" %}</strong>
+                {% blocktrans with incoming=incoming_count %}[{{ incoming }}]{% endblocktrans %}
+            </div>
+            <span>{% trans "> ACTION_REQUIRED" %}</span>
+        </div>
+
+            {% for friend in incoming_requests %}
+                <article class="friends-request-card" data-friend-request-card data-profile-name="{{ friend.display_name|lower }} {{ friend.frog.user.username|lower }} {{ friend.frog.location|lower }} {{ friend.frog.minecraft_username|lower }}">
+                    <div class="friends-request-card__badge">{% trans "SIGNAL_DETECTED" %}</div>
+                    <div class="friends-request-card__identity">
+                        <div class="friends-avatar">
+                            {% if friend.avatar_url %}
+                                <img src="{{ friend.avatar_url }}" alt="{% blocktrans with name=friend.display_name %}{{ name }} profile avatar{% endblocktrans %}">
+                            {% else %}
+                                <div class="friends-avatar__fallback" aria-hidden="true"><span class="material-symbols-outlined">security</span></div>
+                            {% endif %}
+                            <div class="friends-avatar__frame"></div>
+                        </div>
+                        <div class="friends-request-card__details">
+                            <h2 class="friends-request-card__name">{{ friend.display_name }}</h2>
+                            <div class="friends-request-card__meta">
+                                {% blocktrans with level=friend.frog.tier clan=friend.frog.location|default:_('NULL') %}LVL: {{ level }} | CLAN: [{{ clan }}]{% endblocktrans %}
+                            </div>
+                            <div class="friends-request-card__meta">
+                                {% blocktrans with received=friend.received_label %}&gt; REQUEST_RECEIVED: {{ received }}{% endblocktrans %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="friends-request-card__actions">
+                        <button
+                            type="button"
+                            class="friends-button friends-button--accept"
+                            data-friend-request-action="accept"
+                            data-friend-request-url="{% url 'frogs-friend-request' friend.user.id %}"
+                            data-friend-request-name="{{ friend.display_name|escapejs }}"
+                        >
+                            <span class="material-symbols-outlined">check_circle</span>
+                            <span>{% trans "[ ACCEPT_LINK ]" %}</span>
+                        </button>
+                        <button
+                            type="button"
+                            class="friends-button friends-button--decline"
+                            data-friend-request-action="decline"
+                            data-friend-request-url="{% url 'frogs-friend-request' friend.user.id %}"
+                            data-friend-request-name="{{ friend.display_name|escapejs }}"
+                        >
+                            <span class="material-symbols-outlined">cancel</span>
+                            <span>{% trans "[ DECLINE ]" %}</span>
+                        </button>
+                    </div>
+                </article>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="friends-grid" data-friends-grid data-search-mode="{% if is_search_results %}search{% else %}friends{% endif %}">
+        {% for friend in grid_cards %}
+            {% include "frogsnet/includes/friend_card.html" with friend=friend %}
+        {% empty %}
+            <div class="friends-empty">
+                <div class="friends-empty__stack">
+                    {% if is_search_results %}
+                        <div class="friends-empty__title">{% trans "> SEARCH_RESULTS: EMPTY" %}</div>
+                        <div>{% trans "No matching user nodes were found for the current query." %}</div>
+                    {% else %}
+                        <div class="friends-empty__title">{% trans "> SQUAD_ARRAY: EMPTY" %}</div>
+                        <div>{% trans "No linked friend nodes are currently synchronized." %}</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<script>
+(() => {
+    const rosterGrid = document.querySelector('[data-friends-grid]');
+    const requestCards = Array.from(document.querySelectorAll('[data-friend-request-card]'));
+    const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    const searchMode = rosterGrid ? rosterGrid.dataset.searchMode : 'friends';
+
+    const showToast = (message, level = 'info') => {
+        if (window.createToast) {
+            window.createToast({ text: message, level });
+        }
+    };
+
+    const csrfValue = () => {
+        const cookieMatch = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+        if (cookieMatch) {
+            return decodeURIComponent(cookieMatch[1]);
+        }
+        return csrfToken ? csrfToken.value : '';
+    };
+
+    const updateRosterCount = () => {
+        const onlineStatus = document.querySelector('.friends-terminal__status');
+        const cardLinks = Array.from(document.querySelectorAll('[data-friend-card-link]'));
+        if (!onlineStatus) {
+            return;
+        }
+        const visibleCards = cardLinks.filter((card) => document.body.contains(card) && !card.hidden).length;
+        const onlineCards = cardLinks.filter((card) => {
+            if (!document.body.contains(card) || card.hidden) {
+                return false;
+            }
+            const innerCard = card.querySelector('.friends-card');
+            return innerCard ? !innerCard.classList.contains('is-offline') : false;
+        }).length;
+        onlineStatus.textContent = searchMode === 'search'
+            ? `STATUS: MATCHES [${visibleCards}] / ONLINE [${onlineCards}]`
+            : `STATUS: ONLINE [${onlineCards}] / TOTAL [${visibleCards}]`;
+    };
+
+    const removeWithAnimation = (card, callback) => {
+        card.classList.add('is-removing');
+        window.setTimeout(() => {
+            card.remove();
+            if (callback) {
+                callback();
+            }
+        }, 260);
+    };
+
+    const refreshRequestCount = () => {
+        const sectionHeader = document.querySelector('.friends-terminal__section-header');
+        const countElement = sectionHeader ? sectionHeader.querySelector('div > span') : null;
+        if (!countElement) {
+            return;
+        }
+        const visibleRequests = requestCards.filter((card) => document.body.contains(card) && !card.hidden).length;
+        countElement.textContent = `[${visibleRequests}]`;
+    };
+
+    const buildFriendCardFromHtml = (html) => {
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = html.trim();
+        return wrapper.firstElementChild;
+    };
+
+    const insertFriendCard = (friendHtml) => {
+        if (!rosterGrid) {
+            return;
+        }
+        const card = buildFriendCardFromHtml(friendHtml);
+        if (!card) {
+            return;
+        }
+        rosterGrid.prepend(card);
+        updateRosterCount();
+    };
+
+    const handleRequestAction = async (button) => {
+        const card = button.closest('[data-friend-request-card]');
+        if (!card) {
+            return;
+        }
+
+        const url = button.dataset.friendRequestUrl;
+        const action = button.dataset.friendRequestAction;
+        const name = button.dataset.friendRequestName || '';
+        const method = action === 'accept' ? 'PUT' : 'DELETE';
+
+        button.disabled = true;
+        card.classList.add('is-working');
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'X-CSRFToken': csrfValue(),
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || payload.detail || '{% trans "Request failed." %}');
+            }
+
+            if (action === 'accept' && payload.friend_html && searchMode !== 'search') {
+                insertFriendCard(payload.friend_html);
+            }
+            removeWithAnimation(card, refreshRequestCount);
+            showToast(
+                action === 'accept'
+                    ? interpolate('{% trans "Friend request accepted for %s." %}', [name], true)
+                    : interpolate('{% trans "Friend request declined for %s." %}', [name], true),
+                'success'
+            );
+        } catch (error) {
+            button.disabled = false;
+            card.classList.remove('is-working');
+            showToast(error.message || '{% trans "Unable to update friend request." %}', 'error');
+        }
+    };
+
+    const interpolate = (template, values, named) => {
+        if (named) {
+            return template.replace(/%s/g, values[0]);
+        }
+        let result = template;
+        values.forEach((value) => {
+            result = result.replace('%s', value);
+        });
+        return result;
+    };
+
+    if (searchInput) {
+        searchInput.addEventListener('input', filterCards);
+        if (searchForm) {
+            searchForm.addEventListener('submit', (event) => event.preventDefault());
+        }
+    }
+
+    requestCards.forEach((card) => {
+        const buttons = card.querySelectorAll('[data-friend-request-action]');
+        buttons.forEach((button) => {
+            button.addEventListener('click', () => handleRequestAction(button));
+        });
+    });
+
+    updateRosterCount();
+})();
+</script>
+{% endblock %}
