@@ -1,5 +1,5 @@
 {% load i18n %}
-<a href="#" class="profile-log" data-wall-post-id="{{ entry.id }}">
+<a href="{% url 'frogs-forum-thread' entry.id %}" class="profile-log" data-wall-post-id="{{ entry.id }}">
     <div class="profile-log__meta">
         <span class="profile-log__stamp">[LOG_ENTRY #{{ entry.id }}] :: {{ entry.published_date }}</span>
         <span class="profile-log__tag">TAG: @{{ entry.author.username|default:_('unknown') }}</span>

@@ -105,6 +105,24 @@ class ForumPost(AbstractPost):
     upvotes = models.ManyToManyField("auth.User", related_name="upvoted_posts", blank=True)
     response_to = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, related_name="responses")
     topic = models.ForeignKey("ForumTopic", on_delete=models.CASCADE, related_name="posts", null=True, blank=True)
+    is_open = models.BooleanField(default=True, help_text="If this post is open for responses. If false, no new responses can be added.")
+
+    @property
+    def display_title(self):
+        title = (self.title or '').strip()
+        if not title:
+            return title
+
+        lowered = title.lower()
+        if lowered.startswith('reply'):
+            remainder = title[5:].strip()
+            if remainder.startswith('#'):
+                return f"Reply {remainder}"
+            if remainder:
+                return f"Reply #{remainder}"
+            return 'Reply'
+
+        return title
 
     def __str__(self):
         return f"{self.author}: {self.title}"

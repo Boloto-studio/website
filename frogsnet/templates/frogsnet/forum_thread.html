@@ -1,0 +1,251 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+
+{% block path_title %}{% trans "Forum Thread" %}{% endblock %}
+{% block body_class %}forum-thread-page{% endblock %}
+
+{% block body %}
+<section class="forum-thread-shell" aria-label="{% trans 'Forum thread view' %}">
+    <div class="forum-thread-breadcrumbs" aria-label="{% trans 'Thread breadcrumb' %}">
+        <a href="#">{% trans "/BIN" %}</a>
+        <span>/</span>
+        <a href="#">{% trans "FORUM" %}</a>
+        <span>/</span>
+        <a href="#">{% trans "TECH_SUPPORT" %}</a>
+        <span>/</span>
+        <span class="forum-thread-breadcrumbs__current">{% blocktrans with thread_id=root_post.id %}THREAD_#{{ thread_id }}{% endblocktrans %}</span>
+    </div>
+
+    <article id="reply-{{ root_post.id }}" class="forum-thread-panel forum-thread-panel--primary" data-thread-post-id="{{ root_post.id }}">
+        <header class="forum-thread-panel__header">
+            <div class="forum-thread-panel__header-label">{% trans "TRANSMISSION://NODE_741_OP" %}</div>
+            <div class="forum-thread-panel__status">{% trans "STATUS: OPEN" %}</div>
+        </header>
+
+        <h1 class="forum-thread-panel__title">{{ root_post.title }}</h1>
+
+        <div class="forum-thread-panel__meta" aria-label="{% trans 'Thread metadata' %}">
+            <span>{% blocktrans with username=root_post.author.username|upper %}&gt; AUTHOR: {{ username }}{% endblocktrans %}</span>
+            <span>//</span>
+            <span>{% blocktrans with age=root_post.published_date|timesince|upper %}TIMESTAMP: {{ age }} AGO{% endblocktrans %}</span>
+            <span>//</span>
+            <span>{% trans "TARGET_SYS: GL_ES_3.0" %}</span>
+        </div>
+
+        <div class="forum-thread-panel__content">
+            {{ root_post.parse_html_content|safe }}
+        </div>
+
+        <div class="forum-thread-panel__actions">
+            <form action="{% url 'frogs-forum-thread-upvote' root_post.id %}" method="post" class="forum-thread-action-form js-upvote-form" data-upvote-post-id="{{ root_post.id }}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="forum-thread-button forum-thread-button--vote{% if root_post.upvoted %} is-active{% endif %}" aria-label="{% trans 'Upvote this thread' %}" aria-pressed="{{ root_post.upvoted|yesno:'true,false' }}">
+                    <span>[</span>
+                    <span>{% trans "UPVOTE" %}</span>
+                    <span class="forum-thread-button__count">#{{ root_post.upvotes.count }}</span>
+                    <span>]</span>
+                </button>
+            </form>
+            <div class="forum-thread-panel__id">{% blocktrans with id=root_post.id %}ID: {{ id }}{% endblocktrans %}</div>
+        </div>
+    </article>
+
+    <section class="forum-thread-replies" aria-label="{% trans 'Thread replies' %}">
+        <div class="forum-thread-replies__header">
+            <span>{% blocktrans count count=page_obj.paginator.count %}INCOMING_LOG_ENTRIES [{{ count }} RESPONSE]{% plural %}INCOMING_LOG_ENTRIES [{{ count }} RESPONSES]{% endblocktrans %}</span>
+            <span>{% trans "FILTER: CHRONOLOGICAL" %}</span>
+        </div>
+
+        {% for reply in page_obj.object_list %}
+        <article id="reply-{{ reply.id }}" class="forum-thread-reply{% if quoted_post and quoted_post.id == reply.id %} is-selected{% endif %}">
+            <div class="forum-thread-reply__meta">
+                <div class="forum-thread-reply__identity">
+                    <span class="forum-thread-reply__dot"></span>
+                    <span>&gt; {{ reply.author.username|upper }}</span>
+                    {% if reply.author == request.user %}
+                    <span class="forum-thread-reply__tag">[YOU]</span>
+                    {% endif %}
+                </div>
+                <span>{{ reply.published_date|timesince|upper }} {% trans "AGO" %}</span>
+            </div>
+
+            <div class="forum-thread-reply__quote-link reply-to-anchor" data-quote-target="{{ reply.id }}">
+                <span>{% trans ">> THREAD_ID" %}</span>
+                <span>{{ root_post.id }}</span>
+            </div>
+
+            {% if reply.content|first == ">" %}
+            <a href="#reply-{{ reply.response_to.id }}" class="forum-thread-reply__quote-link reply-to-anchor" data-quote-target="{{ reply.response_to.id }}">
+                <span>{% blocktrans with username=reply.response_to.author.username|upper %}>> QUOTING {{ username }}{% endblocktrans %}</span>
+                <span>{{ reply.response_to.display_title|truncatechars:90 }}</span>
+            </a>
+            {% endif %}
+
+            <div class="forum-thread-reply__body">
+                {{ reply.parse_html_content|safe }}
+            </div>
+
+            <div class="forum-thread-reply__actions">
+                <form action="{% url 'frogs-forum-thread-upvote' reply.id %}" method="post" class="forum-thread-action-form js-upvote-form" data-upvote-post-id="{{ reply.id }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="forum-thread-button forum-thread-button--vote forum-thread-button--small{% if reply.upvoted %} is-active{% endif %}" aria-label="{% blocktrans with username=reply.author.username %}Upvote reply by {{ username }}{% endblocktrans %}" aria-pressed="{{ reply.upvoted|yesno:'true,false' }}">
+                        <span>[</span>
+                        <span>{% trans "UPVOTE" %}</span>
+                        <span class="forum-thread-button__count">+{{ reply.upvotes.count }}</span>
+                        <span>]</span>
+                    </button>
+                </form>
+                <button type="button" class="forum-thread-button forum-thread-button--quote forum-thread-button--small js-quote-button" data-quote-id="{{ reply.id }}" data-quote-user="{{ reply.author.username|escapejs }}" aria-label="{% trans 'Quote this reply' %}">
+                    <span>[</span>
+                    <span>{% trans "QUOTE" %}</span>
+                    <span>]</span>
+                </button>
+            </div>
+        </article>
+        {% empty %}
+        <div class="forum-thread-empty-state">
+            <span>{% trans "> NO LOG ENTRIES DETECTED." %}</span>
+        </div>
+        {% endfor %}
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="forum-thread-pagination" aria-label="{% trans 'Thread page selector' %}">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="forum-thread-pagination__link">{% trans "[ PREV ]" %}</a>
+            {% endif %}
+
+            <div class="forum-thread-pagination__list page-selector" aria-label="{% trans 'Page list' %}">
+                {% for page_number in page_obj.paginator.page_range %}
+                    {% if page_number == page_obj.number %}
+                    <span class="forum-thread-pagination__item is-active">{{ page_number }}</span>
+                    {% else %}
+                    <a href="?page={{ page_number }}" class="forum-thread-pagination__item">{{ page_number }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="forum-thread-pagination__link">{% trans "[ NEXT ]" %}</a>
+            {% endif %}
+        </nav>
+        {% endif %}
+
+        <form method="post" class="forum-thread-reply-form" id="forum-thread-reply-form" action="{% url 'frogs-forum-thread' root_post.id %}">
+            {% csrf_token %}
+            {% if quoted_post %}
+            <input type="hidden" name="response_to" value="{{ quoted_post.id }}">
+            <div class="forum-thread-reply-form__quote-box">
+                <span>{% trans "REPLYING TO" %} {{ quoted_post.author.username|upper }}</span>
+                <a href="#reply-{{ quoted_post.id }}" class="forum-thread-reply__quote-link reply-to-anchor" data-quote-target="{{ quoted_post.id }}">{% trans "[JUMP TO ORIGINAL]" %}</a>
+                <span class="forum-thread-reply-form__quote-target">quote_target={{ quoted_post.id }}</span>
+            </div>
+            {% endif %}
+            <textarea name="content" class="forum-thread-reply-form__input" rows="3" placeholder="{% trans 'Inject technical telemetry, code snippet, or diagnostic feedback...' %}"></textarea>
+            <div class="forum-thread-reply-form__toolbar">
+                <div class="forum-thread-reply-form__labels">
+                    <span>{% trans "FORMAT: MARKDOWN SUPPORTED" %}</span>
+                    <span>//</span>
+                    <span>{% trans "MAX_PAYLOAD: INFINITY" %}</span>
+                </div>
+                <div class="forum-thread-reply-form__buttons">
+                    <button type="reset" class="forum-thread-button forum-thread-button--ghost">{% trans "[ CLEAR ]" %}</button>
+                    <button type="submit" class="forum-thread-button forum-thread-button--submit">{% trans "[ TRANSMIT_ENTRY ]" %}</button>
+                </div>
+            </div>
+        </form>
+    </section>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const quoteForm = document.getElementById('forum-thread-reply-form');
+        const textarea = quoteForm ? quoteForm.querySelector('textarea[name="content"]') : null;
+
+        function setQuoteTarget(replyId, username) {
+            if (!quoteForm || !textarea) {
+                return;
+            }
+
+            let hiddenInput = quoteForm.querySelector('input[name="response_to"]');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'response_to';
+                quoteForm.prepend(hiddenInput);
+            }
+
+            hiddenInput.value = replyId;
+
+            let quoteBox = quoteForm.querySelector('.forum-thread-reply-form__quote-box');
+            if (!quoteBox) {
+                quoteBox = document.createElement('div');
+                quoteBox.className = 'forum-thread-reply-form__quote-box';
+                quoteForm.insertBefore(quoteBox, textarea);
+            }
+
+            const cleanUsername = username || 'USER';
+            quoteBox.innerHTML = `
+                <span>REPLYING TO ${cleanUsername.toUpperCase()}</span>
+                <a href="#reply-${replyId}" class="forum-thread-reply__quote-link reply-to-anchor" data-quote-target="${replyId}">[JUMP TO ORIGINAL]</a>
+                <span class="forum-thread-reply-form__quote-target">quote_target=${replyId}</span>
+            `;
+
+            textarea.focus();
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const len = textarea.value.length;
+            textarea.setSelectionRange(len, len);
+        }
+
+        document.querySelectorAll('.js-quote-button').forEach((button) => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                const replyId = button.dataset.quoteId;
+                const username = button.dataset.quoteUser || 'USER';
+                if (replyId) {
+                    setQuoteTarget(replyId, username);
+                }
+            });
+        });
+
+        document.querySelectorAll('.js-upvote-form').forEach((form) => {
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const button = form.querySelector('button[type="submit"]');
+                const countEl = form.querySelector('.forum-thread-button__count');
+                const csrf = form.querySelector('[name="csrfmiddlewaretoken"]')?.value || '';
+
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrf,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                    body: new FormData(form),
+                    credentials: 'same-origin',
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+                if (countEl && typeof data.count === 'number') {
+                    countEl.textContent = `#${data.count}`;
+                    if (countEl.textContent.startsWith('+')) {
+                        countEl.textContent = `+${data.count}`;
+                    }
+                }
+
+                if (button) {
+                    const upvoted = Boolean(data.upvoted);
+                    button.classList.toggle('is-active', upvoted);
+                    button.setAttribute('aria-pressed', String(upvoted));
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

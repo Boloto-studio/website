@@ -140,6 +140,76 @@ class WallPostTests(TestCase):
         self.assertFalse(ForumPost.objects.filter(topic=self.target.wall).exists())
 
 
+class ForumThreadViewTests(TestCase):
+    def setUp(self):
+        self.author = User.objects.create_user(username='thread_author', password='secret123')
+        self.replier = User.objects.create_user(username='reply_user', password='secret123')
+        self.viewer = User.objects.create_user(username='viewer', password='secret123')
+        self.topic = self.author.wall
+        self.topic.title = 'Thread title'
+        self.topic.save()
+
+        self.root_post = ForumPost.objects.create(
+            author=self.author,
+            topic=self.topic,
+            title='Optimizing scanline renderer in WebGL',
+            content='Encountering severe frame drops in WebGL scanline pass. **Need a fix.**',
+        )
+
+        for index in range(15):
+            response_to = self.root_post if index == 0 else self.replies[-1]
+            reply = ForumPost.objects.create(
+                author=self.replier,
+                topic=self.topic,
+                title=f'Reply {index + 1}',
+                content=f'Response #{index + 1} to the scanline issue.',
+                response_to=response_to,
+            )
+            if index == 0:
+                self.reply_one = reply
+            if index == 1:
+                self.reply_two = reply
+            if index == 2:
+                self.quote_reply = reply
+            if not hasattr(self, 'replies'):
+                self.replies = []
+            self.replies.append(reply)
+
+    def test_forum_thread_view_renders_post_and_paginated_replies(self):
+        self.client.login(username='viewer', password='secret123')
+
+        response = self.client.get(reverse('frogs-forum-thread', args=[self.root_post.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Optimizing scanline renderer in WebGL')
+        self.assertContains(response, 'Need a fix')
+        self.assertContains(response, 'page-selector')
+        self.assertContains(response, 'href="#reply-')
+        self.assertContains(response, 'Reply #1')
+        self.assertNotContains(response, 'Reply #12')
+
+        response = self.client.get(reverse('frogs-forum-thread', args=[self.root_post.id]), {'page': 2})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Reply #12')
+        self.assertContains(response, 'Reply #15')
+
+    def test_forum_thread_upvote_toggle_and_quote_anchor_are_available(self):
+        self.client.login(username='viewer', password='secret123')
+
+        response = self.client.post(
+            reverse('frogs-forum-thread-upvote', args=[self.root_post.id]),
+            {'next': reverse('frogs-forum-thread', args=[self.root_post.id])},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.root_post.refresh_from_db()
+        self.assertEqual(self.root_post.upvotes.count(), 1)
+
+        response = self.client.get(reverse('frogs-forum-thread', args=[self.root_post.id]), {'quote': self.reply_one.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'reply-to-anchor')
+        self.assertContains(response, f'quote_target={self.reply_one.id}')
+
+
 class FriendsListTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='rosterlead', password='secret123', first_name='Lead')

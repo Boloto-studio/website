@@ -4,17 +4,19 @@ from django.contrib.auth import login
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 import random
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
+from django.utils.text import Truncator
 from django.utils.timesince import timesince
 from django.views.decorators.http import require_POST
 
 from .forms import FrogProfileEditForm, FrogRegistrationForm, WallPostForm
-from .models import Frog, FriendRequest
+from .models import Frog, FriendRequest, ForumPost, ForumTopic
 
 # Create your views here.
 
@@ -373,6 +375,104 @@ def profile_edit(request):
         'profile': frog,
         'user': user,
     })
+
+
+def forum_topic_redirect(request, topic_id):
+    root_post = (
+        ForumPost.objects.filter(topic_id=topic_id)
+        .order_by('published_date')
+        .first()
+    )
+    if root_post is None:
+        raise Http404("No forum post found for this topic.")
+    return redirect('frogs-forum-thread', post_id=root_post.id)
+
+
+def forum_thread(request, post_id):
+    root_post = get_object_or_404(ForumPost, id=post_id)
+    topic = root_post.topic
+
+    if request.method == 'POST' and request.user.is_authenticated:
+        content = (request.POST.get('content') or '').strip()
+        if content:
+            response_to = root_post
+            quoted_id = request.POST.get('response_to')
+            quoted_post = None
+            if quoted_id:
+                quoted_post = topic.posts.filter(id=quoted_id).first()
+                response_to = quoted_post or root_post
+                if quoted_post is not None:
+                    quoted_lines = quoted_post.content.strip().splitlines() or [quoted_post.content.strip()]
+                    quote_block = "\n".join(f"> {line}" if line else ">" for line in quoted_lines)
+                    content = f"{quote_block}\n\n{content}"
+            ForumPost.objects.create(
+                author=request.user,
+                topic=topic,
+                response_to=response_to,
+                content=content,
+                title=Truncator(content).chars(60),
+            )
+            return redirect(f"{request.path}?page=last")
+
+    all_replies = list(
+        ForumPost.objects.filter(topic=topic)
+        .exclude(id=root_post.id)
+        .select_related('author', 'response_to', 'response_to__author')
+        .order_by('published_date')
+    )
+
+    paginator = Paginator(all_replies, 10)
+    page_number = request.GET.get('page', 1)
+    if page_number == 'last':
+        page_number = paginator.num_pages or 1
+    page_obj = paginator.get_page(page_number)
+
+    quote_id = request.GET.get('quote')
+    quoted_post = None
+    if quote_id:
+        quoted_post = topic.posts.filter(id=quote_id).select_related('author').first()
+
+    reply_target = quoted_post or (page_obj.object_list[0] if page_obj.object_list else None)
+    if request.user.is_authenticated:
+        root_post.upvoted = root_post.upvotes.filter(id=request.user.id).exists()
+    else:
+        root_post.upvoted = False
+
+    for reply in page_obj.object_list:
+        reply.upvoted = request.user.is_authenticated and reply.upvotes.filter(id=request.user.id).exists()
+
+    return render(request, 'frogsnet/forum_thread.html', {
+        'topic': topic,
+        'root_post': root_post,
+        'page_obj': page_obj,
+        'page_number': page_obj.number,
+        'quoted_post': quoted_post,
+        'reply_target': reply_target,
+        'reply_count': len(all_replies),
+        'total_pages': paginator.num_pages,
+        'can_reply': request.user.is_authenticated,
+    })
+
+
+@login_required
+@require_POST
+def forum_thread_upvote(request, post_id):
+    post = get_object_or_404(ForumPost, id=post_id)
+    was_upvoted = request.user in post.upvotes.all()
+    if was_upvoted:
+        post.upvotes.remove(request.user)
+    else:
+        post.upvotes.add(request.user)
+    upvoted = request.user in post.upvotes.all()
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'upvoted': upvoted,
+            'count': post.upvotes.count(),
+        })
+
+    next_url = request.POST.get('next') or (f"/frogs/forum/post/{post.id}/" if post.id else '/frogs/')
+    return redirect(next_url)
 
 
 def profile(request, profile_id=None):
