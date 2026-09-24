@@ -78,7 +78,7 @@
     </div>
     <div class="terminal-logs-grid">
         {% for item in terminal_logs %}
-        <article class="terminal-log-card{% if item.thumbnail %} terminal-log-card--media{% endif %}">
+        <a href="{{ item.url }}" class="terminal-log-card{% if item.thumbnail %} terminal-log-card--media{% endif %}">
             {% if item.thumbnail %}
             <div class="terminal-log-media" data-log-thumbnail="{{ item.thumbnail|escape }}">
                 <span class="terminal-log-play material-symbols-outlined">play_arrow</span>
@@ -91,13 +91,8 @@
                 </div>
                 <h3 class="terminal-log-title">{{ item.title }}</h3>
                 <p class="terminal-log-body">{{ item.summary|truncatechars:220 }}</p>
-                {% if item.url %}
-                <a class="terminal-log-action" href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.action_label }}</a>
-                {% else %}
-                <span class="terminal-log-action">{{ item.action_label }}</span>
-                {% endif %}
             </div>
-        </article>
+        </a>
         {% empty %}
         <p class="terminal-empty">{% trans "No logs indexed yet. Upload a transmission or publish a post to populate this console." %}</p>
         {% endfor %}
