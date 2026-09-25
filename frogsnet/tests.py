@@ -209,6 +209,51 @@ class ForumThreadViewTests(TestCase):
         self.assertContains(response, 'reply-to-anchor')
         self.assertContains(response, f'quote_target={self.reply_one.id}')
 
+    def test_forum_thread_owner_can_close_and_delete_root_post(self):
+        self.client.login(username='thread_author', password='secret123')
+
+        close_response = self.client.post(
+            reverse('frogs-forum-thread-close', args=[self.root_post.id]),
+            {'next': reverse('frogs-forum-thread', args=[self.root_post.id])},
+        )
+        self.assertEqual(close_response.status_code, 302)
+        self.root_post.refresh_from_db()
+        self.assertFalse(self.root_post.is_open)
+
+        reply = ForumPost.objects.create(
+            author=self.author,
+            topic=self.topic,
+            title='Reply to thread close test',
+            content='Temporary reply',
+            response_to=self.root_post,
+        )
+        self.assertTrue(ForumPost.objects.filter(id=reply.id).exists())
+
+        delete_response = self.client.post(
+            reverse('frogs-forum-thread-delete', args=[self.root_post.id]),
+            {'next': reverse('frogs-forum-thread', args=[self.root_post.id])},
+        )
+        self.assertEqual(delete_response.status_code, 302)
+        self.assertFalse(ForumPost.objects.filter(id=self.root_post.id).exists())
+
+    def test_forum_thread_owner_can_delete_reply(self):
+        self.client.login(username='thread_author', password='secret123')
+        reply = ForumPost.objects.create(
+            author=self.author,
+            topic=self.topic,
+            title='Delete me',
+            content='This reply is going away.',
+            response_to=self.root_post,
+        )
+
+        response = self.client.post(
+            reverse('frogs-forum-thread-delete', args=[reply.id]),
+            {'next': reverse('frogs-forum-thread', args=[self.root_post.id])},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ForumPost.objects.filter(id=reply.id).exists())
+
 
 class ForumComposerViewTests(TestCase):
     def setUp(self):

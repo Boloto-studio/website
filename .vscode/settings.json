@@ -7,9 +7,16 @@
         "frogsnet",
         "modpack",
         "modpacks",
+        "novalidate",
+        "SCANLINE",
         "subline",
         "sublink",
-        "upvotes"
+        "topbar",
+        "Truncator",
+        "upvote",
+        "upvotes",
+        "VEKTOR",
+        "WEBGL"
     ],
     // Disable automatic formatting that's breaking your code
     "editor.formatOnSave": false,

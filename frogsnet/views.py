@@ -11,6 +11,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+from django.urls import reverse
 from django.utils.text import Truncator
 from django.utils.timesince import timesince
 from django.views.decorators.http import require_POST
@@ -33,7 +34,7 @@ SERVER_LIST = [
     {
         "name": "SWAMPY ALPHA [MODDED]",
         "status": "STABLE",
-        "description": "Primary survival node. Requires Terminal Zero modpack v1.4. Heavy focus on neurotoxel automation and biome rot.",
+        "description": "Primary survival node. Requires Terminal Zero modpack v1.4. Heavy focus on neurotoxin automation and biome rot.",
         "ip": "alpha.swampy.net",
         "players": "112 / 200",
         "version": "TZ_v1.2.4",
@@ -429,12 +430,7 @@ def forum_thread(request, post_id):
             )
             return redirect(f"{request.path}?page=last")
 
-    all_replies = list(
-        ForumPost.objects.filter(topic=topic)
-        .exclude(id=root_post.id)
-        .select_related('author', 'response_to', 'response_to__author')
-        .order_by('published_date')
-    )
+    all_replies = list(root_post.responses.select_related('author').order_by('published_date').all())
 
     paginator = Paginator(all_replies, 10)
     page_number = request.GET.get('page', 1)
@@ -487,6 +483,45 @@ def forum_thread_upvote(request, post_id):
         })
 
     next_url = request.POST.get('next') or (f"/frogs/forum/post/{post.id}/" if post.id else '/frogs/')
+    return redirect(next_url)
+
+
+@login_required
+@require_POST
+def forum_thread_close(request, post_id):
+    post = get_object_or_404(ForumPost, id=post_id)
+    if post.author_id != request.user.id:
+        return redirect('frogs-forum-thread', post_id=post.id)
+
+    post.is_open = False
+    post.save(update_fields=['is_open'])
+    next_url = request.POST.get('next') or reverse('frogs-forum-thread', args=[post.id])
+    return redirect(next_url)
+
+
+@login_required
+@require_POST
+def forum_thread_reopen(request, post_id):
+    post = get_object_or_404(ForumPost, id=post_id)
+    if post.author_id != request.user.id:
+        return redirect('frogs-forum-thread', post_id=post.id)
+
+    post.is_open = True
+    post.save(update_fields=['is_open'])
+    next_url = request.POST.get('next') or reverse('frogs-forum-thread', args=[post.id])
+    return redirect(next_url)
+
+
+@login_required
+@require_POST
+def forum_thread_delete(request, post_id):
+    post = get_object_or_404(ForumPost, id=post_id)
+    if post.author_id != request.user.id:
+        return redirect('frogs-forum-thread', post_id=post.id)
+
+    topic_id = post.topic_id
+    next_url = "/" or request.POST.get('next') or reverse('frogs-forum-topic', args=[topic_id])
+    post.delete()
     return redirect(next_url)
 
 

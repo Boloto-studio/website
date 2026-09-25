@@ -32,7 +32,9 @@
     <article id="reply-{{ root_post.id }}" class="forum-thread-panel forum-thread-panel--primary" data-thread-post-id="{{ root_post.id }}">
         <header class="forum-thread-panel__header">
             <div class="forum-thread-panel__header-label">{% trans "TRANSMISSION://NODE_741_OP" %}</div>
-            <div class="forum-thread-panel__status">{% trans "STATUS: OPEN" %}</div>
+            <div class="forum-thread-panel__status{% if not root_post.is_open %} is-closed{% endif %}">
+                {% if root_post.is_open %}{% trans "STATUS: OPEN" %}{% else %}{% trans "STATUS: CLOSED" %}{% endif %}
+            </div>
         </header>
 
         <h1 class="forum-thread-panel__title">{{ root_post.title }}</h1>
@@ -50,16 +52,50 @@
         </div>
 
         <div class="forum-thread-panel__actions">
-            <form action="{% url 'frogs-forum-thread-upvote' root_post.id %}" method="post" class="forum-thread-action-form js-upvote-form" data-upvote-post-id="{{ root_post.id }}">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                <button type="submit" class="forum-thread-button forum-thread-button--vote{% if root_post.upvoted %} is-active{% endif %}" aria-label="{% trans 'Upvote this thread' %}" aria-pressed="{{ root_post.upvoted|yesno:'true,false' }}">
-                    <span>[</span>
-                    <span>{% trans "UPVOTE" %}</span>
-                    <span class="forum-thread-button__count">#{{ root_post.upvotes.count }}</span>
-                    <span>]</span>
-                </button>
-            </form>
+            <div class="forum-thread-panel__actions-group">
+                <form action="{% url 'frogs-forum-thread-upvote' root_post.id %}" method="post" class="forum-thread-action-form js-upvote-form" data-upvote-post-id="{{ root_post.id }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="forum-thread-button forum-thread-button--vote{% if root_post.upvoted %} is-active{% endif %}" aria-label="{% trans 'Upvote this thread' %}" aria-pressed="{{ root_post.upvoted|yesno:'true,false' }}">
+                        <span>[</span>
+                        <span>{% trans "UPVOTE" %}</span>
+                        <span class="forum-thread-button__count">#{{ root_post.upvotes.count }}</span>
+                        <span>]</span>
+                    </button>
+                </form>
+                {% if request.user == root_post.author %}
+                {% if root_post.is_open %}
+                <form action="{% url 'frogs-forum-thread-close' root_post.id %}" method="post" class="forum-thread-action-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="forum-thread-button forum-thread-button--close">
+                        <span>[</span>
+                        <span>{% trans "CLOSE" %}</span>
+                        <span>]</span>
+                    </button>
+                </form>
+                {% else %}
+                <form action="{% url 'frogs-forum-thread-reopen' root_post.id %}" method="post" class="forum-thread-action-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="forum-thread-button forum-thread-button--close">
+                        <span>[</span>
+                        <span>{% trans "REOPEN" %}</span>
+                        <span>]</span>
+                    </button>
+                </form>
+                {% endif %}
+                <form action="{% url 'frogs-forum-thread-delete' root_post.id %}" method="post" class="forum-thread-action-form" onsubmit="return confirm('{% trans 'Delete this post? This action cannot be undone.' %}');">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="forum-thread-button forum-thread-button--danger">
+                        <span>[</span>
+                        <span>{% trans "DELETE" %}</span>
+                        <span>]</span>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
             <div class="forum-thread-panel__id">{% blocktrans with id=root_post.id %}ID: {{ id }}{% endblocktrans %}</div>
         </div>
     </article>
@@ -115,6 +151,17 @@
                     <span>{% trans "QUOTE" %}</span>
                     <span>]</span>
                 </button>
+                {% if reply.author == request.user %}
+                <form action="{% url 'frogs-forum-thread-delete' reply.id %}" method="post" class="forum-thread-action-form" onsubmit="return confirm('{% trans 'Delete this reply? This action cannot be undone.' %}');">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="forum-thread-button forum-thread-button--danger forum-thread-button--small">
+                        <span>[</span>
+                        <span>{% trans "DELETE" %}</span>
+                        <span>]</span>
+                    </button>
+                </form>
+                {% endif %}
             </div>
         </article>
         {% empty %}
@@ -145,6 +192,7 @@
         </nav>
         {% endif %}
 
+        {% if root_post.is_open %}
         <form method="post" class="forum-thread-reply-form" id="forum-thread-reply-form" action="{% url 'frogs-forum-thread' root_post.id %}">
             {% csrf_token %}
             {% if quoted_post %}
@@ -168,6 +216,11 @@
                 </div>
             </div>
         </form>
+        {% else %}
+        <div class="forum-thread-reply-form forum-thread-reply-form--locked">
+            <span>{% trans "THREAD CLOSED: NO FURTHER ENTRIES ACCEPTED." %}</span>
+        </div>
+        {% endif %}
     </section>
 </section>
 
