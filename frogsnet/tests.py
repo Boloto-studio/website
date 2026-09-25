@@ -210,6 +210,57 @@ class ForumThreadViewTests(TestCase):
         self.assertContains(response, f'quote_target={self.reply_one.id}')
 
 
+class ForumComposerViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='composer', password='secret123')
+        self.topic = self.user.wall
+        self.topic.title = 'Swamp forum'
+        self.topic.save()
+
+    def test_forum_new_post_view_renders_composer_and_uses_existing_topic_fields(self):
+        self.client.login(username='composer', password='secret123')
+
+        response = self.client.get(reverse('frogs-forum-new'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'forum-new-post-shell')
+        self.assertContains(response, 'name="title"')
+        self.assertContains(response, 'name="topic"')
+        self.assertContains(response, 'name="content"')
+
+    def test_forum_new_post_view_creates_post_and_redirects_to_thread(self):
+        self.client.login(username='composer', password='secret123')
+
+        response = self.client.post(
+            reverse('frogs-forum-new'),
+            {
+                'title': 'Night shift patch notes',
+                'topic': self.topic.id,
+                'content': 'Ship the hotfix before sunrise.',
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        created_post = self.user.forum_posts.get(title='Night shift patch notes')
+        self.assertEqual(response['Location'], reverse('frogs-forum-thread', args=[created_post.id]))
+        self.assertEqual(created_post.topic, self.topic)
+
+    def test_generate_post_preview_returns_markdown_html(self):
+        self.client.login(username='composer', password='secret123')
+
+        response = self.client.post(
+            reverse('preview-post'),
+            {'content': '**Rendered** preview with a [link](https://example.com).'},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertIn('html', payload)
+        self.assertIn('Rendered', payload['html'])
+        self.assertIn('<a href="https://example.com"', payload['html'])
+
+
 class FriendsListTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='rosterlead', password='secret123', first_name='Lead')

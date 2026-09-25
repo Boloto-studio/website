@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 
-from .models import Frog, ForumPost
+from .models import Frog, ForumPost, ForumTopic
 
 
 class FrogRegistrationForm(forms.ModelForm):
@@ -52,6 +52,67 @@ class WallPostForm(forms.ModelForm):
             content=text,
             title=Truncator(text).chars(60),
         )
+        if commit:
+            post.save()
+        return post
+
+
+class ForumPostForm(forms.ModelForm):
+    title = forms.CharField(
+        label=_('Transmission title'),
+        max_length=200,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'forum-terminal-field',
+                'placeholder': _('ENTER_TRANSMISSION_SUBJECT...'),
+                'autocomplete': 'off',
+            }
+        ),
+    )
+    topic = forms.ModelChoiceField(
+        queryset=ForumTopic.objects.filter(parent_topic__isnull=True, owner_if_wall__isnull=True).order_by('title'),
+        required=False,
+        empty_label=_('Select a topic'),
+        label=_('Topic directory'),
+        widget=forms.Select(attrs={'class': 'forum-terminal-field forum-terminal-field--select'}),
+    )
+    content = forms.CharField(
+        label=_('Payload body'),
+        widget=forms.Textarea(
+            attrs={
+                'class': 'forum-terminal-field forum-terminal-field--textarea',
+                'rows': 10,
+                'placeholder': _('TYPE_PAYLOAD_HERE... DATA_PACKETS WILL BE COMPRESSED BEFORE DISPATCH.'),
+            }
+        ),
+    )
+
+    class Meta:
+        model = ForumPost
+        fields = ['title', 'topic', 'content']
+
+    def __init__(self, *args, **kwargs):
+        self.forced_topic = kwargs.pop('forced_topic', None)
+        super().__init__(*args, **kwargs)
+
+        topic_queryset = ForumTopic.objects.filter(parent_topic__isnull=True, owner_if_wall__isnull=True).order_by('title')
+        self.fields['topic'].queryset = topic_queryset
+        if self.forced_topic is not None:
+            self.fields['topic'].initial = self.forced_topic
+
+    def clean(self):
+        cleaned_data = super().clean()
+        selected_topic = cleaned_data.get('topic') or self.forced_topic
+        if selected_topic is None:
+            raise forms.ValidationError({'topic': _('Please select a forum topic.')})
+        cleaned_data['topic'] = selected_topic
+        return cleaned_data
+
+    def save(self, *, author, commit=True):
+        post = super().save(commit=False)
+        post.author = author
+        post.response_to = None
+        post.topic = self.cleaned_data['topic']
         if commit:
             post.save()
         return post

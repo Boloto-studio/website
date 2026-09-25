@@ -108,6 +108,10 @@ class ForumPost(AbstractPost):
     is_open = models.BooleanField(default=True, help_text="If this post is open for responses. If false, no new responses can be added.")
 
     @property
+    def is_wall_post(self):
+        return self.topic and self.topic.owner_if_wall is not None
+
+    @property
     def display_title(self):
         title = (self.title or '').strip()
         if not title:
@@ -133,6 +137,7 @@ class ForumTopic(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     parent_topic = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, related_name="subtopics")
     owner_if_wall = models.OneToOneField("auth.User", on_delete=models.CASCADE, related_name="wall", null=True, blank=True, help_text="If this is a user wall, the owner of the wall. Using OneToOne so `user.wall` returns a single topic.")
+    is_pinned = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title

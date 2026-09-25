@@ -14,8 +14,10 @@ from django.core.paginator import Paginator
 from django.utils.text import Truncator
 from django.utils.timesince import timesince
 from django.views.decorators.http import require_POST
+import nh3
+import markdown2
 
-from .forms import FrogProfileEditForm, FrogRegistrationForm, WallPostForm
+from .forms import ForumPostForm, FrogProfileEditForm, FrogRegistrationForm, WallPostForm
 from .models import Frog, FriendRequest, ForumPost, ForumTopic
 
 # Create your views here.
@@ -192,7 +194,7 @@ def profile_page(request, profile_id=None):
         'activity': frog.status if frog else None,
         'own_profile': own_profile,
         'modpacks': modpack_stats,
-        'user_wall': user.wall.posts.order_by('-published_date'),
+        'user_wall': user.wall.posts.order_by('-published_date').filter(response_to=None),
         'friend_status': friend_status,
         'wall_post_form': WallPostForm(),
         })
@@ -377,6 +379,19 @@ def profile_edit(request):
     })
 
 
+@login_required
+def forum_new_post(request):
+    form = ForumPostForm(request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        post = form.save(author=request.user)
+        return redirect('frogs-forum-thread', post_id=post.id)
+
+    return render(request, 'frogsnet/forum_new_post.html', {
+        'form': form,
+    })
+
+
 def forum_topic_redirect(request, topic_id):
     root_post = (
         ForumPost.objects.filter(topic_id=topic_id)
@@ -509,3 +524,13 @@ def create_wall_post(request, profile_id):
             'content': post.content,
         }
     )
+
+@login_required
+@require_POST
+def generate_post_preview(request):
+    content = request.POST.get('content', '').strip()
+    if not content:
+        return JsonResponse({'error': 'No content provided.'}, status=400)
+
+    preview_html = nh3.clean(markdown2.markdown(content))
+    return JsonResponse({'html': preview_html})

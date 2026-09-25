@@ -12,12 +12,20 @@
 {% block body %}
 <section class="forum-thread-shell" aria-label="{% trans 'Forum thread view' %}">
     <div class="forum-thread-breadcrumbs" aria-label="{% trans 'Thread breadcrumb' %}">
-        <a href="#">{% trans "/BIN" %}</a>
+        {% if root_post.is_wall_post %}
+        <span>HOME</span>
         <span>/</span>
+        <span>USER</span>
+        <span>/</span>
+        <a href="{% url 'frogs-profile' root_post.topic.owner_if_wall.id %}">{{ root_post.topic.owner_if_wall.username|upper }}</a>
+        <span>/</span>
+        {% else %}
+        <span>/BIN/</span>
         <a href="#">{% trans "FORUM" %}</a>
         <span>/</span>
         <a href="#">{% trans "TECH_SUPPORT" %}</a>
         <span>/</span>
+        {% endif %}
         <span class="forum-thread-breadcrumbs__current">{% blocktrans with thread_id=root_post.id %}THREAD_#{{ thread_id }}{% endblocktrans %}</span>
     </div>
 

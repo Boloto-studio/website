@@ -7,6 +7,7 @@ urlpatterns = [
     path("profile/edit/", views.profile_edit, name="frogs-profile-edit"),
     path("profile/", views.profile_page, name="frogs-profile-own"),
     path("friends/", views.friends_list, name="frogs-friends"),
+    path("forum/new/", views.forum_new_post, name="frogs-forum-new"),
     path("forum/post/<int:post_id>/", views.forum_thread, name="frogs-forum-thread"),
     path("forum/<int:topic_id>/", views.forum_topic_redirect, name="frogs-forum-topic"),
     path("forum/post/<int:post_id>/upvote/", views.forum_thread_upvote, name="frogs-forum-thread-upvote"),
@@ -14,5 +15,6 @@ urlpatterns = [
     path("profile/<int:profile_id>/", views.profile_page, name="frogs-profile"),
     path("profile/<int:profile_id>/friend-request/", views.friend_request, name="frogs-friend-request"),
     path("profile/<int:profile_id>/delete-friend/", views.delete_friend, name="frogs-friend-delete"),
+    path("utils/preview-post/", views.generate_post_preview, name="preview-post"),
     path("", views.home, name="frogsnet-home"),
 ]
