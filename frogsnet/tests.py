@@ -255,6 +255,60 @@ class ForumThreadViewTests(TestCase):
         self.assertFalse(ForumPost.objects.filter(id=reply.id).exists())
 
 
+class ForumIndexViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='forum_user', password='secret123')
+        self.wall_topic = self.user.wall
+        self.wall_topic.title = "User Wall"
+        self.wall_topic.save()
+
+        self.topic = self.user.wall.__class__.objects.create(title='Tech Support', description='Troubleshooting logs')
+        self.topic_pinned = self.user.wall.__class__.objects.create(title='News', description='Announcements', is_pinned=True)
+
+        for title in ['Thread 1', 'Thread 2', 'Thread 3', 'Thread 4']:
+            ForumPost.objects.create(
+                author=self.user,
+                topic=self.topic,
+                title=title,
+                content=f'Content for {title}.',
+            )
+
+    def test_forum_index_lists_topics_without_user_walls_and_shows_recent_threads(self):
+        self.client.login(username='forum_user', password='secret123')
+
+        response = self.client.get(reverse('frogs-forum'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'DIR: /TECH_SUPPORT')
+        self.assertContains(response, 'DIR: /NEWS')
+        self.assertNotContains(response, 'USER WALL')
+        self.assertContains(response, 'VIEW_TOPIC')
+
+    def test_forum_new_post_route_tracks_topic_selection_from_topic_context(self):
+        self.client.login(username='forum_user', password='secret123')
+
+        response = self.client.get(reverse('frogs-forum-new-topic', args=[self.topic.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'selected')
+        self.assertContains(response, f'value="{self.topic.id}"')
+
+    def test_forum_topic_view_lists_subtopics_for_navigation(self):
+        subtopic = self.user.wall.__class__.objects.create(
+            title='Bug Reports',
+            description='Issue tracking and debugging',
+            parent_topic=self.topic,
+        )
+
+        self.client.login(username='forum_user', password='secret123')
+        response = self.client.get(reverse('frogs-forum-topic', args=[self.topic.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'SUBTOPICS')
+        self.assertContains(response, 'BUG REPORTS')
+        self.assertContains(response, reverse('frogs-forum-topic', args=[subtopic.id]))
+
+
 class ForumComposerViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='composer', password='secret123')

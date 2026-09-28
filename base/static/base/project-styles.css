@@ -725,6 +725,7 @@ body.under-construction .terminal-shell main .terminal-main__inner {
 }
 
 .forum-shell__search-button,
+.forum-shell__button,
 .forum-section-heading__button,
 .forum-topic-overview__button,
 .terminal-button {
@@ -739,13 +740,30 @@ body.under-construction .terminal-shell main .terminal-main__inner {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.12rem;
+    text-decoration: none;
+}
+
+.forum-shell__button--secondary {
+    border-color: var(--line-strong);
+    background: transparent;
+    color: var(--text);
 }
 
 .forum-shell__search-button:hover,
+.forum-shell__button:hover,
 .forum-section-heading__button:hover,
 .forum-topic-overview__button:hover,
 .terminal-button:hover {
     filter: brightness(1.06);
+}
+
+.forum-shell__status-dot {
+    display: inline-block;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(35, 242, 163, 0.9);
 }
 
 .forum-section-heading,
@@ -803,6 +821,47 @@ body.under-construction .terminal-shell main .terminal-main__inner {
     font-size: 0.68rem;
     letter-spacing: 0.12rem;
     text-transform: uppercase;
+}
+
+.forum-subtopics {
+    display: grid;
+    gap: 0.8rem;
+    padding: 1rem;
+    border: 1px solid rgba(244, 198, 62, 0.7);
+    background: linear-gradient(180deg, rgba(34, 25, 8, 0.9), rgba(10, 14, 11, 0.9));
+    box-shadow: inset 0 0 0 1px rgba(244, 198, 62, 0.12);
+}
+
+.forum-subtopics__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.forum-subtopics__label {
+    color: var(--highlight);
+    font-size: 0.74rem;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.forum-subtopics__divider {
+    height: 1px;
+    background: linear-gradient(90deg, rgba(244, 198, 62, 0.9), rgba(244, 198, 62, 0.2), transparent);
+}
+
+.forum-subtopics__list {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.forum-subtopic-card {
+    padding: 1rem;
+    border: 1px solid rgba(35, 242, 163, 0.7);
+    background: linear-gradient(180deg, rgba(15, 26, 22, 0.96), rgba(8, 14, 10, 0.96));
+    box-shadow: inset 0 0 0 1px rgba(35, 242, 163, 0.14), 0 0 24px rgba(35, 242, 163, 0.04);
 }
 
 .forum-topic-card,

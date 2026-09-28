@@ -21,9 +21,9 @@
         <span>/</span>
         {% else %}
         <span>/BIN/</span>
-        <a href="#">{% trans "FORUM" %}</a>
+        <a href="{% url 'frogs-forum' %}">{% trans "FORUM" %}</a>
         <span>/</span>
-        <a href="#">{% trans "TECH_SUPPORT" %}</a>
+        <a href="#">{{ root_post.topic.title }}</a>
         <span>/</span>
         {% endif %}
         <span class="forum-thread-breadcrumbs__current">{% blocktrans with thread_id=root_post.id %}THREAD_#{{ thread_id }}{% endblocktrans %}</span>
@@ -118,6 +118,8 @@
                 </div>
                 <span>{{ reply.published_date|timesince|upper }} {% trans "AGO" %}</span>
             </div>
+
+            <div class="forum-thread-reply__title">{{ reply.display_title }}</div>
 
             <div class="forum-thread-reply__quote-link reply-to-anchor" data-quote-target="{{ reply.id }}">
                 <span>{% trans ">> THREAD_ID" %}</span>

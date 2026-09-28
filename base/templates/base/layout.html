@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <span class="terminal-nav-summary__caret material-symbols-outlined">expand_more</span>
                     </button>
                     <div class="terminal-nav-submenu" data-nav-panel>
-                        <a class="terminal-nav-sublink{% if current == 'frogs-forum' %} is-active{% endif %}" href="">
+                        <a class="terminal-nav-sublink{% if current == 'frogs-forum' %} is-active{% endif %}" href="{% url 'frogs-forum' %}">
                             <span class="nav-sublink__label" data-type-label>{% trans 'Forum' %}</span>
                         </a>
                         <a class="terminal-nav-sublink{% if current == 'frogs-profile' %} is-active{% endif %}" href="{% url 'frogs-profile-own' %}">
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span class="terminal-nav-link__label">{% trans 'Contact' %}</span>
                 </a>
                 <div class="terminal-nav-submenu mobile" data-nav-panel>
-                    <a class="terminal-nav-sublink{% if current == 'frogs-forum' %} is-active{% endif %}" href="">
+                    <a class="terminal-nav-sublink{% if current == 'frogs-forum' %} is-active{% endif %}" href="{% url 'frogs-forum' %}">
                         <span class="nav-sublink__label" data-type-label>{% trans 'Forum' %}</span>
                     </a>
                     <a class="terminal-nav-sublink{% if current == 'frogs-profile' %} is-active{% endif %}" href="{% url 'frogs-profile-own' %}">

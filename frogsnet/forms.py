@@ -70,7 +70,7 @@ class ForumPostForm(forms.ModelForm):
         ),
     )
     topic = forms.ModelChoiceField(
-        queryset=ForumTopic.objects.filter(parent_topic__isnull=True, owner_if_wall__isnull=True).order_by('title'),
+        queryset=ForumTopic.objects.filter(owner_if_wall__isnull=True).order_by('title'),
         required=False,
         empty_label=_('Select a topic'),
         label=_('Topic directory'),
@@ -95,7 +95,7 @@ class ForumPostForm(forms.ModelForm):
         self.forced_topic = kwargs.pop('forced_topic', None)
         super().__init__(*args, **kwargs)
 
-        topic_queryset = ForumTopic.objects.filter(parent_topic__isnull=True, owner_if_wall__isnull=True).order_by('title')
+        topic_queryset = ForumTopic.objects.filter(owner_if_wall__isnull=True).order_by('title')
         self.fields['topic'].queryset = topic_queryset
         if self.forced_topic is not None:
             self.fields['topic'].initial = self.forced_topic

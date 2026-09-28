@@ -139,8 +139,27 @@ class ForumTopic(models.Model):
     owner_if_wall = models.OneToOneField("auth.User", on_delete=models.CASCADE, related_name="wall", null=True, blank=True, help_text="If this is a user wall, the owner of the wall. Using OneToOne so `user.wall` returns a single topic.")
     is_pinned = models.BooleanField(default=False)
 
+    @property
+    def path_label(self):
+        label = self.title.upper().replace(' ', '_')
+        if self.parent_topic:
+            label = f"{self.parent_topic.path_label}/{label}"
+        return label
+
+    @property
+    def path_trace(self):
+        trace = [{"title": self.title, "id": self.id}]
+        parent = self.parent_topic
+        while parent:
+            trace.append({"title": parent.title, "id": parent.id})
+            parent = parent.parent_topic
+        return reversed(trace)
+
     def __str__(self):
-        return self.title
+        title = self.title.strip()
+        if self.parent_topic:
+            title = f"{self.parent_topic.title} / {title}"
+        return title
 
     class Meta:
         ordering = ['-created_at']

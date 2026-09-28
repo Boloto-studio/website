@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
-from django.db.models import Q
+from django.db.models import Max, Q
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 import random
@@ -381,8 +381,11 @@ def profile_edit(request):
 
 
 @login_required
-def forum_new_post(request):
-    form = ForumPostForm(request.POST or None)
+def forum_new_post(request, topic_id=None):
+    topic = None
+    if topic_id is not None:
+        topic = get_object_or_404(ForumTopic, id=topic_id, owner_if_wall__isnull=True, parent_topic__isnull=True)
+    form = ForumPostForm(request.POST or None, forced_topic=topic)
 
     if request.method == 'POST' and form.is_valid():
         post = form.save(author=request.user)
@@ -390,18 +393,67 @@ def forum_new_post(request):
 
     return render(request, 'frogsnet/forum_new_post.html', {
         'form': form,
+        'topic': topic,
+    })
+
+
+def forum_index(request):
+    search_query = (request.GET.get('q') or '').strip()
+    topics = (
+        ForumTopic.objects
+        .filter(parent_topic__isnull=True, owner_if_wall__isnull=True)
+        .annotate(latest_post=Max('posts__published_date'))
+        .order_by('-is_pinned', '-latest_post', 'title')
+    )
+
+    if search_query:
+        topics = topics.filter(
+            Q(title__icontains=search_query)
+            | Q(description__icontains=search_query)
+            | Q(posts__title__icontains=search_query)
+            | Q(posts__content__icontains=search_query)
+        ).distinct()
+
+    topic_sections = []
+    for topic in topics:
+        posts = topic.posts.select_related('author').filter(response_to__isnull=True).order_by('-published_date')
+        if search_query:
+            posts = posts.filter(Q(title__icontains=search_query) | Q(content__icontains=search_query))
+        topic_sections.append({
+            'topic': topic,
+            'posts': list(posts[:3]),
+            'total_posts': posts.count(),
+        })
+
+    return render(request, 'frogsnet/forum_index.html', {
+        'topic_sections': topic_sections,
+        'search_query': search_query,
+    })
+
+
+def forum_topic(request, topic_id):
+    topic = get_object_or_404(ForumTopic, id=topic_id, owner_if_wall__isnull=True)
+    search_query = (request.GET.get('q') or '').strip()
+
+    posts = topic.posts.select_related('author').filter(response_to__isnull=True).order_by('-published_date')
+    if search_query:
+        posts = posts.filter(Q(title__icontains=search_query) | Q(content__icontains=search_query))
+
+    paginator = Paginator(posts, 10)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    subtopics = topic.subtopics.select_related('parent_topic').order_by('title').all()
+
+    return render(request, 'frogsnet/forum_topic.html', {
+        'topic': topic,
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'subtopics': subtopics,
     })
 
 
 def forum_topic_redirect(request, topic_id):
-    root_post = (
-        ForumPost.objects.filter(topic_id=topic_id)
-        .order_by('published_date')
-        .first()
-    )
-    if root_post is None:
-        raise Http404("No forum post found for this topic.")
-    return redirect('frogs-forum-thread', post_id=root_post.id)
+    topic = get_object_or_404(ForumTopic, id=topic_id, owner_if_wall__isnull=True, parent_topic__isnull=True)
+    return redirect('frogs-forum-topic', topic_id=topic.id)
 
 
 def forum_thread(request, post_id):
@@ -430,7 +482,14 @@ def forum_thread(request, post_id):
             )
             return redirect(f"{request.path}?page=last")
 
-    all_replies = list(root_post.responses.select_related('author').order_by('published_date').all())
+    def collect_replies(post):
+        replies = []
+        for reply in post.responses.select_related('author').order_by('published_date'):
+            replies.append(reply)
+            replies.extend(collect_replies(reply))
+        return replies
+
+    all_replies = collect_replies(root_post)
 
     paginator = Paginator(all_replies, 10)
     page_number = request.GET.get('page', 1)
