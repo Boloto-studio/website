@@ -7,6 +7,7 @@ from .models import *
 admin.site.register(Event)
 admin.site.register(BlogPost)
 admin.site.register(Modpack)
+admin.site.register(Server)
 
 
 @admin.register(StaffMember)

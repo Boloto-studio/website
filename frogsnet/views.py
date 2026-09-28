@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
+from django.db import OperationalError, ProgrammingError
 from django.db.models import Max, Q
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -14,10 +15,12 @@ from django.core.paginator import Paginator
 from django.urls import reverse
 from django.utils.text import Truncator
 from django.utils.timesince import timesince
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 import nh3
 import markdown2
 
+from base.models import Server
 from .forms import ForumPostForm, FrogProfileEditForm, FrogRegistrationForm, WallPostForm
 from .models import Frog, FriendRequest, ForumPost, ForumTopic
 
@@ -113,6 +116,124 @@ THREAD_DETAIL = {
         {"author": "VEKTOR", "timestamp": "T-MINUS 38_MIN", "text": "Confirmed. We offloaded the barrel distortion to vertex space on the prototype branch and frame time normalized instantly."},
     ],
 }
+
+
+def _node_state_label(server, load_ratio):
+    if not server.is_online:
+        return _("OFFLINE // STANDBY"), "offline"
+    if load_ratio >= 0.9:
+        return _("ONLINE // ALMOST FULL"), "warning"
+    return _("ONLINE // FULLY OPERATIONAL"), "online"
+
+
+def _build_server_node(server, index):
+    max_players = max(server.max_players or 0, 1)
+    current_players = max(server.current_players or 0, 0)
+    load_ratio = min(current_players / max_players, 1)
+    status_label, status_tone = _node_state_label(server, load_ratio)
+
+    return {
+        "id": server.id,
+        "name": server.name,
+        "description": server.description or _("No telemetry brief available for this node yet."),
+        "ip_address": server.ip_address,
+        "connect_address": f"{server.ip_address}:{server.port}",
+        "latency_host": server.ip_address,
+        "max_players": max_players,
+        "current_players": current_players,
+        "load_ratio": load_ratio,
+        "load_percent": int(round(load_ratio * 100)),
+        "slots_left": max(max_players - current_players, 0),
+        "is_online": server.is_online,
+        "status_label": status_label,
+        "status_tone": status_tone,
+        "world_size": server.world_size or _("UNKNOWN"),
+        "region": server.get_region_display() if server.region else _("UNKNOWN"),
+        "modpack_name": server.modpack.name if server.modpack_id else _("UNASSIGNED"),
+        "modpack_description": (server.modpack.description if server.modpack_id else "") or _("No modpack briefing synchronized."),
+        "modpack_icon": server.modpack.icon_asset_name if server.modpack_id else "echoes_untamed_icon.png",
+        "modpack_version": _("v1.0"),
+        "node_id": f"BLT-PRIME-{index + 1:02d}",
+        "friends_online": (index % 5) + 1,
+        "jitter": _("±1.2ms"),
+        "uptime_label": _("STABLE_DAEMON") if server.is_online else _("STANDBY"),
+    }
+
+
+@login_required
+def servers_list(request):
+    search_query = (request.GET.get("q") or "").strip()
+    selected_region = (request.GET.get("region") or "ALL").strip().upper()
+    selected_modpack = (request.GET.get("modpack") or "ALL").strip()
+    online_only = (request.GET.get("online_only") or "0") == "1"
+    sort_by = (request.GET.get("sort") or "").strip().lower()
+
+    try:
+        servers_qs = Server.objects.select_related("modpack")
+        if search_query:
+            servers_qs = servers_qs.filter(
+                Q(name__icontains=search_query)
+                | Q(description__icontains=search_query)
+                | Q(ip_address__icontains=search_query)
+                | Q(region__icontains=search_query)
+                | Q(modpack__name__icontains=search_query)
+                | Q(modpack__description__icontains=search_query)
+            )
+
+        valid_regions = {choice[0] for choice in Server.regions}
+        if selected_region in valid_regions:
+            servers_qs = servers_qs.filter(region=selected_region)
+        else:
+            selected_region = "ALL"
+
+        if selected_modpack and selected_modpack != "ALL":
+            servers_qs = servers_qs.filter(modpack__name=selected_modpack)
+
+        if online_only:
+            servers_qs = servers_qs.filter(is_online=True)
+
+        if sort_by in {"population", "population_desc"}:
+            sort_by = "population_desc"
+            servers_qs = servers_qs.order_by("-current_players", "name")
+        elif sort_by == "population_asc":
+            servers_qs = servers_qs.order_by("current_players", "name")
+        else:
+            sort_by = ""
+            servers_qs = servers_qs.order_by("-is_featured", "name")
+
+        servers = list(servers_qs)
+    except (OperationalError, ProgrammingError):
+        servers = []
+
+    nodes = [_build_server_node(server, index) for index, server in enumerate(servers)]
+    featured_node = next((node for node, server in zip(nodes, servers) if server.is_featured), None)
+    if featured_node is None and nodes:
+        featured_node = nodes[0]
+
+    cluster_nodes = [node for node in nodes if not featured_node or node["id"] != featured_node["id"]]
+    total_players = sum(node["current_players"] for node in nodes)
+    total_capacity = sum(node["max_players"] for node in nodes)
+    overall_load = int(round((total_players / total_capacity) * 100)) if total_capacity else 0
+    modpacks = sorted({node["modpack_name"] for node in nodes})
+
+    context = {
+        "featured_node": featured_node,
+        "cluster_nodes": cluster_nodes,
+        "total_nodes": len(nodes),
+        "online_nodes": sum(1 for node in nodes if node["is_online"]),
+        "standby_nodes": sum(1 for node in nodes if not node["is_online"]),
+        "total_players": total_players,
+        "total_capacity": total_capacity,
+        "overall_load": overall_load,
+        "modpacks": modpacks,
+        "throughput": "98.4MB/s",
+        "search_query": search_query,
+        "selected_region": selected_region,
+        "selected_modpack": selected_modpack,
+        "online_only": online_only,
+        "sort_by": sort_by,
+    }
+    return render(request, "frogsnet/servers_list.html", context)
 
 
 def home(request):

@@ -207,6 +207,8 @@ YOUTUBE_CHANNEL_ID = os.getenv('YOUTUBE_CHANNEL_ID')
 STRIPE_API_KEY = os.getenv('STRIPE_API_KEY')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 
+IPINFO_TOKEN = os.getenv('IPINFO_TOKEN')
+
 
 # Logging
 # Send Django errors and tracebacks to console so host captures them (Dokploy reads stdout/stderr).

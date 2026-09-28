@@ -5,6 +5,9 @@ import markdown2
 import nh3
 from django.utils.text import slugify
 from bs4 import BeautifulSoup
+import ipinfo
+from django.conf import settings
+import requests
 
 # Create your models here.
 
@@ -91,7 +94,7 @@ class AbstractPost(models.Model):
         Returns a cleaned preview of the content.
         """
         preview_length = 250
-        
+
         unsafe_html = markdown2.markdown(self.content[:preview_length])
         safe_html = nh3.clean(unsafe_html)
         soup = BeautifulSoup(safe_html, "html.parser")
@@ -166,3 +169,78 @@ class Modpack(models.Model):
 
     def __str__(self):
         return self.name
+
+class Server(models.Model):
+    regions = [
+        ("NA", "North America"),
+        ("EU", "Europe"),
+        ("AS", "Asia"),
+        ("SA", "South America"),
+        ("AF", "Africa"),
+        ("OC", "Oceania"),
+    ]
+
+    name = models.CharField(max_length=200)
+    ip_address = models.GenericIPAddressField()
+    localhost_ip = models.GenericIPAddressField(blank=True, null=True, help_text="Optional local IP address for internal use")
+    is_featured = models.BooleanField(default=False)
+    server_id = models.CharField(max_length=100, blank=True, null=True, help_text="Crafty's server ID for fetching server details")
+    port = models.PositiveIntegerField(default=25565)
+    description = models.TextField(blank=True)
+    world_size = models.CharField(blank=True, null=True, max_length=50, help_text="Size of the world in MB")
+    modpack = models.ForeignKey(Modpack, on_delete=models.CASCADE, related_name="servers")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    region = models.CharField(max_length=2, choices=regions, blank=True, null=True)
+    is_online = models.BooleanField(default=False, help_text="Indicates if the server is currently online")
+    current_players = models.PositiveIntegerField(default=0, help_text="Current number of players on the server")
+    max_players = models.PositiveIntegerField(default=10, help_text="Maximum number of players allowed on the server")
+
+    def __str__(self):
+        return f"{self.name} ({self.ip_address}:{self.port})"
+
+    def determine_region(self):
+        """
+        Determines the region of the server based on its IP address.
+        """
+        handler = ipinfo.getHandler(settings.IPINFO_TOKEN)
+        details = handler.getDetails(self.ip_address)
+        return details.continent
+
+    def update_details(self):
+        """
+        Updates the server's details.
+        """
+        API_ADDRESS = f"http://{self.localhost_ip}" if self.localhost_ip else f"http://{self.ip_address}"
+        if not self.server_id:
+            try:
+                response = requests.get(f"{API_ADDRESS}/api/v2/servers")
+                response.raise_for_status()
+                self.server_id = response.json()["data"][0].get("server_id")
+            except requests.RequestException as e:
+                print(f"Error fetching server ID: {e}")
+        server_id = self.server_id
+        stats_response = requests.get(f"{API_ADDRESS}/api/v2/servers/{server_id}/stats")
+        if stats_response.status_code == 200:
+            stats_data = stats_response.json()
+            self.name = stats_data["data"].get("server_name", self.name)
+            self.world_size = stats_data.get("world_size", self.world_size)
+            self.port = stats_data.get("server_port", self.port)
+            self.description = stats_data.get("desc", self.description)
+            self.updated_at = timezone.now()
+            self.is_online = stats_data.get("running", self.is_online)
+            self.current_players = stats_data.get("online", self.current_players)
+            self.max_players = stats_data.get("max", self.max_players)
+        else:
+            print(f"Failed to fetch server stats for {self.name}. Status code: {stats_response.status_code}")
+            self.is_online = False
+        self.save()
+
+    @classmethod
+    def startup_server(cls, ip_address, localhost_ip=None):
+        """
+        Initializes a server instance at startup.
+        """
+        server, _ = cls.objects.get_or_create(ip_address=ip_address, defaults={'localhost_ip': localhost_ip})
+        server.update_details()
+        return server

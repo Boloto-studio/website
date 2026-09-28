@@ -7,6 +7,7 @@ urlpatterns = [
     path("profile/edit/", views.profile_edit, name="frogs-profile-edit"),
     path("profile/", views.profile_page, name="frogs-profile-own"),
     path("friends/", views.friends_list, name="frogs-friends"),
+    path("servers/", views.servers_list, name="frogs-servers"),
     path("forum/", views.forum_index, name="frogs-forum"),
     path("forum/new/", views.forum_new_post, name="frogs-forum-new"),
     path("forum/new/<int:topic_id>/", views.forum_new_post, name="frogs-forum-new-topic"),
