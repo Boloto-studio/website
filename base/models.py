@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 import markdown2
 import nh3
 from django.utils.text import slugify
+from bs4 import BeautifulSoup
 
 # Create your models here.
 
@@ -83,6 +84,23 @@ class AbstractPost(models.Model):
         unsafe_html = markdown2.markdown(self.content)
         safe_html = nh3.clean(unsafe_html)
         return safe_html
+
+    @property
+    def clean_preview(self):
+        """
+        Returns a cleaned preview of the content.
+        """
+        preview_length = 250
+        
+        unsafe_html = markdown2.markdown(self.content[:preview_length])
+        safe_html = nh3.clean(unsafe_html)
+        soup = BeautifulSoup(safe_html, "html.parser")
+
+        for img in soup.find_all("img"):
+            img.decompose()
+
+        plain_text = soup.get_text(separator=" ").strip()
+        return plain_text
 
     def __str__(self):
         return self.title

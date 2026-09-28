@@ -12,3 +12,4 @@ Pillow
 stripe
 markdown2
 nh3
+bs4

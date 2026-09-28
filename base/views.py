@@ -55,7 +55,7 @@ def _build_terminal_logs():
 
     text_logs = [{
         "title": post.title,
-        "summary": post.content,
+        "summary": post.clean_preview,
         "timestamp": post.published_date,
         "kind": _("TEXT_LOG"),
         "action_label": _("Read full log"),
