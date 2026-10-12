@@ -1,6 +1,9 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from .forms import FrogProfileEditForm, WallPostForm
 from .models import Frog, ForumPost, FriendRequest
@@ -376,8 +379,8 @@ class FriendsListTests(TestCase):
 
         self.friend_offline.frog.location = 'Outpost 19'
         self.friend_offline.frog.save()
-        self.friend_offline.frog.last_active = self.friend_offline.frog.last_active.replace(year=2025)
-        self.friend_offline.frog.save()
+        Frog.objects.filter(user=self.friend_online).update(last_activity=timezone.now())
+        Frog.objects.filter(user=self.friend_offline).update(last_activity=timezone.now() - timedelta(days=30))
 
         self.user.frog.friends.add(self.friend_online, self.friend_offline)
         self.incoming_request = self.incoming.frog
@@ -430,3 +433,129 @@ class FriendsListTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.user.frog.friends.filter(id=self.incoming.id).exists())
         self.assertFalse(FriendRequest.objects.filter(from_user=self.incoming.frog, to_user=self.user).exists())
+
+    def test_friends_list_online_count_uses_last_activity(self):
+        self.client.login(username='rosterlead', password='secret123')
+
+        response = self.client.get(reverse('frogs-friends'))
+
+        self.assertEqual(response.context['online_count'], 1)
+
+
+class LastActivityTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='lurker', password='secret123')
+        self.other = User.objects.create_user(username='visitor', password='secret123')
+
+    def _set_last_activity(self, user, value):
+        Frog.objects.filter(user=user).update(last_activity=value)
+
+    def test_request_records_last_activity(self):
+        self.client.login(username='lurker', password='secret123')
+        before = timezone.now()
+
+        self.client.get(reverse('frogs-forum'))
+
+        last_activity = Frog.objects.get(user=self.user).last_activity
+        self.assertIsNotNone(last_activity)
+        self.assertGreaterEqual(last_activity, before)
+
+    def test_anonymous_request_does_not_touch_last_activity(self):
+        self.client.get(reverse('frogs-login'))
+
+        self.assertFalse(Frog.objects.filter(last_activity__isnull=False).exists())
+
+    def test_recent_activity_is_not_rewritten_every_request(self):
+        recent = timezone.now() - timedelta(seconds=10)
+        self._set_last_activity(self.user, recent)
+        self.client.login(username='lurker', password='secret123')
+
+        self.client.get(reverse('frogs-forum'))
+
+        self.assertEqual(Frog.objects.get(user=self.user).last_activity, recent)
+
+    def test_status_active_within_fifteen_minutes(self):
+        self._set_last_activity(self.user, timezone.now() - timedelta(minutes=14))
+
+        status = Frog.objects.get(user=self.user).status
+
+        self.assertTrue(status['is_active'])
+
+    def test_status_inactive_after_fifteen_minutes(self):
+        self._set_last_activity(self.user, timezone.now() - timedelta(minutes=16))
+
+        status = Frog.objects.get(user=self.user).status
+
+        self.assertFalse(status['is_active'])
+        self.assertTrue(status['last_online_display'].endswith('ago'))
+
+    def test_status_never_active(self):
+        status = Frog.objects.get(user=self.user).status
+
+        self.assertFalse(status['is_active'])
+        self.assertEqual(status['last_online_display'], 'never')
+
+    def test_profile_shows_other_user_inactive(self):
+        self._set_last_activity(self.user, timezone.now() - timedelta(hours=2))
+        self.client.login(username='visitor', password='secret123')
+
+        response = self.client.get(reverse('frogs-profile', args=[self.user.id]))
+
+        self.assertContains(response, 'INACTIVE')
+        # timesince separates number and unit with a non-breaking space
+        self.assertEqual(response.context['activity']['last_online_display'], '2\xa0hours ago')
+
+    def test_profile_shows_other_user_active(self):
+        self._set_last_activity(self.user, timezone.now() - timedelta(minutes=3))
+        self.client.login(username='visitor', password='secret123')
+
+        response = self.client.get(reverse('frogs-profile', args=[self.user.id]))
+
+        self.assertTrue(response.context['activity']['is_active'])
+        self.assertNotContains(response, 'INACTIVE')
+
+    def test_saving_frog_does_not_count_as_activity(self):
+        self.user.frog.bio = 'edited by admin'
+        self.user.frog.save()
+
+        self.assertIsNone(Frog.objects.get(user=self.user).last_activity)
+
+
+class LoginRedirectTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='returner', password='secret123')
+
+    def test_anonymous_profile_redirects_to_login_with_next(self):
+        response = self.client.get(reverse('frogs-profile-own'))
+
+        self.assertRedirects(
+            response,
+            f"{reverse('frogs-login')}?next={reverse('frogs-profile-own')}",
+            fetch_redirect_response=False,
+        )
+
+    def test_login_redirects_to_next(self):
+        next_url = reverse('frogs-friends')
+
+        response = self.client.post(
+            f"{reverse('frogs-login')}?next={next_url}",
+            {'username': 'returner', 'password': 'secret123'},
+        )
+
+        self.assertRedirects(response, next_url, fetch_redirect_response=False)
+
+    def test_login_ignores_external_next(self):
+        response = self.client.post(
+            f"{reverse('frogs-login')}?next=https://evil.example.com/",
+            {'username': 'returner', 'password': 'secret123'},
+        )
+
+        self.assertRedirects(response, reverse('frogs-forum'), fetch_redirect_response=False)
+
+    def test_login_without_next_goes_to_forum(self):
+        response = self.client.post(
+            reverse('frogs-login'),
+            {'username': 'returner', 'password': 'secret123'},
+        )
+
+        self.assertRedirects(response, reverse('frogs-forum'), fetch_redirect_response=False)

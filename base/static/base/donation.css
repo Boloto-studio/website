@@ -242,3 +242,9 @@
     background: rgba(35, 242, 163, 0.12);
     color: var(--accent);
 }
+
+@media (max-width: 900px) {
+    .tier-grid {
+        grid-template-columns: 1fr;
+    }
+}

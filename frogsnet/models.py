@@ -21,6 +21,7 @@ class Frog(models.Model):
     bio = models.TextField(blank=True, max_length=256)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     last_active = models.DateTimeField(auto_now=True)
+    last_activity = models.DateTimeField(null=True, blank=True, help_text="Last time the user made a request. Set by UpdateLastActivityMiddleware.")
     minecraft_username = models.CharField(max_length=255, blank=True)
     friends = models.ManyToManyField(User, blank=True, symmetrical=True, related_name='friends_with')
     tier = models.CharField(max_length=255, blank=True, choices=tier_choices, default='frog')
@@ -37,10 +38,10 @@ class Frog(models.Model):
 
     @property
     def status(self):
-        last = self.last_active
+        last = self.last_activity
         now = timezone.now()
         is_active = False
-        last_online_display = None
+        last_online_display = _("never")
         in_game = self.in_game_status or ''
 
         if last:

@@ -228,3 +228,15 @@
     color: var(--muted);
     font-size: 0.88rem;
 }
+
+@media (max-width: 900px) {
+    .terminal-logs-grid,
+    .terminal-log-card--media {
+        grid-template-columns: 1fr;
+    }
+
+    .terminal-carousel-track,
+    .terminal-carousel-slide {
+        min-height: 22rem;
+    }
+}

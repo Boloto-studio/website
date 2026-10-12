@@ -1030,3 +1030,46 @@ body.under-construction .terminal-shell main .terminal-main__inner {
         align-items: flex-start;
     }
 }
+@media (max-width: 900px) {
+    .terminal-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .terminal-sidebar {
+        position: static;
+        min-height: auto;
+    }
+
+    .terminal-main {
+        min-width: 0;
+        padding-top: 1rem;
+    }
+
+    .terminal-grid--two {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .terminal-sidebar {
+        padding-inline: 1rem;
+    }
+
+    .terminal-main {
+        padding-inline: 1rem;
+    }
+
+    .terminal-title {
+        font-size: clamp(1.75rem, 10vw, 2.8rem);
+    }
+
+    #toast-container {
+        left: 1rem;
+        right: 1rem;
+    }
+
+    .toast {
+        min-width: 0;
+        max-width: none;
+    }
+}

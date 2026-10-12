@@ -10,9 +10,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 import random
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import redirect_to_login
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.text import Truncator
 from django.utils.timesince import timesince
 from django.utils.translation import gettext as _
@@ -269,14 +271,26 @@ def register(request):
     )
 
 
+def _safe_next_url(request):
+    """Return the `next` query param if it points to this site, else None."""
+    next_url = request.POST.get('next') or request.GET.get('next')
+    if next_url and url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return next_url
+    return None
+
+
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('frogs-forum')
+        return redirect(_safe_next_url(request) or 'frogs-forum')
 
     form = AuthenticationForm(request, data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         login(request, form.get_user())
-        return redirect('frogs-forum')
+        return redirect(_safe_next_url(request) or 'frogs-forum')
 
     return render(
         request,
@@ -290,12 +304,11 @@ def login_view(request):
 def profile_page(request, profile_id=None):
     own_profile = False
     friend_status = ""
-    if profile_id:
-        if not request.user.is_authenticated:
-            return redirect('frogs-login')
-        own_profile = profile_id == request.user.id
-    else:
+    if not request.user.is_authenticated:
+        return redirect_to_login(request.get_full_path())
+    if profile_id is None:
         return redirect('frogs-profile', profile_id=request.user.id)
+    own_profile = profile_id == request.user.id
     if own_profile:
         user = request.user
     else:
@@ -306,7 +319,7 @@ def profile_page(request, profile_id=None):
             elif user.frog.friends.filter(id=request.user.frog.id).exists():
                 friend_status = "friends"
         except User.DoesNotExist:
-            return render(request, 'frogsnet/profile_not_found.html', status=404)
+            raise Http404("Profile not found")
 
     frog = user.frog
     modpack_stats = frog.modpack_stats.all() if frog else []
