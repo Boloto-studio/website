@@ -49,9 +49,16 @@
         </button>
     </form>
 
+    <div class="auth-register">
+        <p class="auth-register__prompt">&gt; NO_IDENTITY_ON_FILE?</p>
+        <a class="auth-register__button" href="{% url 'frogs-register' %}">
+            <span class="material-symbols-outlined">person_add</span>
+            CREATE_IDENTITY.SH
+        </a>
+    </div>
+
     <div class="auth-card__footer">
         <span class="auth-card__footer-copy">NODE: SECURE_09</span>
-        <a href="{% url 'frogs-register' %}">CREATE_IDENTITY.SH</a>
     </div>
 </section>
 {% endblock %}

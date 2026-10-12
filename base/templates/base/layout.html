@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </head>
 <body class="{% block body_class %}{% endblock %}">
     <div class="terminal-shell">
-        <aside class="terminal-sidebar" {% if current == "under_construction" %}style="display: none;"{% endif %}>
+        <aside class="terminal-sidebar">
             <a class="terminal-brand" href="{% url 'home' %}">
                 <pre class="terminal-brand__wordmark">
  ____  __  __    __  ____  __  
@@ -283,13 +283,5 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-{% if current != "under_construction" and current != "blog_post" %}
-<script>
-    const curious = sessionStorage.getItem("curious") === "true";
-    if (!curious) {
-        window.location.href = "{% url 'under_construction' %}";
-    }
-</script>
-{% endif %}
 {% endwith %}
 </html>

@@ -304,9 +304,6 @@ def donation_confirmed(request, session_id):
         "percentage_contributed": percentage_contributed
     })
 
-def under_construction(request):
-    return render(request, "base/under_construction.html")
-
 def contact(request):
     if request.method == "POST":
         form = ContactRequestForm(request.POST)

@@ -1,3 +1,52 @@
 .auth-card--login {
     width: min(100%, 29rem);
 }
+
+.auth-register {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+}
+
+.auth-register__prompt {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.auth-register__prompt::after {
+    content: "";
+    flex: 1;
+    border-top: 1px dashed rgba(154, 144, 120, 0.5);
+}
+
+.auth-register__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 3rem;
+    border: 1px solid var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    box-shadow: inset 0 0 0 1px rgba(35, 242, 163, 0.12);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.auth-register__button:hover,
+.auth-register__button:focus-visible {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: 0 0 15px var(--accent-shadow);
+    transform: translateY(-1px);
+}
