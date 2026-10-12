@@ -74,8 +74,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
-
 ROOT_URLCONF = 'boloto_studio_web.urls'
 
 TEMPLATES = [
@@ -187,13 +185,46 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 if DEBUG:
     # Development settings
     STATIC_ROOT = BASE_DIR / 'staticfiles'
-    MEDIA_ROOT = BASE_DIR / 'media'
 else:
     # Production settings
     STATIC_ROOT = '/var/www/django/static'
-    MEDIA_ROOT = '/var/www/django/media'
 
-MEDIA_URL = '/media/'
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+if DEBUG:
+    # Development: user uploads go to the local media directory
+    MEDIA_ROOT = BASE_DIR / 'media'
+    MEDIA_URL = '/media/'
+    STORAGES["default"] = {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    }
+else:
+    # Production: user uploads go to the self-hosted RustFS (S3-compatible) bucket
+    AWS_S3_ENDPOINT_URL = os.getenv("S3_ENDPOINT_URL")  # e.g. https://s3.boloto.studio
+    AWS_ACCESS_KEY_ID = os.getenv("S3_ACCESS_KEY")
+    AWS_SECRET_ACCESS_KEY = os.getenv("S3_SECRET_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+    AWS_S3_REGION_NAME = os.getenv("S3_REGION", "us-east-1")
+    AWS_S3_CUSTOM_DOMAIN = os.getenv("S3_PUBLIC_DOMAIN")  # optional public host/path serving the bucket, no scheme
+    AWS_LOCATION = os.getenv("S3_LOCATION", "media")
+    AWS_S3_ADDRESSING_STYLE = "path"
+    AWS_S3_SIGNATURE_VERSION = "s3v4"
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = os.getenv("S3_SIGNED_URLS", "false").lower() == "true"
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    }
+    if AWS_S3_CUSTOM_DOMAIN:
+        MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"
+    else:
+        MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/{AWS_LOCATION}/"
 
 LOGIN_URL = 'frogs-login'
 
