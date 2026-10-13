@@ -316,7 +316,7 @@ def profile_page(request, profile_id=None):
             user = User.objects.get(id=profile_id)
             if FriendRequest.objects.filter(from_user=request.user.frog, to_user=user).exists():
                 friend_status = "sent"
-            elif user.frog.friends.filter(id=request.user.frog.id).exists():
+            elif request.user.frog.friends.filter(id=user.id).exists():
                 friend_status = "friends"
         except User.DoesNotExist:
             raise Http404("Profile not found")
@@ -442,7 +442,7 @@ def friend_request(request, profile_id):
         if existing_request:
             return JsonResponse({'error': 'Friend request already sent.'}, status=400)
 
-        if target_user.frog.friends.filter(id=request.user.frog.id).exists():
+        if request.user.frog.friends.filter(id=target_user.id).exists():
             return JsonResponse({'error': 'You are already friends with this user.'}, status=400)
 
         FriendRequest.objects.create(from_user=request.user.frog, to_user=target_user)
@@ -463,10 +463,9 @@ def friend_request(request, profile_id):
         if not friend_request:
             return JsonResponse({'error': 'No friend request found to accept.'}, status=400)
 
-        request.user.frog.friends.through.objects.get_or_create(
-            frog=request.user.frog,
-            user=target_user,
-        )
+        through = request.user.frog.friends.through
+        through.objects.get_or_create(frog=request.user.frog, user=target_user)
+        through.objects.get_or_create(frog=target_user.frog, user=request.user)
         friend_request.delete()
         accepted_friend = _friend_card_context(target_user)
         friend_html = render_to_string('frogsnet/includes/friend_card.html', {'friend': accepted_friend}, request=request)
@@ -482,13 +481,13 @@ def delete_friend(request, profile_id):
     if request.method == 'DELETE':
         target_user = get_object_or_404(User, id=profile_id)
         frog = request.user.frog
-        friendship = frog.friends.through.objects.filter(frog=frog, user=target_user).first()
-        if friendship is None:
-            friendship = frog.friends.through.objects.filter(frog=target_user.frog, user=request.user).first()
-        if friendship is None:
+        through = frog.friends.through
+        deleted, _ = through.objects.filter(
+            Q(frog=frog, user=target_user) | Q(frog=target_user.frog, user=request.user)
+        ).delete()
+        if not deleted:
             return JsonResponse({'error': 'You are not friends with this user.'}, status=400)
 
-        friendship.delete()
         return JsonResponse({'success': 'Friend removed.'})
 
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
