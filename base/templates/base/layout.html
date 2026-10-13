@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <span class="nav-sublink__label" data-type-label>{% trans 'My Profile' %}</span>
                         </a>
                         <a class="terminal-nav-sublink{% if current == 'frogs-friends' %} is-active{% endif %}" href="{% url 'frogs-friends' %}">
-                            <span class="nav-sublink__label" data-type-label>{% trans 'Friends List' %}</span>
+                            <span class="nav-sublink__label" data-type-label>{% trans 'Friends List' %}</span>{% if pending_friend_requests %}<span class="nav-badge-dot" title="{% trans 'Pending friend requests' %}"></span>{% endif %}
                         </a>
                         <a class="terminal-nav-sublink{% if current == 'frogs-servers' %} is-active{% endif %}" href="{% url 'frogs-servers' %}">
                             <span class="nav-sublink__label" data-type-label>{% trans 'Servers List' %}</span>
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <span class="nav-sublink__label" data-type-label>{% trans 'My Profile' %}</span>
                     </a>
                     <a class="terminal-nav-sublink{% if current == 'frogs-friends' %} is-active{% endif %}" href="{% url 'frogs-friends' %}">
-                        <span class="nav-sublink__label" data-type-label>{% trans 'Friends List' %}</span>
+                        <span class="nav-sublink__label" data-type-label>{% trans 'Friends List' %}</span>{% if pending_friend_requests %}<span class="nav-badge-dot" title="{% trans 'Pending friend requests' %}"></span>{% endif %}
                     </a>
                     <a class="terminal-nav-sublink{% if current == 'frogs-servers' %} is-active{% endif %}" href="{% url 'frogs-servers' %}">
                         <span class="nav-sublink__label" data-type-label>{% trans 'Servers List' %}</span>

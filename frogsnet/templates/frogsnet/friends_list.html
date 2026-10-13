@@ -51,7 +51,7 @@
             {% for friend in incoming_requests %}
                 <article class="friends-request-card" data-friend-request-card data-profile-name="{{ friend.display_name|lower }} {{ friend.frog.user.username|lower }} {{ friend.frog.location|lower }} {{ friend.frog.minecraft_username|lower }}">
                     <div class="friends-request-card__badge">{% trans "SIGNAL_DETECTED" %}</div>
-                    <div class="friends-request-card__identity">
+                    <a class="friends-request-card__identity" href="{% url 'frogs-profile' friend.user.id %}">
                         <div class="friends-avatar">
                             {% if friend.avatar_url %}
                                 <img src="{{ friend.avatar_url }}" alt="{% blocktrans with name=friend.display_name %}{{ name }} profile avatar{% endblocktrans %}">
@@ -69,7 +69,7 @@
                                 {% blocktrans with received=friend.received_label %}&gt; REQUEST_RECEIVED: {{ received }}{% endblocktrans %}
                             </div>
                         </div>
-                    </div>
+                    </a>
                     <div class="friends-request-card__actions">
                         <button
                             type="button"
@@ -249,13 +249,6 @@
         });
         return result;
     };
-
-    if (searchInput) {
-        searchInput.addEventListener('input', filterCards);
-        if (searchForm) {
-            searchForm.addEventListener('submit', (event) => event.preventDefault());
-        }
-    }
 
     requestCards.forEach((card) => {
         const buttons = card.querySelectorAll('[data-friend-request-action]');
