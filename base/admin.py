@@ -2,7 +2,12 @@ from django.contrib import admin
 
 from .models import *
 
-# Register your models here.
+# Admin branding; the look itself lives in templates/admin/base_site.html
+# and base/static/base/admin.css.
+admin.site.site_header = "Admin terminal"
+admin.site.site_title = "Boloto admin"
+admin.site.index_title = "Control room"
+
 
 admin.site.register(Event)
 admin.site.register(BlogPost)

@@ -1,0 +1,347 @@
+/*
+ * Boloto theme for the stock Django admin.
+ * Mostly the admin's own CSS variables, set to the site's palette
+ * (base/project-styles.css), plus a few touches: fonts, glow, scanlines.
+ * Loaded after the admin's stylesheets (extrahead), dark only.
+ */
+
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --boloto-bg: #040906;
+    --boloto-panel: #08110d;
+    --boloto-panel-strong: #0c1711;
+    --boloto-line: rgba(124, 141, 112, 0.52);
+    --boloto-line-soft: rgba(124, 141, 112, 0.22);
+    --boloto-text: #ece9d6;
+    --boloto-muted: #8d9477;
+    --boloto-mint: #23f2a3;
+    --boloto-mint-soft: rgba(35, 242, 163, 0.14);
+    --boloto-mint-glow: rgba(35, 242, 163, 0.35);
+    --boloto-amber: #f4c63e;
+    --boloto-danger: #ff9782;
+
+    --primary: #0f2219;
+    --secondary: var(--boloto-panel);
+    --accent: var(--boloto-amber);
+    --primary-fg: var(--boloto-mint);
+
+    --body-fg: var(--boloto-text);
+    --body-bg: var(--boloto-bg);
+    --body-quiet-color: var(--boloto-muted);
+    --body-medium-color: #c9c6b3;
+    --body-loud-color: #ffffff;
+
+    --header-color: var(--boloto-muted);
+    --header-branding-color: var(--boloto-mint);
+    --header-bg: var(--boloto-panel);
+    --header-link-color: var(--boloto-text);
+
+    --breadcrumbs-fg: var(--boloto-muted);
+    --breadcrumbs-link-fg: var(--boloto-mint);
+    --breadcrumbs-bg: var(--boloto-panel-strong);
+
+    --link-fg: var(--boloto-mint);
+    --link-hover-color: var(--boloto-amber);
+    --link-selected-fg: var(--boloto-amber);
+
+    --hairline-color: var(--boloto-line-soft);
+    --border-color: var(--boloto-line);
+
+    --error-fg: var(--boloto-danger);
+
+    --message-debug-bg: var(--boloto-panel-strong);
+    --message-info-bg: rgba(127, 231, 255, 0.10);
+    --message-success-bg: var(--boloto-mint-soft);
+    --message-warning-bg: rgba(244, 198, 62, 0.15);
+    --message-error-bg: rgba(255, 151, 130, 0.14);
+
+    --darkened-bg: var(--boloto-panel);
+    --selected-bg: #13241b;
+    --selected-row: rgba(244, 198, 62, 0.10);
+
+    --button-fg: var(--boloto-bg);
+    --button-bg: var(--boloto-mint);
+    --button-hover-bg: var(--boloto-amber);
+    --default-button-bg: var(--boloto-amber);
+    --default-button-hover-bg: var(--boloto-mint);
+    --close-button-bg: #23332a;
+    --close-button-hover-bg: #34493d;
+    --delete-button-bg: #a8432f;
+    --delete-button-hover-bg: #c4523b;
+
+    --object-tools-fg: var(--boloto-text);
+    --object-tools-bg: #1a2a21;
+    --object-tools-hover-bg: #2c4536;
+
+    --font-family-primary: "Space Mono", ui-monospace, Menlo, Consolas, monospace;
+    --font-family-monospace: "Space Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* --- Base ------------------------------------------------------------- */
+
+body {
+    background:
+        radial-gradient(circle at top right, rgba(244, 198, 62, 0.06), transparent 28%),
+        radial-gradient(circle at top left, rgba(35, 242, 163, 0.08), transparent 26%),
+        var(--boloto-bg);
+    background-attachment: fixed;
+}
+
+/* CRT scanlines, same as the public site. Never blocks clicks. */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(rgba(255, 255, 255, 0.02) 50%, rgba(0, 0, 0, 0.12) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    opacity: 0.3;
+    z-index: 2000;
+}
+
+::selection {
+    background: var(--boloto-mint);
+    color: var(--boloto-bg);
+}
+
+/* The admin is dark-only; hide the stock light/dark switcher. */
+.theme-toggle {
+    display: none !important;
+}
+
+/* --- Header & branding ------------------------------------------------ */
+
+#header {
+    border-bottom: 1px solid var(--boloto-line);
+    box-shadow: 0 1px 0 var(--boloto-mint-soft);
+}
+
+#site-name a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.boloto-brand {
+    font-family: "Handjet", "Space Mono", monospace;
+    font-weight: 800;
+    font-size: 2rem;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    color: var(--boloto-mint);
+    text-shadow: 0 0 10px var(--boloto-mint-glow);
+}
+
+.boloto-brand__sub {
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--boloto-muted);
+}
+
+#user-tools {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.6875rem;
+}
+
+div.breadcrumbs {
+    border-bottom: 1px solid var(--boloto-line-soft);
+    letter-spacing: 0.04em;
+}
+
+/* --- Headings & modules ----------------------------------------------- */
+
+#content h1 {
+    font-family: "Handjet", "Space Mono", monospace;
+    font-weight: 600;
+    font-size: 2.25rem;
+    letter-spacing: 0.06em;
+    color: var(--boloto-text);
+}
+
+.module {
+    border: 1px solid var(--boloto-line-soft);
+    border-radius: 3px;
+    background: rgba(8, 17, 13, 0.85);
+}
+
+.module h2,
+.module caption,
+.inline-group h2,
+fieldset.module > h2,
+#nav-sidebar .module caption {
+    background: var(--primary);
+    color: var(--boloto-mint);
+    border-bottom: 1px solid var(--boloto-line-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+}
+
+.module caption a.section,
+.module h2 a.section {
+    color: var(--boloto-mint);
+}
+
+/* --- Tables ------------------------------------------------------------ */
+
+thead th,
+tfoot td {
+    background: var(--boloto-panel-strong);
+    color: var(--boloto-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-color: var(--boloto-line-soft);
+}
+
+tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.012);
+}
+
+#changelist table tbody tr:hover {
+    background: rgba(35, 242, 163, 0.05);
+}
+
+/* --- Forms ------------------------------------------------------------- */
+
+input[type=text], input[type=password], input[type=email], input[type=url],
+input[type=number], input[type=tel], input[type=search], textarea, select,
+.vTextField, .vURLField {
+    background: var(--boloto-panel);
+    color: var(--boloto-text);
+    border: 1px solid var(--boloto-line);
+    border-radius: 2px;
+}
+
+input:focus, textarea:focus, select:focus,
+input[type=text]:focus, input[type=password]:focus, input[type=email]:focus,
+input[type=url]:focus, input[type=number]:focus, input[type=search]:focus {
+    border-color: var(--boloto-mint);
+    box-shadow: 0 0 0 1px var(--boloto-mint), 0 0 12px var(--boloto-mint-glow);
+    outline: none;
+}
+
+input[type=checkbox], input[type=radio] {
+    accent-color: var(--boloto-mint);
+}
+
+.help, p.help, form p.help, div.help, form div.help {
+    color: var(--boloto-muted);
+}
+
+.errornote, ul.errorlist li {
+    border-color: var(--boloto-danger);
+}
+
+/* --- Buttons ----------------------------------------------------------- */
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover, a.button:hover {
+    box-shadow: 0 0 12px var(--boloto-mint-glow);
+}
+
+.submit-row {
+    background: var(--boloto-panel-strong);
+    border: 1px solid var(--boloto-line-soft);
+    border-radius: 3px;
+}
+
+.object-tools a:link, .object-tools a:visited {
+    border: 1px solid var(--boloto-line);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.object-tools a:focus, .object-tools a:hover {
+    color: var(--boloto-mint);
+}
+
+/* --- Sidebar & filters ------------------------------------------------- */
+
+#nav-sidebar {
+    border-right: 1px solid var(--boloto-line-soft);
+}
+
+#nav-sidebar .current-model {
+    background: var(--boloto-mint-soft);
+}
+
+#changelist-filter h2 {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+#changelist-filter li.selected a {
+    color: var(--boloto-amber);
+}
+
+/* --- Messages ---------------------------------------------------------- */
+
+ul.messagelist li {
+    color: var(--boloto-text);
+    border-left: 3px solid var(--boloto-mint);
+}
+
+ul.messagelist li.warning {
+    border-left-color: var(--boloto-amber);
+}
+
+ul.messagelist li.error {
+    border-left-color: var(--boloto-danger);
+}
+
+/* --- Login ------------------------------------------------------------- */
+
+.login #container {
+    background: rgba(8, 17, 13, 0.92);
+    border: 1px solid var(--boloto-line);
+    border-radius: 3px;
+    box-shadow: 0 0 40px rgba(35, 242, 163, 0.08), 0 24px 60px rgba(0, 0, 0, 0.4);
+}
+
+.login #header {
+    justify-content: center;
+}
+
+.login .submit-row {
+    background: none;
+    border: 0;
+}
+
+/* --- Small leftovers ----------------------------------------------------- */
+
+/* The app you're in, in the sidebar. */
+#nav-sidebar .current-app .section:link,
+#nav-sidebar .current-app .section:visited {
+    color: var(--boloto-amber);
+}
+
+/* Native "Choose file" buttons. */
+input[type=file]::file-selector-button {
+    background: var(--close-button-bg);
+    color: var(--boloto-text);
+    border: 1px solid var(--boloto-line);
+    border-radius: 2px;
+    padding: 4px 10px;
+    margin-right: 10px;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+}
+
+input[type=file]::file-selector-button:hover {
+    border-color: var(--boloto-mint);
+    color: var(--boloto-mint);
+}

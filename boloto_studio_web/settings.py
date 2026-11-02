@@ -80,7 +80,8 @@ ROOT_URLCONF = 'boloto_studio_web.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        # Project-level overrides (e.g. templates/admin/base_site.html for the admin theme).
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
