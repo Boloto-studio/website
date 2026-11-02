@@ -41,6 +41,11 @@ urlpatterns += i18n_patterns(
     ),
 )
 
+# The launcher API is not translated, so it lives outside i18n_patterns.
+urlpatterns += [
+    path("api/launcher/", include("modpacks.urls")),
+]
+
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

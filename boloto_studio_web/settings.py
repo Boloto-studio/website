@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'echoes_untamed',
     'django_apscheduler',
     'frogsnet',
+    'modpacks',
 ]
 
 MIDDLEWARE = [
