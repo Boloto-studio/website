@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import models
 from django.contrib.auth.models import User
 from base.models import AbstractPost
@@ -85,7 +87,7 @@ class FriendRequest(models.Model):
 class ModpackStat(models.Model):
     modpack = models.ForeignKey('modpacks.Modpack', on_delete=models.CASCADE, related_name='stats')
     frog = models.ForeignKey(Frog, on_delete=models.CASCADE, related_name='modpack_stats')
-    playtime = models.DurationField(default=0)
+    playtime = models.DurationField(default=timedelta(0))
     last_played = models.DateTimeField(null=True, blank=True)
 
     @property

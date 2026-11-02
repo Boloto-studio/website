@@ -206,7 +206,8 @@ class ModelTests(TestCase):
         server = Server.objects.create(name="Odessa", ip_address="1.2.3.4", modpack=pack)
         frog = User.objects.create_user("mavka", password="x").frog
         frog.modpacks.add(pack)
-        ModpackStat.objects.create(modpack=pack, frog=frog, playtime=timedelta(hours=2))
+        stat = ModpackStat.objects.create(modpack=pack, frog=frog)  # default playtime must work on Postgres
+        self.assertEqual(stat.hours_played, 0)
         self.assertEqual(list(pack.servers.all()), [server])
         self.assertEqual(list(pack.players.all()), [frog])
         self.assertEqual(pack.stats.count(), 1)
