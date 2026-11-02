@@ -185,6 +185,32 @@ class ModelTests(TestCase):
         with self.assertRaises(ValidationError):
             root.full_clean()
 
+    def test_icon_asset_name_matches_bundled_icons(self):
+        self.assertEqual(make_pack("vatra").icon_asset_name, "vatra_icon.png")
+        echoes = Modpack(name="Echoes Untamed", slug="echoes")
+        self.assertEqual(echoes.icon_asset_name, "echoes_untamed_icon.png")
+
+    def test_published_pack_needs_git_url(self):
+        pack = Modpack(name="Echoes", slug="echoes", git_url="")
+        pack.full_clean()  # fine while unpublished (e.g. a pack that only has servers)
+        pack.is_published = True
+        with self.assertRaises(ValidationError):
+            pack.full_clean()
+
+    def test_servers_and_profiles_use_launcher_packs(self):
+        from base.models import Server
+        from django.contrib.auth.models import User
+        from frogsnet.models import ModpackStat
+
+        pack = make_pack("vatra")
+        server = Server.objects.create(name="Odessa", ip_address="1.2.3.4", modpack=pack)
+        frog = User.objects.create_user("mavka", password="x").frog
+        frog.modpacks.add(pack)
+        ModpackStat.objects.create(modpack=pack, frog=frog, playtime=timedelta(hours=2))
+        self.assertEqual(list(pack.servers.all()), [server])
+        self.assertEqual(list(pack.players.all()), [frog])
+        self.assertEqual(pack.stats.count(), 1)
+
     def test_normalize_key_code(self):
         self.assertEqual(normalize_key_code(" abcde fghjk-mnpqr "), "ABCDE-FGHJK-MNPQR")
 

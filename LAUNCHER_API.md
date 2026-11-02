@@ -9,6 +9,9 @@ Everything is managed by hand in the Django admin under **Modpacks**.
   *release* build (it has its own `git_url` / `git_branch`).
 - **Modpack with a parent**: an extra build of that entry (dev, beta…). Builds can't
   have builds of their own.
+- **One model for everything**: the same Modpack records are used by the launcher, the
+  frogs.net server list and player profiles. A pack can exist without a `git_url`
+  (e.g. one that only has servers), but it needs one before it can be published.
 - **`is_published`**: published packs and builds show up for everyone. Unpublished ones
   only show up for launchers that redeemed a key for them.
 

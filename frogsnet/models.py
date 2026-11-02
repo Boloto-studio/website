@@ -27,7 +27,7 @@ class Frog(models.Model):
     tier = models.CharField(max_length=255, blank=True, choices=tier_choices, default='frog')
     stripe_customer_id = models.CharField(max_length=255, blank=True)
     in_game_status = models.CharField(max_length=255, blank=True)
-    modpacks = models.ManyToManyField('base.Modpack', blank=True, related_name='players')
+    modpacks = models.ManyToManyField('modpacks.Modpack', blank=True, related_name='players')
     location = models.CharField(max_length=255, blank=True)
     show_real_name = models.CharField(max_length=20, choices=[('public', _('PUBLIC')), ('squad_only', _('SQUAD_ONLY')), ('classified', _('CLASSIFIED'))], default='public')
     show_active_modpacks = models.BooleanField(default=True)
@@ -83,7 +83,7 @@ class FriendRequest(models.Model):
         return f"{self.from_user.user.username} -> {self.to_user.username}"
 
 class ModpackStat(models.Model):
-    modpack = models.ForeignKey('base.Modpack', on_delete=models.CASCADE, related_name='stats')
+    modpack = models.ForeignKey('modpacks.Modpack', on_delete=models.CASCADE, related_name='stats')
     frog = models.ForeignKey(Frog, on_delete=models.CASCADE, related_name='modpack_stats')
     playtime = models.DurationField(default=0)
     last_played = models.DateTimeField(null=True, blank=True)

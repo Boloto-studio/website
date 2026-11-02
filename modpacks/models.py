@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
 
 # Unambiguous alphabet for game keys: no 0/O, 1/I/L, so codes are easy to type.
 KEY_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
@@ -80,7 +81,11 @@ class Modpack(models.Model):
     description = models.TextField(blank=True)
     version = models.CharField(max_length=50, blank=True)
 
-    git_url = models.URLField(max_length=500, help_text="Repository the launcher pulls the pack from.")
+    git_url = models.URLField(
+        max_length=500,
+        blank=True,
+        help_text="Repository the launcher pulls the pack from. Required before publishing.",
+    )
     git_branch = models.CharField(max_length=200, default="main")
 
     minecraft_version = models.CharField(max_length=20, blank=True)
@@ -124,7 +129,15 @@ class Modpack(models.Model):
             return f"{self.parent.name} / {self.name}"
         return self.name
 
+    @property
+    def icon_asset_name(self):
+        """Bundled icon in base/static/base/icons/, e.g. ``vatra_icon.png``
+        (used by the frogs.net server list and profiles)."""
+        return f"{slugify(self.name).replace('-', '_')}_icon.png"
+
     def clean(self):
+        if self.is_published and not self.git_url:
+            raise ValidationError({"git_url": "Published packs need a repository for the launcher to pull from."})
         if self.parent_id is None:
             return
         if self.parent_id == self.pk:

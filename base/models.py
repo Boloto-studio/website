@@ -3,7 +3,6 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 import markdown2
 import nh3
-from django.utils.text import slugify
 from bs4 import BeautifulSoup
 import ipinfo
 from django.conf import settings
@@ -157,19 +156,6 @@ class MainFocus(models.Model):
     def __str__(self):
         return (self.text[:50] + '...') if self.text and len(self.text) > 50 else (self.text or 'Main Focus')
 
-class Modpack(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    @property
-    def icon_asset_name(self):
-        return f"{slugify(self.name).replace('-', '_')}_icon.png"
-
-    def __str__(self):
-        return self.name
-
 class Server(models.Model):
     regions = [
         ("NA", "North America"),
@@ -188,7 +174,7 @@ class Server(models.Model):
     port = models.PositiveIntegerField(default=25565)
     description = models.TextField(blank=True)
     world_size = models.CharField(blank=True, null=True, max_length=50, help_text="Size of the world in MB")
-    modpack = models.ForeignKey(Modpack, on_delete=models.CASCADE, related_name="servers")
+    modpack = models.ForeignKey("modpacks.Modpack", on_delete=models.CASCADE, related_name="servers")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     region = models.CharField(max_length=2, choices=regions, blank=True, null=True)
