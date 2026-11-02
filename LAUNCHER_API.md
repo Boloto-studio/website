@@ -34,8 +34,26 @@ Admin → Game keys has *Export selected keys as CSV* and *Deactivate selected k
 
 All responses are JSON. Base path: `/api/launcher/` (not language-prefixed).
 
-Until Microsoft sign-in exists, a launcher install is identified by a token the server
-issues. Send it as `Authorization: Bearer <token>`. Only its SHA-256 hash is stored.
+A launcher install is identified by a token the server issues, sent as
+`Authorization: Bearer <token>`. Only its SHA-256 hash is stored. The launcher gets a
+token either anonymously (`clients/`) or by signing in with a website account
+(`auth/login/`).
+
+## Accounts
+
+People sign in with the same username and password as the website (the accounts
+created on frogs.net). While signed in:
+
+- Keys they redeem belong to their **account**, so the unlocks follow them to any PC,
+  and redeeming the same key again on another PC doesn't use up another use.
+- Keys redeemed on that install *before* signing in move into the account on sign-in.
+- Signing out returns the launcher to anonymous; it then sees only published packs
+  until someone signs in again.
+- Deactivating a user in the admin signs them out of every launcher.
+
+Sign-in always issues a new token, so send the old one (if any) with the login request
+and replace it with the one returned. After 10 failed attempts for a username from one
+IP (or 50 from one IP), sign-in is refused for 15 minutes.
 
 | Method | Path | Auth | Purpose |
 | --- | --- | --- | --- |
@@ -43,6 +61,12 @@ issues. Send it as `Authorization: Bearer <token>`. Only its SHA-256 hash is sto
 | GET | `modpacks/` | optional | Modpacks visible to this launcher |
 | GET | `modpacks/<slug>/` | optional | One top-level entry (404 if not visible) |
 | POST | `keys/redeem/` | required | Body `{"code": "..."}` |
+| POST | `auth/login/` | optional | Body `{"username", "password"}` → `{"token": "...", "account": {...}}` |
+| POST | `auth/logout/` | required | Signs the account out of this launcher → `{"account": null}` |
+| GET | `auth/me/` | required | `{"account": {...}}`, or `{"account": null}` when signed out |
+
+`account` is `{"username": "mavka", "avatar": "https://…" | null, "minecraft_username": "…" | null}`
+(avatar and Minecraft name come from the frogs.net profile).
 
 `GET modpacks/` response:
 
@@ -89,7 +113,10 @@ Errors look like `{"error": {"code": "...", "message": "..."}}`:
 | Status | `code` | When |
 | --- | --- | --- |
 | 400 | `missing_code` / `bad_request` | Empty code or body that isn't a JSON object |
+| 400 | `missing_credentials` | Login without a username or password |
 | 401 | `unauthorized` | No token, or an unknown token |
+| 401 | `invalid_credentials` | Wrong username or password, or the account is deactivated |
+| 429 | `too_many_attempts` | Too many failed sign-ins; wait 15 minutes |
 | 404 | `invalid_key` | No such key, or it was deactivated |
 | 409 | `key_used_up` | All `max_uses` already redeemed by other launchers |
 | 410 | `expired_key` | Past `expires_at` |

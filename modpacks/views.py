@@ -1,8 +1,9 @@
 """JSON API used by the Boloto launcher.
 
-Launchers identify themselves with the token from ``POST /api/launcher/clients/``,
-sent as ``Authorization: Bearer <token>``. The catalog works without a token
-(published packs only); redeeming a key needs one.
+Launchers identify themselves with a token sent as ``Authorization: Bearer <token>``.
+They get one from ``POST /api/launcher/clients/`` (anonymous) or
+``POST /api/launcher/auth/login/`` (signed in with a website account). The
+catalog works without a token (published packs only); redeeming a key needs one.
 """
 
 import json
@@ -14,7 +15,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from .models import LauncherClient
-from .services import RedemptionError, build_catalog, redeem_key
+from .services import (
+    RedemptionError,
+    SignInError,
+    build_catalog,
+    redeem_key,
+    serialize_account,
+    sign_in,
+    sign_out,
+)
 
 
 def _error(code, message, status):
@@ -27,9 +36,21 @@ def _client_from_request(request):
     if scheme.lower() != "bearer" or not token.strip():
         return None
     client = LauncherClient.from_token(token.strip())
+    if client is not None and client.user_id and not client.user.is_active:
+        # Deactivated accounts lose their launcher sessions.
+        client.user = None
+        client.save(update_fields=["user"])
     if client is not None:
         LauncherClient.objects.filter(pk=client.pk).update(last_seen_at=timezone.now())
     return client
+
+
+def _json_body(request):
+    try:
+        body = json.loads(request.body or b"{}")
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    return body if isinstance(body, dict) else None
 
 
 @csrf_exempt
@@ -65,11 +86,8 @@ def redeem(request):
     if client is None:
         return _error("unauthorized", "Register the launcher before redeeming keys.", 401)
 
-    try:
-        body = json.loads(request.body or b"{}")
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return _error("bad_request", "Body must be JSON.", 400)
-    if not isinstance(body, dict):
+    body = _json_body(request)
+    if body is None:
         return _error("bad_request", "Body must be a JSON object.", 400)
 
     try:
@@ -85,3 +103,44 @@ def redeem(request):
         "unlocked": {"slug": pack.slug, "name": str(pack)},
         "modpack": entry,
     })
+
+
+@csrf_exempt
+@require_POST
+@never_cache
+def login(request):
+    body = _json_body(request)
+    if body is None:
+        return _error("bad_request", "Body must be a JSON object.", 400)
+    try:
+        client, token = sign_in(
+            request,
+            _client_from_request(request),
+            str(body.get("username", "")),
+            str(body.get("password", "")),
+            ip=request.META.get("REMOTE_ADDR", ""),
+        )
+    except SignInError as exc:
+        return _error(exc.code, exc.message, exc.status)
+    return JsonResponse({"token": token, "account": serialize_account(client.user)})
+
+
+@csrf_exempt
+@require_POST
+@never_cache
+def logout(request):
+    client = _client_from_request(request)
+    if client is None:
+        return _error("unauthorized", "Unknown launcher.", 401)
+    sign_out(client)
+    return JsonResponse({"account": None})
+
+
+@require_GET
+@never_cache
+def me(request):
+    client = _client_from_request(request)
+    if client is None:
+        return _error("unauthorized", "Unknown launcher.", 401)
+    account = serialize_account(client.user) if client.user_id else None
+    return JsonResponse({"account": account})

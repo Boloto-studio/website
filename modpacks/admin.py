@@ -106,14 +106,16 @@ class GameKeyAdmin(admin.ModelAdmin):
 
 @admin.register(KeyRedemption)
 class KeyRedemptionAdmin(admin.ModelAdmin):
-    list_display = ["key", "client", "redeemed_at"]
-    list_select_related = ["key__modpack", "client"]
-    search_fields = ["key__code", "client__minecraft_username"]
-    raw_id_fields = ["key", "client"]
+    list_display = ["key", "user", "client", "redeemed_at"]
+    list_select_related = ["key__modpack", "client", "user"]
+    search_fields = ["key__code", "user__username", "client__minecraft_username"]
+    raw_id_fields = ["key", "client", "user"]
 
 
 @admin.register(LauncherClient)
 class LauncherClientAdmin(admin.ModelAdmin):
-    list_display = ["__str__", "minecraft_username", "created_at", "last_seen_at"]
-    search_fields = ["minecraft_username", "minecraft_uuid"]
+    list_display = ["__str__", "user", "minecraft_username", "created_at", "last_seen_at"]
+    list_select_related = ["user"]
+    search_fields = ["user__username", "minecraft_username", "minecraft_uuid"]
+    raw_id_fields = ["user"]
     readonly_fields = ["created_at", "last_seen_at"]

@@ -195,3 +195,106 @@ class ModelTests(TestCase):
         codes = out.getvalue().split()
         self.assertEqual(len(codes), 3)
         self.assertEqual(GameKey.objects.filter(code__in=codes).count(), 3)
+
+
+class SignInTests(ApiTestCase):
+    def setUp(self):
+        from django.contrib.auth.models import User
+        from django.core.cache import cache
+
+        cache.clear()
+        self.user = User.objects.create_user("mavka", password="lisova-pisnya")
+        self.vatra = make_pack("vatra")
+        self.vatra_dev = make_pack("vatra-dev", parent=self.vatra)
+
+    def login(self, username="mavka", password="lisova-pisnya", token=None):
+        extra = self.auth(token) if token else {}
+        return self.client.post(
+            reverse("modpacks:login"), data=json.dumps({"username": username, "password": password}),
+            content_type="application/json", **extra,
+        )
+
+    def me(self, token):
+        return self.client.get(reverse("modpacks:me"), **self.auth(token))
+
+    def test_login_returns_token_and_account(self):
+        response = self.login()
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["account"]["username"], "mavka")
+        self.assertEqual(self.me(body["token"]).json()["account"]["username"], "mavka")
+
+    def test_wrong_password(self):
+        response = self.login(password="nope")
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json()["error"]["code"], "invalid_credentials")
+        self.assertEqual(self.login(username="", password="").status_code, 400)
+
+    def test_inactive_user_cannot_sign_in(self):
+        self.user.is_active = False
+        self.user.save()
+        self.assertEqual(self.login().status_code, 401)
+
+    def test_repeated_failures_are_throttled(self):
+        from .services import SIGN_IN_MAX_FAILURES
+
+        for _ in range(SIGN_IN_MAX_FAILURES):
+            self.assertEqual(self.login(password="nope").status_code, 401)
+        response = self.login()  # even the right password
+        self.assertEqual(response.status_code, 429)
+
+    def test_sign_in_rotates_token_and_claims_anonymous_keys(self):
+        token = self.register()
+        key = GameKey.objects.create(modpack=self.vatra_dev)
+        self.redeem(token, key.code)
+
+        new_token = self.login(token=token).json()["token"]
+        self.assertNotEqual(new_token, token)
+        self.assertEqual(self.catalog(token), [])  # old token is gone → anonymous
+        self.assertEqual(LauncherClient.objects.count(), 1)
+        self.assertEqual(key.redemptions.get().user, self.user)
+
+        # The unlock now follows the account to another PC.
+        elsewhere = self.login().json()["token"]
+        builds = self.catalog(elsewhere)[0]["builds"]
+        self.assertEqual([b["slug"] for b in builds], ["vatra-dev"])
+
+    def test_keys_redeemed_while_signed_in_belong_to_the_account(self):
+        token = self.login().json()["token"]
+        key = GameKey.objects.create(modpack=self.vatra, max_uses=5)
+        self.redeem(token, key.code)
+
+        # Same account on a second PC: already redeemed, no extra use spent.
+        second = self.login().json()["token"]
+        again = self.redeem(second, key.code)
+        self.assertTrue(again.json()["already_redeemed"])
+        self.assertEqual(key.redemptions.count(), 1)
+
+    def test_sign_out_hides_account_unlocks(self):
+        token = self.login().json()["token"]
+        key = GameKey.objects.create(modpack=self.vatra)
+        self.redeem(token, key.code)
+        self.assertEqual(len(self.catalog(token)), 1)
+
+        response = self.client.post(reverse("modpacks:logout"), **self.auth(token))
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(self.me(token).json()["account"])
+        self.assertEqual(self.catalog(token), [])
+
+    def test_claiming_a_key_the_account_already_has(self):
+        key = GameKey.objects.create(modpack=self.vatra, max_uses=2)
+        self.redeem(self.login().json()["token"], key.code)
+        anon = self.register()
+        self.redeem(anon, key.code)
+        self.login(token=anon)
+        self.assertEqual(key.redemptions.count(), 1)
+
+    def test_deactivated_user_is_signed_out(self):
+        token = self.login().json()["token"]
+        self.user.is_active = False
+        self.user.save()
+        self.assertIsNone(self.me(token).json()["account"])
+
+    def test_me_and_logout_need_a_known_token(self):
+        self.assertEqual(self.me("bogus").status_code, 401)
+        self.assertEqual(self.client.post(reverse("modpacks:logout")).status_code, 401)

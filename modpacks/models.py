@@ -1,6 +1,7 @@
 import hashlib
 import secrets
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -38,12 +39,16 @@ class ModpackQuerySet(models.QuerySet):
     def top_level(self):
         return self.filter(parent__isnull=True)
 
+    def unlocked_for(self, client):
+        """Packs unlocked by keys this launcher (or its signed-in account) redeemed."""
+        return self.filter(id__in=KeyRedemption.objects.for_client(client).values("key__modpack"))
+
     def accessible_to(self, client):
-        """Packs that are published, or unlocked by a key the client redeemed."""
-        query = models.Q(is_published=True)
-        if client is not None:
-            query |= models.Q(game_keys__redemptions__client=client)
-        return self.filter(query).distinct()
+        """Packs that are published, or unlocked for the client."""
+        return self.filter(
+            models.Q(is_published=True)
+            | models.Q(id__in=KeyRedemption.objects.for_client(client).values("key__modpack"))
+        )
 
 
 class Modpack(models.Model):
@@ -132,17 +137,34 @@ class Modpack(models.Model):
 
 class LauncherClient(models.Model):
     """One launcher install. It authenticates with a random token the server
-    issued; only the token's hash is stored. Once Microsoft sign-in exists,
-    the Minecraft account can be attached here."""
+    issued; only the token's hash is stored. When someone signs in with their
+    website account, ``user`` is set; once Microsoft sign-in exists, the
+    Minecraft account can be attached here too."""
 
     token_hash = models.CharField(max_length=64, unique=True, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="launcher_clients",
+        help_text="Website account signed in on this launcher, if any.",
+    )
     minecraft_uuid = models.CharField(max_length=36, blank=True)
     minecraft_username = models.CharField(max_length=32, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     last_seen_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
+        if self.user_id:
+            return f"Launcher #{self.pk} ({self.user})"
         return self.minecraft_username or f"Launcher #{self.pk}"
+
+    def rotate_token(self):
+        """Give this launcher a new token (e.g. on sign-in) and return it."""
+        token = secrets.token_urlsafe(32)
+        self.token_hash = hash_token(token)
+        return token
 
     @classmethod
     def create_with_token(cls):
@@ -154,7 +176,7 @@ class LauncherClient(models.Model):
     def from_token(cls, token):
         if not token:
             return None
-        return cls.objects.filter(token_hash=hash_token(token)).first()
+        return cls.objects.select_related("user").filter(token_hash=hash_token(token)).first()
 
 
 class GameKey(models.Model):
@@ -183,16 +205,48 @@ class GameKey(models.Model):
         return self.expires_at is not None and self.expires_at <= timezone.now()
 
 
+class KeyRedemptionQuerySet(models.QuerySet):
+    def for_client(self, client):
+        """Redemptions that count for a launcher: its account's if someone is
+        signed in, otherwise the ones made on this install while signed out."""
+        if client is None:
+            return self.none()
+        if client.user_id:
+            return self.filter(user_id=client.user_id)
+        return self.filter(client=client, user__isnull=True)
+
+
 class KeyRedemption(models.Model):
+    """A key redeemed on a launcher. ``user`` is set when the key belongs to a
+    website account (redeemed while signed in, or claimed on sign-in)."""
+
     key = models.ForeignKey(GameKey, on_delete=models.CASCADE, related_name="redemptions")
     client = models.ForeignKey(LauncherClient, on_delete=models.CASCADE, related_name="redemptions")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="key_redemptions",
+    )
     redeemed_at = models.DateTimeField(auto_now_add=True)
+
+    objects = KeyRedemptionQuerySet.as_manager()
 
     class Meta:
         ordering = ["-redeemed_at"]
         constraints = [
-            models.UniqueConstraint(fields=["key", "client"], name="unique_key_per_client"),
+            models.UniqueConstraint(
+                fields=["key", "client"],
+                condition=models.Q(user__isnull=True),
+                name="unique_key_per_anonymous_client",
+            ),
+            models.UniqueConstraint(
+                fields=["key", "user"],
+                condition=models.Q(user__isnull=False),
+                name="unique_key_per_user",
+            ),
         ]
 
     def __str__(self):
-        return f"{self.key.code} by {self.client}"
+        return f"{self.key.code} by {self.user or self.client}"
