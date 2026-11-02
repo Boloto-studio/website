@@ -2,6 +2,7 @@ import json
 from datetime import timedelta
 from io import StringIO
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.test import TestCase
@@ -273,6 +274,33 @@ class SignInTests(ApiTestCase):
         self.assertEqual(body["account"]["username"], "mavka")
         self.assertIsNone(body["account"]["avatar"])
         self.assertEqual(self.me(body["token"]).json()["account"]["username"], "mavka")
+
+    def test_account_carries_a_mini_profile(self):
+        self.user.first_name = "Mavka"
+        self.user.save()
+        frog = self.user.frog
+        frog.bio = "Forest spirit."
+        frog.location = "Carpathians"
+        frog.save()
+        friend = User.objects.create_user("lisovyk", password="x").frog
+        frog.friends.add(friend)
+        token = self.login().json()["token"]
+        self.redeem(token, GameKey.objects.create(modpack=self.vatra_dev).code)
+
+        account = self.me(token).json()["account"]
+        self.assertEqual(account["display_name"], "Mavka")
+        self.assertEqual(account["bio"], "Forest spirit.")
+        self.assertEqual(account["location"], "Carpathians")
+        self.assertEqual(account["tier"], "Frog")
+        self.assertEqual(account["friends_count"], 1)
+        self.assertEqual(account["unlocked_count"], 1)
+        self.assertEqual(account["member_since"], self.user.date_joined.date().isoformat())
+        self.assertEqual(account["profile_url"], f"http://testserver/frogs/profile/{self.user.pk}/")
+
+        # The link lands on the real profile page (after the language redirect).
+        self.client.force_login(self.user)
+        page = self.client.get(f"/frogs/profile/{self.user.pk}/", follow=True)
+        self.assertEqual(page.status_code, 200)
 
     def test_wrong_password(self):
         response = self.login(password="nope")

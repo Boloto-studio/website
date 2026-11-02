@@ -203,9 +203,20 @@ def sign_out(client):
 
 
 def serialize_account(user, request=None):
+    """The signed-in user's own mini profile for the launcher's account panel."""
     frog = getattr(user, "frog", None)
+    # Language-neutral path; the site redirects it to the visitor's language.
+    profile_path = f"/frogs/profile/{user.pk}/"
     return {
         "username": user.get_username(),
+        "display_name": user.first_name or user.get_username(),
         "avatar": _image_url(frog.avatar, request) if frog else None,
         "minecraft_username": (frog.minecraft_username or None) if frog else None,
+        "bio": (frog.bio or None) if frog else None,
+        "tier": frog.get_tier_display() if frog and frog.tier else None,
+        "location": (frog.location or None) if frog else None,
+        "member_since": user.date_joined.date().isoformat(),
+        "friends_count": frog.friends.count() if frog else 0,
+        "unlocked_count": KeyRedemption.objects.filter(user=user).values("key__modpack").distinct().count(),
+        "profile_url": request.build_absolute_uri(profile_path) if request is not None else profile_path,
     }

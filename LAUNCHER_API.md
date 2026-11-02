@@ -68,8 +68,27 @@ IP (or 50 from one IP), sign-in is refused for 15 minutes.
 | POST | `auth/logout/` | required | Signs the account out of this launcher → `{"account": null}` |
 | GET | `auth/me/` | required | `{"account": {...}}`, or `{"account": null}` when signed out |
 
-`account` is `{"username": "mavka", "avatar": "https://…" | null, "minecraft_username": "…" | null}`
-(avatar and Minecraft name come from the frogs.net profile).
+`account` is the signed-in user's own mini profile (from their frogs.net profile):
+
+```json
+{
+  "username": "mavka",
+  "display_name": "Mavka",
+  "avatar": "https://…/avatars/mavka.png",
+  "minecraft_username": "Mavka_UA",
+  "bio": "Forest spirit.",
+  "tier": "Frog",
+  "location": "Carpathians",
+  "member_since": "2026-09-14",
+  "friends_count": 3,
+  "unlocked_count": 1,
+  "profile_url": "https://boloto.studio/frogs/profile/42/"
+}
+```
+
+`avatar`, `minecraft_username`, `bio`, `tier` and `location` are `null` when not set.
+`display_name` falls back to the username. `unlocked_count` is how many packs/builds the
+account has unlocked with keys.
 
 `GET modpacks/` response:
 
