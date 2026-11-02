@@ -182,19 +182,22 @@ def donation(request):
         )
 
         for payment in payments.auto_paging_iter():
-            # Process your payments
-            if payment.amount is not None:
+            # Only money that actually arrived; skip failed/abandoned checkouts.
+            if payment.status == "succeeded" and payment.amount is not None:
                 total_monthly_donations += payment.amount
+                donations_count += 1
     except stripe.error.StripeError:
         total_monthly_donations = 0
         donations_count = 0
 
     total_monthly_donations = total_monthly_donations / 100
+    percent = min(100, int((total_monthly_donations / MONTHLY_DONATION_TARGET) * 100))
+    filled = percent // 10
 
     return render(request, "base/donation.html", {
         "donation_progress": {
-            "percent": min(100, int((total_monthly_donations / MONTHLY_DONATION_TARGET) * 100)),
-            "display": "████████░░",
+            "percent": percent,
+            "display": "█" * filled + "░" * (10 - filled),
             "target": MONTHLY_DONATION_TARGET,
             "total": total_monthly_donations,
             "count": donations_count,
@@ -310,15 +313,14 @@ def contact(request):
         if form.is_valid():
             form.save()
             messages.success(request, _("Transmission received. We will respond when the line is clear."))
-            return render(request, "base/contact.html", {
-                "nav_key": "contact",
-                "form": ContactRequestForm(),
-                "transmission_complete": True,
-            })
+            # Redirect so a refresh doesn't send the message again; the
+            # template shows its confirmation when ?submitted=1.
+            return redirect(f"{reverse('contact')}?submitted=1")
     else:
         form = ContactRequestForm()
 
     return render(request, "base/contact.html", {
         "nav_key": "contact",
         "form": form,
+        "submitted": request.method == "GET" and request.GET.get("submitted") == "1",
     })

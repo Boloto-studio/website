@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .forms import FrogProfileEditForm, WallPostForm
-from .models import Frog, ForumPost, FriendRequest
+from .models import Frog, ForumPost, ForumTopic, FriendRequest
 
 
 class FrogProfileEditTests(TestCase):
@@ -315,9 +315,8 @@ class ForumIndexViewTests(TestCase):
 class ForumComposerViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='composer', password='secret123')
-        self.topic = self.user.wall
-        self.topic.title = 'Swamp forum'
-        self.topic.save()
+        # A public forum topic: the composer only offers those, not personal walls.
+        self.topic = ForumTopic.objects.create(title='Swamp forum')
 
     def test_forum_new_post_view_renders_composer_and_uses_existing_topic_fields(self):
         self.client.login(username='composer', password='secret123')

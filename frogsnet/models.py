@@ -25,7 +25,11 @@ class Frog(models.Model):
     last_active = models.DateTimeField(auto_now=True)
     last_activity = models.DateTimeField(null=True, blank=True, help_text="Last time the user made a request. Set by UpdateLastActivityMiddleware.")
     minecraft_username = models.CharField(max_length=255, blank=True)
-    friends = models.ManyToManyField(User, blank=True, symmetrical=True, related_name='friends_with')
+    # Friendships are stored in both directions (frog→user and back); the
+    # views write both rows. `symmetrical` must not be set: it only applies to
+    # self-referential relations and here it made .add() write a mirrored row
+    # with the frog and user IDs swapped.
+    friends = models.ManyToManyField(User, blank=True, related_name='friends_with')
     tier = models.CharField(max_length=255, blank=True, choices=tier_choices, default='frog')
     stripe_customer_id = models.CharField(max_length=255, blank=True)
     in_game_status = models.CharField(max_length=255, blank=True)
