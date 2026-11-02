@@ -1,10 +1,14 @@
 """Business logic for the launcher modpack catalog and game-key redemption."""
 
+import logging
+
 from django.contrib.auth import authenticate
 from django.core.cache import cache
-from django.db import transaction
+from django.db import DatabaseError, transaction
 
 from .models import GameKey, KeyRedemption, LauncherClient, Modpack, normalize_key_code
+
+logger = logging.getLogger(__name__)
 
 
 class RedemptionError(Exception):
@@ -129,13 +133,31 @@ def _failure_keys(ip, username):
     ]
 
 
+# The throttle fails open: if the cache is down (e.g. the database cache table
+# is missing), sign-in still works, just without the attempt limit. The
+# savepoint keeps a failed cache query from breaking the surrounding
+# transaction on Postgres.
+
+def _is_throttled(ip, username):
+    try:
+        with transaction.atomic():
+            return any((cache.get(key) or 0) >= limit for key, limit in _failure_keys(ip, username))
+    except DatabaseError:
+        logger.warning("Launcher sign-in throttle unavailable (cache error)", exc_info=True)
+        return False
+
+
 def _record_failure(ip, username):
-    for key, _ in _failure_keys(ip, username):
-        cache.add(key, 0, SIGN_IN_WINDOW)
-        try:
-            cache.incr(key)
-        except ValueError:
-            cache.set(key, 1, SIGN_IN_WINDOW)
+    try:
+        with transaction.atomic():
+            for key, _ in _failure_keys(ip, username):
+                cache.add(key, 0, SIGN_IN_WINDOW)
+                try:
+                    cache.incr(key)
+                except ValueError:
+                    cache.set(key, 1, SIGN_IN_WINDOW)
+    except DatabaseError:
+        logger.warning("Launcher sign-in throttle unavailable (cache error)", exc_info=True)
 
 
 def sign_in(request, client, username, password, ip):
@@ -148,7 +170,7 @@ def sign_in(request, client, username, password, ip):
     username = (username or "").strip()
     if not username or not password:
         raise SignInError("missing_credentials", "Enter your username and password.", 400)
-    if any((cache.get(key) or 0) >= limit for key, limit in _failure_keys(ip, username)):
+    if _is_throttled(ip, username):
         raise SignInError("too_many_attempts", "Too many sign-in attempts. Try again in a few minutes.", 429)
 
     user = authenticate(request, username=username, password=password)

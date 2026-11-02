@@ -271,6 +271,19 @@ class SignInTests(ApiTestCase):
         response = self.login()  # even the right password
         self.assertEqual(response.status_code, 429)
 
+    def test_sign_in_still_works_when_the_cache_is_broken(self):
+        from unittest import mock
+
+        from django.db import ProgrammingError
+
+        broken = mock.Mock(side_effect=ProgrammingError('relation "django_cache_table" does not exist'))
+        with mock.patch("modpacks.services.cache.get", broken), mock.patch("modpacks.services.cache.add", broken), \
+                self.assertLogs("modpacks.services", "WARNING"):
+            self.assertEqual(self.login(password="nope").status_code, 401)
+            response = self.login()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["account"]["username"], "mavka")
+
     def test_sign_in_rotates_token_and_claims_anonymous_keys(self):
         token = self.register()
         key = GameKey.objects.create(modpack=self.vatra_dev)
