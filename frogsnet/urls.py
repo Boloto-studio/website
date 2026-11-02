@@ -1,9 +1,12 @@
+from django.contrib.auth import views as auth_views
 from django.urls import path
 from . import views
 
 urlpatterns = [
     path("register/", views.register, name="frogs-register"),
     path("login/", views.login_view, name="frogs-login"),
+    # POST only (Django's LogoutView), so a link or prefetch can't log you out.
+    path("logout/", auth_views.LogoutView.as_view(next_page="home"), name="frogs-logout"),
     path("profile/edit/", views.profile_edit, name="frogs-profile-edit"),
     path("profile/", views.profile_page, name="frogs-profile-own"),
     path("friends/", views.friends_list, name="frogs-friends"),

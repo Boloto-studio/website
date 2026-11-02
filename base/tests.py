@@ -86,3 +86,38 @@ class PublicPageTests(TestCase):
 
 		self.assertRedirects(response, f"{reverse('contact')}?submitted=1")
 		self.assertEqual(ContactRequest.objects.count(), 1)
+
+
+class SidebarSessionTests(TestCase):
+	def setUp(self):
+		self.user = User.objects.create_user(username='mavka', password='secret123')
+
+	def test_signed_out_sidebar_has_log_in_and_register(self):
+		response = self.client.get(reverse('studio'))
+
+		self.assertContains(response, f"{reverse('frogs-login')}?next={reverse('studio')}")
+		self.assertContains(response, reverse('frogs-register'))
+		self.assertNotContains(response, reverse('frogs-logout'))
+
+	def test_log_in_returns_to_the_page_you_were_on(self):
+		response = self.client.post(
+			f"{reverse('frogs-login')}?next={reverse('studio')}",
+			{'username': 'mavka', 'password': 'secret123'},
+		)
+		self.assertRedirects(response, reverse('studio'), fetch_redirect_response=False)
+
+	def test_signed_in_sidebar_shows_user_and_log_out(self):
+		self.client.force_login(self.user)
+		response = self.client.get(reverse('studio'))
+
+		self.assertContains(response, 'mavka')
+		self.assertContains(response, f'action="{reverse("frogs-logout")}"')
+		self.assertNotContains(response, f"{reverse('frogs-login')}?next=")
+
+	def test_log_out_needs_post(self):
+		self.client.force_login(self.user)
+		self.assertEqual(self.client.get(reverse('frogs-logout')).status_code, 405)
+
+		response = self.client.post(reverse('frogs-logout'))
+		self.assertRedirects(response, reverse('home'), fetch_redirect_response=False)
+		self.assertNotIn('_auth_user_id', self.client.session)

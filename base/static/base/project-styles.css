@@ -271,6 +271,117 @@ textarea {
     border-top: 1px solid var(--line);
 }
 
+/* Log in / account block at the bottom of the sidebar. */
+.terminal-session {
+    display: grid;
+    gap: 0.6rem;
+    margin-bottom: 1.1rem;
+}
+
+.terminal-session__user {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.5rem;
+    border: 1px solid transparent;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.terminal-session__user:hover {
+    background: rgba(35, 42, 33, 0.72);
+    border-color: rgba(137, 162, 122, 0.42);
+}
+
+.terminal-session__avatar {
+    width: 2.2rem;
+    height: 2.2rem;
+    flex: none;
+    object-fit: cover;
+    border: 1px solid var(--line-strong);
+}
+
+.terminal-session__avatar--empty {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 1.3rem;
+}
+
+.terminal-session__who {
+    display: grid;
+    min-width: 0;
+}
+
+.terminal-session__label {
+    color: var(--muted);
+    font-size: 0.58rem;
+    letter-spacing: 0.16rem;
+    text-transform: uppercase;
+}
+
+.terminal-session__name {
+    color: var(--text);
+    font-size: 0.78rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.terminal-session__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--text);
+    font-size: 0.72rem;
+    letter-spacing: 0.1rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.terminal-session__button > span:last-child::before { content: "["; }
+.terminal-session__button > span:last-child::after { content: "]"; }
+
+.terminal-session__button .material-symbols-outlined {
+    font-size: 1.05rem;
+    color: var(--muted);
+}
+
+.terminal-session__button:hover,
+.terminal-session__button.is-active {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 14px var(--accent-shadow);
+}
+
+.terminal-session__button:hover .material-symbols-outlined,
+.terminal-session__button--primary .material-symbols-outlined {
+    color: var(--accent);
+}
+
+.terminal-session__button--primary {
+    border-color: rgba(35, 242, 163, 0.55);
+    background: var(--accent-soft);
+}
+
+.terminal-session__register {
+    color: var(--muted);
+    font-size: 0.62rem;
+    letter-spacing: 0.08rem;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.terminal-session__register:hover {
+    color: var(--accent);
+}
+
 .terminal-meta-line {
     margin: 0;
     color: var(--muted);
