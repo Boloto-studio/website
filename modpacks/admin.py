@@ -60,6 +60,12 @@ class ModpackAdmin(admin.ModelAdmin):
         }),
     ]
 
+    def get_readonly_fields(self, request, obj=None):
+        # A pack with builds must stay top-level, so don't offer a parent.
+        if obj is not None and obj.builds.exists():
+            return ["parent"]
+        return []
+
     def get_inlines(self, request, obj):
         # Builds can't have builds of their own.
         if obj is not None and obj.parent_id:

@@ -135,17 +135,34 @@ class Modpack(models.Model):
         (used by the frogs.net server list and profiles)."""
         return f"{slugify(self.name).replace('-', '_')}_icon.png"
 
+    def _parent_error(self):
+        """Packs are at most two levels deep: a top-level pack and its builds.
+        A build's parent must be top-level, and a pack with builds can't
+        become a build itself."""
+        if self.parent_id is None:
+            return None
+        if self.pk is not None and self.parent_id == self.pk:
+            return "A pack cannot be its own parent."
+        if Modpack.objects.filter(pk=self.parent_id, parent__isnull=False).exists():
+            return "Builds cannot have builds of their own; pick a top-level pack."
+        if self.pk is not None and Modpack.objects.filter(parent_id=self.pk).exists():
+            return "This pack has builds, so it must stay top-level."
+        return None
+
     def clean(self):
         if self.is_published and not self.git_url:
             raise ValidationError({"git_url": "Published packs need a repository for the launcher to pull from."})
-        if self.parent_id is None:
-            return
-        if self.parent_id == self.pk:
-            raise ValidationError({"parent": "A pack cannot be its own parent."})
-        if self.parent.parent_id is not None:
-            raise ValidationError({"parent": "Builds cannot have builds of their own; pick a top-level pack."})
-        if self.pk and self.builds.exists():
-            raise ValidationError({"parent": "This pack has builds, so it must stay top-level."})
+        error = self._parent_error()
+        if error:
+            raise ValidationError({"parent": error})
+
+    def save(self, *args, **kwargs):
+        # Enforced on every save, not just admin forms, so scripts and the
+        # shell can't build grandchildren either.
+        error = self._parent_error()
+        if error:
+            raise ValidationError({"parent": error})
+        super().save(*args, **kwargs)
 
 
 class LauncherClient(models.Model):

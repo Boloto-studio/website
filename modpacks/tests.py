@@ -175,6 +175,28 @@ class ModelTests(TestCase):
         self.assertNotEqual(client.token_hash, token)
         self.assertEqual(LauncherClient.from_token(token), client)
 
+    def test_nesting_is_blocked_on_save_too(self):
+        root = make_pack("root")
+        build = make_pack("build", parent=root)
+        with self.assertRaises(ValidationError):
+            make_pack("grandchild", parent=build)
+        root.parent = make_pack("other")
+        with self.assertRaises(ValidationError):
+            root.save()
+        build.parent = build
+        with self.assertRaises(ValidationError):
+            build.save()
+        self.assertEqual(Modpack.objects.filter(parent__parent__isnull=False).count(), 0)
+
+    def test_admin_locks_parent_on_packs_with_builds(self):
+        from django.contrib.admin.sites import site
+
+        root = make_pack("root")
+        make_pack("build", parent=root)
+        admin = site._registry[Modpack]
+        self.assertEqual(admin.get_readonly_fields(None, root), ["parent"])
+        self.assertEqual(admin.get_readonly_fields(None, make_pack("solo")), [])
+
     def test_builds_cannot_be_nested(self):
         root = make_pack("root")
         build = make_pack("build", parent=root)
