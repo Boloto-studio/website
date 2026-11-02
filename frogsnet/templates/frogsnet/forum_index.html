@@ -1,0 +1,86 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+
+{% block path_title %}{% trans "Forum" %}{% endblock %}
+{% block body_class %}forum-page{% endblock %}
+
+{% block body %}
+<section class="forum-shell" aria-label="{% trans 'Forum directory listing' %}">
+    <header class="forum-shell__header">
+        <div class="forum-shell__header-row">
+            <div class="forum-shell__status">
+                <span class="forum-shell__status-dot" aria-hidden="true"></span>
+                <span>{% trans "SYS.STATUS: ONLINE" %}</span>
+            </div>
+            <a class="forum-shell__button forum-shell__button--secondary" href="{% url 'frogs-forum-new' %}">{% trans "NEW_THREAD" %}</a>
+        </div>
+        <div class="forum-shell__path">/BIN/FORUM</div>
+        <h1 class="forum-shell__title">{% trans "FORUM" %}</h1>
+        <p class="forum-shell__subtitle">
+            {% blocktrans %}Secure communications channel established. Decrypting active threads and relay traffic.{% endblocktrans %}
+        </p>
+        <form class="forum-shell__search" method="get" action="{% url 'frogs-forum' %}">
+            <span class="forum-shell__search-prefix">{% trans "GREP" %}</span>
+            <input class="forum-shell__search-input" type="search" name="q" value="{{ search_query }}" placeholder="{% trans 'GREP_THREADS...' %}" aria-label="{% trans 'Search forum posts' %}">
+            <button class="forum-shell__search-button" type="submit">{% trans "SEARCH" %}</button>
+        </form>
+    </header>
+
+    {% if topic_sections %}
+        <div class="forum-topics" aria-live="polite">
+            {% for section in topic_sections %}
+            <section class="forum-topic-feed" aria-label="{% blocktrans with title=section.topic.title %}{{ title }} forum topic{% endblocktrans %}">
+                <div class="forum-topic-feed__meta">
+                    <span class="forum-topic-overview__dir">DIR: /{{ section.topic.path_label }}</span>
+                    <span>{% blocktrans count count=section.total_posts %}{{ count }} THREAD{% plural %}{{ count }} THREADS{% endblocktrans %}</span>
+                </div>
+
+                <article class="forum-topic-overview{% if section.topic.is_pinned %} is-pinned{% endif %}">
+                    <div class="forum-topic-overview__header">
+                        <div>
+                            <div class="forum-section-heading__kicker">{% trans "TOPIC" %}</div>
+                            <h2 class="forum-topic-overview__title">
+                                <a href="{% url 'frogs-forum-topic' section.topic.id %}">{{ section.topic.title|upper }}</a>
+                            </h2>
+                        </div>
+                        <a class="forum-topic-overview__button" href="{% url 'frogs-forum-topic' section.topic.id %}">{% trans "VIEW_TOPIC" %}</a>
+                    </div>
+
+                    {% if section.topic.description %}
+                    <p class="forum-topic-overview__description">{{ section.topic.description }}</p>
+                    {% endif %}
+
+                    {% if section.posts %}
+                    <div class="forum-topic-overview__posts">
+                        {% for post in section.posts %}
+                        <article class="forum-topic-mini{% if section.topic.is_pinned %} is-pinned{% endif %}">
+                            <div class="forum-topic-mini__top">
+                                <span class="forum-topic-card__tag">{% if section.topic.is_pinned %}{% trans "PINNED" %}{% else %}{% trans "THREAD" %}{% endif %}</span>
+                                <span class="forum-topic-mini__meta">{% blocktrans count count=post.responses.count %}{{ count }} REPLY{% plural %}{{ count }} REPLIES{% endblocktrans %}</span>
+                            </div>
+                            <h3 class="forum-topic-mini__title">
+                                <a href="{% url 'frogs-forum-thread' post.id %}">{{ post.title }}</a>
+                            </h3>
+                            <div class="forum-topic-card__footer">
+                                <div class="forum-topic-card__meta">
+                                    <span>{{ post.author.username|upper }}</span>
+                                    <span>•</span>
+                                    <span>{{ post.published_date|timesince|upper }} {% trans "AGO" %}</span>
+                                </div>
+                                <a class="forum-topic-card__meta" href="{% url 'frogs-forum-thread' post.id %}">[ {% trans "READ_MORE" %} ]</a>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="forum-empty">{% trans "NO_THREADS_IN_THIS_DIRECTORY." %}</div>
+                    {% endif %}
+                </article>
+            </section>
+            {% endfor %}
+        </div>
+    {% else %}
+    <div class="forum-empty">{% trans "NO_ACTIVE_TOPICS_IN_CHANNEL." %}</div>
+    {% endif %}
+</section>
+{% endblock %}

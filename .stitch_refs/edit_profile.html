@@ -1,0 +1,442 @@
+<!DOCTYPE html><html class="h-full bg-[#001007]" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>User Profile: Edit Identity Protocol</title>
+<!-- Tailwind CSS v3 with forms and container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration for Cyberpunk Phosphor Palette -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            swamp: {
+              950: '#000e06',
+              900: '#00150a',
+              850: '#011c0e',
+              800: '#032614',
+              700: '#07381e',
+              border: '#004d26',
+              borderGlow: '#00b853',
+              dim: '#4f7a5d',
+              dimmer: '#2c4e38',
+              accent: '#39ff84',
+              hazard: '#facc15',
+              hazardDark: '#ca8a04',
+            }
+          },
+          fontFamily: {
+            mono: ['"Courier New"', 'Courier', 'Consolas', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+<!-- Scanline & Terminal CRT Styling -->
+<style data-purpose="crt-effects">
+    /* Subtle CRT Scanline overlay */
+    .crt-overlay {
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.45) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.03),
+        rgba(0, 255, 0, 0.01),
+        rgba(0, 0, 255, 0.03)
+      );
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+    }
+
+    /* Caution yellow diagonal striped warning pattern */
+    .hazard-stripe {
+      background-image: repeating-linear-gradient(
+        -45deg,
+        #facc15,
+        #facc15 8px,
+        #021208 8px,
+        #021208 16px
+      );
+    }
+
+    .hazard-stripe-muted {
+      background-image: repeating-linear-gradient(
+        -45deg,
+        #3e3505,
+        #3e3505 6px,
+        #05180c 6px,
+        #05180c 12px
+      );
+    }
+
+    /* Custom Terminal scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #001207;
+      border-left: 1px solid #00361a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #005a2b;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #008740;
+    }
+
+    /* Custom Input Resets */
+    input[type="text"], select, textarea {
+      background-color: #01140a !important;
+      border-color: #054020 !important;
+      color: #39ff84 !important;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus {
+      border-color: #39ff84 !important;
+      ring-color: #39ff84 !important;
+      outline: none;
+      box-shadow: 0 0 5px rgba(57, 255, 132, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-[#001007] text-[#39ff84] font-mono antialiased min-h-screen flex flex-col relative select-none overflow-x-hidden text-xs md:text-sm">
+<!-- CRT Scanline Filter Layer -->
+<div class="crt-overlay fixed inset-0 z-50 pointer-events-none opacity-80"></div>
+<!-- Outer Viewport Container -->
+<div class="flex-1 flex flex-col justify-between p-2 md:p-4 max-w-[1720px] w-full mx-auto z-10 space-y-3">
+<!-- Top Grid Layout: Sidebar & Core Interface -->
+<div class="flex flex-col lg:flex-row gap-4 flex-1">
+<!-- BEGIN: LeftSidebar -->
+<aside class="w-full lg:w-72 flex-shrink-0 flex flex-col justify-between border border-[#004d26] bg-[#00140a] p-3 shadow-[0_0_15px_rgba(0,20,10,0.8)]" data-purpose="system-sidebar">
+<div class="space-y-6">
+<!-- Terminal OS Brand Header -->
+<div class="flex items-center gap-3 border-b border-[#003d1e] pb-3" data-purpose="os-identity">
+<div class="w-8 h-8 border border-[#39ff84] flex items-center justify-center bg-[#012211]">
+<span class="text-sm font-bold animate-pulse text-[#39ff84]">▣</span>
+</div>
+<div>
+<h1 class="font-bold tracking-widest text-[#39ff84] text-sm leading-none">TERMINAL_OS v4.2</h1>
+<span class="text-[11px] text-[#4f7a5d] tracking-tight">user@swamp-node:~$</span>
+</div>
+</div>
+<!-- Directory Tree Navigation -->
+<nav data-purpose="directory-tree">
+<p class="text-[10px] tracking-wider text-[#4f7a5d] uppercase mb-2">// DIRECTORY TREE</p>
+<ul class="space-y-1">
+<li class="">
+<a class="flex items-center gap-2 px-2 py-1.5 bg-[#032e18] border-l-2 border-[#39ff84] text-[#a7f3d0] font-semibold tracking-wide" href="#">
+<span class="text-sm">📁</span>
+<span class="">/home/user/profile</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-2 px-2 py-1.5 text-[#5d8b6c] hover:bg-[#021f11] hover:text-[#39ff84] transition" href="#">
+<span class="text-xs">▦</span>
+<span class="">/sys/modpacks</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-2 px-2 py-1.5 text-[#5d8b6c] hover:bg-[#021f11] hover:text-[#39ff84] transition" href="#">
+<span class="text-xs">☄</span>
+<span class="">/net/squad</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-2 px-2 py-1.5 text-[#5d8b6c] hover:bg-[#021f11] hover:text-[#39ff84] transition" href="#">
+<span class="text-xs">⊞</span>
+<span class="">/var/log/comms</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-2 px-2 py-1.5 text-[#5d8b6c] hover:bg-[#021f11] hover:text-[#39ff84] transition" href="#">
+<span class="text-xs">⚙</span>
+<span class="">/etc/settings</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- Kernel Performance Telemetry Block -->
+<div class="border border-[#00381b] bg-[#00170c] p-2.5" data-purpose="kernel-metrics">
+<div class="text-[10px] uppercase text-[#4f7a5d] border-b border-[#003318] pb-1 mb-2 font-bold tracking-wider">
+              KERNEL METRICS
+            </div>
+<div class="space-y-2 text-[11px]">
+<div>
+<div class="flex justify-between text-[#689977]">
+<span class="">MEM USAGE:</span>
+<span class="text-[#39ff84]">2.41GB / 8GB</span>
+</div>
+<!-- Custom Progress Bar -->
+<div class="w-full h-1.5 bg-[#002613] mt-1 border border-[#004d26]">
+<div class="h-full bg-[#39ff84] w-[30%]"></div>
+</div>
+</div>
+<div class="flex justify-between text-[#689977]">
+<span class="">NET STATUS:</span>
+<span class="text-[#39ff84] flex items-center gap-1 font-semibold">
+<span class="inline-block w-2 h-2 bg-[#39ff84]"></span> SYNCHRONIZED
+                </span>
+</div>
+<div class="flex justify-between text-[#689977]">
+<span class="">UPTIME:</span>
+<span class="text-[#39ff84]">48d 14h 22m</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Sidebar Base Actions -->
+<div class="pt-6 space-y-3" data-purpose="sidebar-controls">
+<!-- Emergency Halt Button with Yellow Hazard Pattern -->
+<button class="w-full relative overflow-hidden border border-[#facc15] text-[#02140a] font-black py-2 px-3 flex items-center justify-center gap-2 shadow-[0_0_10px_rgba(250,204,21,0.3)] group hover:brightness-110 active:scale-[0.99] transition bg-[#facc15]" type="button">
+<div class="absolute inset-0 opacity-20 hazard-stripe"></div>
+<span class="relative z-10 tracking-wider flex items-center gap-1 text-xs">
+              ⚠ EXECUTE_HALT
+            </span>
+</button>
+<!-- Quick Shell Destruct Commands -->
+<div class="flex justify-between text-[11px] text-[#4f7a5d] px-1 font-mono">
+<span class="cursor-pointer hover:text-[#39ff84]">🗑 /dev/null</span>
+<span class="cursor-pointer hover:text-red-400">⏻ /exit</span>
+</div>
+</div>
+</aside>
+<!-- END: LeftSidebar -->
+<!-- BEGIN: MainContent -->
+<main class="flex-1 flex flex-col space-y-3 min-w-0" data-purpose="main-terminal-body">
+<!-- Top Breadcrumbs & Security Clearance Bar -->
+<header class="flex flex-wrap items-center justify-between border-b border-[#004220] pb-2 text-[11px] tracking-wide" data-purpose="system-breadcrumbs">
+<div class="flex items-center space-x-2 text-[#4f7a5d]">
+<span class="text-[#39ff84] font-bold">ROOT</span>
+<span class="">/</span>
+<span class="">home</span>
+<span class="">/</span>
+<span class="">user</span>
+<span class="">/</span>
+<span class="text-[#39ff84]">profile</span>
+<span class="">/</span>
+<span class="text-[#facc15] font-semibold animate-pulse">edit_identity</span>
+</div>
+<div class="flex items-center space-x-3 text-[10px]">
+<span class="text-[#598b69] border border-[#004724] px-1.5 py-0.5">[NODE_SEC: LEVEL_0_AUTHORITY]</span>
+<span class="text-[#facc15] border border-[#7a6405] bg-[#221c01] px-1.5 py-0.5 font-bold">[MODE: READ_WRITE]</span>
+</div>
+</header>
+<!-- Primary Form Window: Recalibrate Identity -->
+<section class="border border-[#004d26] bg-[#00140a] relative flex flex-col" data-purpose="identity-recalibration-window">
+<!-- Window Header Strip -->
+<div class="border-b border-[#004d26] px-3 py-1.5 bg-[#011e0f] flex items-center justify-between flex-wrap gap-2">
+<div class="flex items-center space-x-2">
+<span class="text-[#39ff84] font-bold">◇ [WINDOW: /sys/user/identity/recalibrate.sh]</span>
+</div>
+<div class="flex items-center space-x-3 text-[10px] text-[#4f7a5d]">
+<span class="">UID: <strong class="text-[#39ff84]">1001</strong></span>
+<span class="">GID: <strong class="text-[#39ff84]">1001</strong></span>
+<span class="text-[#39ff84] font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-[#39ff84] animate-ping"></span> EDIT_ACTIVE
+              </span>
+</div>
+</div>
+<!-- Form Internal Container -->
+<div class="p-3 md:p-4 space-y-4">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+<!-- Column 1: Operator Avatar & Binary Controls -->
+<div class="md:col-span-3 flex flex-col items-center justify-between border border-[#00381b] p-3 bg-[#01190d]" data-purpose="avatar-management">
+<div class="w-full flex flex-col items-center">
+<span class="text-[10px] text-[#4f7a5d] self-start tracking-wider uppercase mb-2">// AVATAR_MATRIX</span>
+<!-- Avatar Container with LVL badge -->
+<div class="relative border-2 border-[#006030] p-1 bg-[#000e06] shadow-[0_0_10px_rgba(0,255,100,0.1)]">
+<img alt="Cyberpunk Hooded Operative Terminal Avatar" class="w-36 h-36 object-cover filter contrast-125 brightness-95 grayscale-[30%]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhM2OW238foHZ-ju8QmksT2TFDvJMfP11MtqC8MJwO1J9n44J1OwINVWKURW8pr-g-8JTSSNY-_xtIUYNdDpyhhSJK8WopIbM6sXrQZ54F6DWs-HpwWiCo10zq6QmfNdFop72aCkavJ2Q9IENb8Kq9W1tV9NqME4965Olsmkz11ncOl_mdx--FVFmpuuH5DBba6qX6D6djOThc8foLb-fzaJI8ikqn2VQfOW1UpvcG-X8ofRj0D0xR5g">
+<!-- Level Badge Accent -->
+<div class="absolute bottom-1 right-1 bg-[#facc15] text-[#001007] font-black text-[10px] px-1.5 py-0.5 tracking-tighter">
+                      LVL.74
+                    </div>
+</div>
+</div>
+<!-- Avatar Action Buttons -->
+<div class="w-full mt-3 space-y-1.5">
+<button class="w-full py-1 px-2 border border-[#006633] bg-[#022b15] hover:bg-[#004f28] text-[#39ff84] text-[11px] text-center font-mono tracking-wider transition" type="button">
+                    [ UPLOAD_AVATAR.BIN ]
+                  </button>
+<button class="w-full py-1 px-2 border border-[#003d1e] bg-[#00140a] hover:bg-[#002412] text-[#4f7a5d] hover:text-[#39ff84] text-[10px] text-center font-mono tracking-wider transition" type="button">
+                    [ REVERT_DEFAULT ]
+                  </button>
+<p class="text-[9px] text-[#446e50] text-center mt-1 leading-tight">
+                    MAX: 2048KB // FORMATS: PNG, JPG, RAW_MATRIX
+                  </p>
+</div>
+</div>
+<!-- Column 2: Parameter Fields Grid -->
+<div class="md:col-span-9 space-y-3" data-purpose="operator-fields">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<!-- Field: Callsign / Handle -->
+<div class="space-y-1">
+<label class="block text-[10px] text-[#558663] uppercase tracking-wider">
+                      CALLSIGN / HANDLE &lt;UNIQUE&gt;
+                    </label>
+<div class="flex items-center border border-[#004d26] bg-[#01140a] px-2 py-1">
+<span class="text-[#4f7a5d] select-none text-xs pr-1">handle:~$</span>
+<input class="w-full bg-transparent border-none p-0 text-xs focus:ring-0 text-[#39ff84] font-mono" type="text" value="user@swamp-node">
+</div>
+</div>
+<!-- Field: Real Name -->
+<div class="space-y-1">
+<label class="block text-[10px] text-[#558663] uppercase tracking-wider">
+                      LEGAL IDENTITY / first NAME
+                    </label>
+<div class="border border-[#004d26] bg-[#01140a] px-2 py-1">
+<input class="w-full bg-transparent border-none p-0 text-xs focus:ring-0 text-[#39ff84] font-mono" type="text" value="Sean 'Vortex' Miller">
+</div>
+</div>
+<!-- Field: Rank Selector -->
+<div class="space-y-1"><label class="block text-[10px] text-[#558663] uppercase tracking-wider">TACTICAL OPERATOR RANK</label><div class="flex items-center gap-2"><div class="flex-1 flex items-center justify-between border border-[#004d26] bg-[#01140a] px-2 py-1 text-xs text-[#39ff84] font-mono"><span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-[#39ff84]"></span><span class="">SPEC_OPS</span></span><span class="text-[10px] text-[#4f7a5d]">[TIER_4]</span></div><button class="border border-[#facc15] bg-[#221c01] hover:bg-[#facc15] text-[#facc15] hover:text-[#001007] px-2 py-1 text-[11px] font-mono tracking-wide whitespace-nowrap transition font-bold" type="button">[ UPGRADE_RANK ]</button></div></div>
+<!-- Field: Assigned Locale -->
+<div class="space-y-1">
+<label class="block text-[10px] text-[#558663] uppercase tracking-wider">
+                      ASSIGNED LOCALE / NODE
+                    </label>
+<div class="border border-[#004d26] bg-[#01140a] px-2 py-1">
+<input class="w-full bg-transparent border-none p-0 text-xs focus:ring-0 text-[#39ff84] font-mono" type="text" value="SwampNode-East-04">
+</div>
+</div>
+</div>
+<!-- Field: Shell / Environment Selector -->
+<div class="space-y-1"><label class="block text-[10px] text-[#558663] uppercase tracking-wider">MINECRAFT USERNAME / IGN</label><div class="flex items-center border border-[#004d26] bg-[#01140a] px-2 py-1"><span class="text-[#4f7a5d] select-none text-xs pr-1">ign:~$</span><input class="w-full bg-transparent border-none p-0 text-xs focus:ring-0 text-[#39ff84] font-mono" type="text" value="Vortex_Miller" placeholder="ENTER_MINECRAFT_IGN"></div></div>
+<!-- Field: Multi-line Bios Telemetry -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-[10px]">
+<label class="text-[#558663] uppercase tracking-wider">
+                      BIO / TELEMETRY TRANSMISSION (TERMINAL BUFFER)
+                    </label>
+<span class="text-[#4f7a5d]">142/256 CHARS</span>
+</div>
+<div class="border border-[#004d26] bg-[#01140a] p-2 relative flex font-mono text-xs">
+<!-- Line Numbers Gutter -->
+<div class="text-[#345c42] select-none pr-2 border-r border-[#00381b] mr-2 text-right">
+<div class="">01</div>
+<div class="">02</div>
+<div class="">03</div>
+</div>
+<!-- Editor Text Area -->
+<textarea class="w-full bg-transparent border-none p-0 text-xs focus:ring-0 text-[#39ff84] resize-none leading-relaxed font-mono" rows="3">Autonomous tactical operations specialist. Maintaining high-yield node telemetry in deep sector swamps. Ping protocol response &lt;14ms.</textarea>
+</div>
+</div>
+<!-- Field: Public PGP Key -->
+<div class="space-y-2 pt-2 border-t border-[#00381b]"><div class="flex justify-between items-center text-[10px]"><label class="text-[#558663] uppercase tracking-wider font-bold">// SECURITY ACCESS KEY / PASSWORD UPDATE</label><span class="text-[#4f7a5d]">[AUTH_HASH: SHA-512]</span></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-2"><div class="space-y-1"><label class="block text-[9px] text-[#4f7a5d] uppercase tracking-wider">CURRENT_KEY:</label><div class="border border-[#004d26] bg-[#01140a] px-2 py-1"><input class="w-full bg-transparent border-none p-0 text-xs focus:ring-0 text-[#39ff84] font-mono tracking-widest" type="password" value="••••••••••••" placeholder="ENTER CURRENT"></div></div><div class="space-y-1"><label class="block text-[9px] text-[#4f7a5d] uppercase tracking-wider">NEW_KEY / PASSWORD:</label><div class="border border-[#004d26] bg-[#01140a] px-2 py-1"><input class="w-full bg-transparent border-none p-0 text-xs focus:ring-0 text-[#39ff84] font-mono tracking-widest" type="password" placeholder="NEW PWD"></div></div><div class="space-y-1"><label class="block text-[9px] text-[#4f7a5d] uppercase tracking-wider">CONFIRM_KEY:</label><div class="border border-[#004d26] bg-[#01140a] px-2 py-1"><input class="w-full bg-transparent border-none p-0 text-xs focus:ring-0 text-[#39ff84] font-mono tracking-widest" type="password" placeholder="CONFIRM"></div></div></div><div class="flex justify-end pt-1"><button class="border border-[#006030] bg-[#022413] hover:bg-[#004f28] text-[#39ff84] px-3 py-1 text-[11px] font-mono tracking-wide whitespace-nowrap transition" type="button">[ UPDATE_KEY.SH ]</button></div></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Lower Dual Configuration Windows -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-3" data-purpose="auxiliary-panels">
+<!-- Sub-Window: Modpack Preferences -->
+<div class="border border-[#004d26] bg-[#00140a] flex flex-col justify-between">
+<div>
+<div class="border-b border-[#004d26] px-3 py-1 bg-[#011e0f] text-[11px] text-[#39ff84] font-semibold flex items-center justify-between">
+<span class="">◇ [WINDOW: /sys/user/modpack_preferences]</span>
+<span class="text-[#4f7a5d] text-[10px]">FLAGS: 4</span>
+</div>
+<div class="p-3 space-y-2 text-xs">
+<label class="flex items-center space-x-2 cursor-pointer group">
+<input checked="" class="rounded-none bg-[#01140a] border-[#004d26] text-[#39ff84] focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5" type="checkbox">
+<span class="text-[#a7f3d0] group-hover:text-[#39ff84] font-mono text-[11px]">[X] SHOW ACTIVE MODPACKS IN DOSSIER</span>
+</label>
+<label class="flex items-center space-x-2 cursor-pointer group">
+<input checked="" class="rounded-none bg-[#01140a] border-[#004d26] text-[#39ff84] focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5" type="checkbox">
+<span class="text-[#a7f3d0] group-hover:text-[#39ff84] font-mono text-[11px]">[X] BROADCAST LAST PLAYED SERVER TELEMETRY ON CONNECT</span>
+</label>
+<label class="flex items-center space-x-2 cursor-pointer group">
+<input class="rounded-none bg-[#01140a] border-[#004d26] text-[#39ff84] focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5" type="checkbox">
+<span class="text-[#558663] group-hover:text-[#39ff84] font-mono text-[11px]">[ ] ALLOW DIRECT SQUAD INVITES</span>
+</label>
+<label class="flex items-center space-x-2 cursor-pointer group">
+<input checked="" class="rounded-none bg-[#01140a] border-[#004d26] text-[#39ff84] focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5" type="checkbox">
+<span class="text-[#a7f3d0] group-hover:text-[#39ff84] font-mono text-[11px]">[X] SHOW ACHIVEMENTS</span>
+</label>
+</div>
+</div>
+<div class="border-t border-[#002e17] px-3 py-1 text-[10px] text-[#4f7a5d] bg-[#001007]">
+              // SYNC STATE: CACHED_LOCAL
+            </div>
+</div>
+<!-- Sub-Window: Squad Privacy Rules -->
+<div class="border border-[#004d26] bg-[#00140a] flex flex-col justify-between">
+<div>
+<div class="border-b border-[#004d26] px-3 py-1 bg-[#011e0f] text-[11px] text-[#39ff84] font-semibold flex items-center justify-between">
+<span class="">☄ [WINDOW: /net/squad/privacy_rules]</span>
+<span class="text-[#4f7a5d] text-[10px]">NETWORK: ACTIVE</span>
+</div>
+<div class="p-3 space-y-3 text-xs">
+<!-- Visibility Radio Group -->
+<div>
+<span class="text-[10px] text-[#558663] uppercase tracking-wider block mb-1">Real name VISIBILITY:</span>
+<div class="flex flex-wrap gap-3 text-[11px]">
+<label class="flex items-center space-x-1.5 cursor-pointer">
+<input checked="" class="bg-[#01140a] border-[#004d26] text-[#39ff84] focus:ring-0 h-3.5 w-3.5" name="visibility" type="radio">
+<span class="text-[#39ff84]">PUBLIC</span>
+</label>
+<label class="flex items-center space-x-1.5 cursor-pointer">
+<input class="bg-[#01140a] border-[#004d26] text-[#39ff84] focus:ring-0 h-3.5 w-3.5" name="visibility" type="radio">
+<span class="text-[#558663]">SQUAD_ONLY</span>
+</label>
+<label class="flex items-center space-x-1.5 cursor-pointer">
+<input class="bg-[#01140a] border-[#004d26] text-[#39ff84] focus:ring-0 h-3.5 w-3.5" name="visibility" type="radio">
+<span class="text-[#558663]">CLASSIFIED</span>
+</label>
+</div>
+</div>
+<!-- Privacy Key/Value Pairs -->
+<div class="pt-2 border-t border-[#00381b]"><label class="flex items-center space-x-2 cursor-pointer group"><input checked="" class="rounded-none bg-[#01140a] border-[#004d26] text-[#39ff84] focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5" type="checkbox"><span class="text-[#a7f3d0] group-hover:text-[#39ff84] font-mono text-[11px]">[X] ALLOW EXTERNAL TRANSMISSIONS TO WALL</span></label></div>
+</div>
+</div>
+<div class="border-t border-[#002e17] px-3 py-1 text-[10px] text-[#4f7a5d] bg-[#001007]">
+              // FIREWALL: RUNNING (ALLOW_SEC_INBOUND)
+            </div>
+</div>
+</section>
+<!-- Command Line Execution Status Bar -->
+<div class="border border-[#004d26] bg-[#001207] p-2 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-inner" data-purpose="execution-console-bar">
+<div class="flex items-center space-x-2 text-xs w-full sm:w-auto">
+<span class="text-[#facc15] font-bold">root@swamp-node:~#</span>
+<span class="text-[#6ea880] italic truncate">pending changes: 3 fields modified</span>
+<span class="inline-block w-2 h-3.5 bg-[#39ff84] animate-pulse"></span>
+</div>
+<!-- Bottom Execution Action Buttons -->
+<div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+<!-- Abort Button -->
+<button class="px-3 py-1.5 border border-[#004d26] bg-[#00190d] hover:bg-[#002e17] text-[#558663] hover:text-[#39ff84] text-xs font-mono tracking-wider transition" type="button">
+              [ CANCEL_ABORT.SH ]
+            </button>
+<!-- Commit Button: Striated Amber Glow -->
+<button class="relative overflow-hidden px-4 py-1.5 border border-[#facc15] bg-[#facc15] text-[#01140a] font-black text-xs font-mono tracking-wider shadow-[0_0_12px_rgba(250,204,21,0.4)] hover:brightness-110 active:scale-95 transition" type="button">
+<span class="relative z-10">[ COMMIT_CHANGES.EXE ]</span>
+</button>
+</div>
+</div>
+</main>
+<!-- END: MainContent -->
+</div>
+<!-- BEGIN: SystemFooter -->
+<footer class="border-t border-[#00381b] pt-2 text-[10px] text-[#4f7a5d] flex flex-col md:flex-row items-center justify-between gap-2 font-mono" data-purpose="system-status-footer">
+<div class="flex items-center space-x-2">
+<span class="text-[#39ff84] font-bold">TERMINAL_OS</span>
+<span class="">//</span>
+<span class="">KERNEL: 5.15.0-89-SWAMP-TACTICAL</span>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<span class="text-[#facc15]">STATUS: WRITE_LOCK_RELEASED</span>
+<span class="text-[#004d26]">|</span>
+<span class="">LATENCY: 12ms</span>
+<span class="text-[#004d26]">|</span>
+<span class="text-[#39ff84]">TLS 1.3 / ENCRYPTED</span>
+</div>
+</footer>
+<!-- END: SystemFooter -->
+</div>
+
+
+
+
+
+
+</body></html>

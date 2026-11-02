@@ -1,0 +1,64 @@
+{% extends "frogsnet/auth_layout.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'frogsnet/login.css' %}">
+{% endblock %}
+
+{% block title %}frogs.net - Login{% endblock %}
+
+{% block auth_content %}
+<section class="auth-card auth-card--login">
+    <header class="auth-card__header">
+        <div>
+            <h1 class="auth-card__title">
+                <span class="material-symbols-outlined auth-card__icon">security</span>
+                AUTHENTICATION
+            </h1>
+            <p class="auth-card__subline">BOLOTO_OS // V4.2.0_STABLE</p>
+        </div>
+        <span class="auth-card__live-indicator" aria-label="System online"></span>
+    </header>
+
+    {% if created %}
+        <div class="auth-message auth-message--success">&gt; IDENTITY CREATED. INITIALIZE SESSION.</div>
+    {% endif %}
+    {% if form.non_field_errors %}
+        <div class="auth-message auth-message--error">{{ form.non_field_errors|join:', ' }}</div>
+    {% endif %}
+
+    <form class="auth-form" method="post">
+        {% csrf_token %}
+        <div class="auth-field">
+            <label class="auth-field__label" for="id_username">&gt; ENTER_OPERATOR_ID</label>
+            <div class="auth-input-wrap">
+                <span class="auth-input-prefix">ID:</span>
+                <input class="auth-input" id="id_username" name="username" placeholder="OP-XXXX" required type="text" value="{{ form.username.value|default:'' }}" autocomplete="off" spellcheck="false">
+            </div>
+        </div>
+        <div class="auth-field">
+            <label class="auth-field__label" for="id_password">&gt; ENTER_PASS_KEY</label>
+            <div class="auth-input-wrap">
+                <span class="auth-input-prefix">PK:</span>
+                <input class="auth-input" id="id_password" name="password" placeholder="********" required type="password" autocomplete="off">
+            </div>
+        </div>
+        <button class="auth-submit" type="submit">
+            <span class="material-symbols-outlined">terminal</span>
+            INITIALIZE_SESSION.SH
+        </button>
+    </form>
+
+    <div class="auth-register">
+        <p class="auth-register__prompt">&gt; NO_IDENTITY_ON_FILE?</p>
+        <a class="auth-register__button" href="{% url 'frogs-register' %}">
+            <span class="material-symbols-outlined">person_add</span>
+            CREATE_IDENTITY.SH
+        </a>
+    </div>
+
+    <div class="auth-card__footer">
+        <span class="auth-card__footer-copy">NODE: SECURE_09</span>
+    </div>
+</section>
+{% endblock %}

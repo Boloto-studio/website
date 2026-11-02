@@ -1,0 +1,9 @@
+{
+  "features": {
+    "ghcr.io/hspaans/devcontainer-features/django-upgrade:2": {
+      "version": "2.0.0",
+      "resolved": "ghcr.io/hspaans/devcontainer-features/django-upgrade@sha256:eba4ff6b87a7ce0f9bbabbdfc994697d670f81f86832c34f5298848b53a3863d",
+      "integrity": "sha256:eba4ff6b87a7ce0f9bbabbdfc994697d670f81f86832c34f5298848b53a3863d"
+    }
+  }
+}

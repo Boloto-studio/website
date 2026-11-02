@@ -1,0 +1,75 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'base/donation.css' %}">
+{% endblock %}
+
+{% block title %}Donation{% endblock %}
+
+{% block body %}
+<section class="support-shell">
+    <header class="support-header">
+        <h1 class="support-header__title">{% trans "Support Protocol Initiated" %}</h1>
+        <p class="support-header__subtitle">{% trans "Funding required for continued development and server maintenance." %}</p>
+    </header>
+
+    <section class="support-meter">
+        <div class="support-meter__topline">
+            <h2>{% trans "Maintenance Funds" %}</h2>
+            <span>{{ donation_progress.percent }}%</span>
+        </div>
+        <div class="support-meter__track" aria-label="Maintenance funding bar">
+            <div class="support-meter__fill" style="width: {{ donation_progress.percent }}%;"></div>
+        </div>
+        <div class="support-meter__label">&gt; <span class="support-meter__display">[{{ donation_progress.display }}]</span> {% trans "TARGET" %}: ${{ donation_progress.target }}/{% trans "MO" %}</div>
+    </section>
+
+    <section class="tier-grid">
+        {% for tier in donation_tiers %}
+            <article class="tier-card{% if tier.featured %} tier-card--featured{% endif %}">
+                {% if tier.featured_label %}
+                    <div class="tier-card__flag">{{ tier.featured_label }}</div>
+                {% endif %}
+
+                <div class="tier-card__head">
+                    <h3 class="tier-card__name">{{ tier.name }}</h3>
+                    <div class="tier-card__price">
+                        <strong>${{ tier.price }}</strong>
+                        <span>/ {{ tier.interval }}</span>
+                    </div>
+                </div>
+
+                <ul class="tier-card__features">
+                    {% for feature in tier.features %}
+                        <li>{{ feature }}</li>
+                    {% endfor %}
+                </ul>
+
+                <a class="terminal-button tier-card__button{% if tier.featured %} tier-card__button--primary{% endif %}" href="{{ tier.link|default:'#' }}">{% trans "SELECT_" %}{{ tier.name }}.SH</a>
+            </article>
+        {% endfor %}
+
+        <h2 class="tier-grid__subtitle or">[ {% trans "OR" %} ]</h2>
+
+        <article class="tier-card tier-card--custom">
+            <div class="tier-card__head">
+                <h3 class="tier-card__name">{% trans "Custom Amount" %}</h3>
+                <div class="tier-card__price">
+                    <strong>{% trans "Any" %}</strong>
+                    <span>{% trans "one-time" %}</span>
+                </div>
+            </div>
+
+            <ul class="tier-card__features">
+                <li>{% trans "Single payment" %}</li>
+                <li>{% trans "Flexible support amount" %}</li>
+                <li>{% trans "If you're feeling generous" %}</li>
+            </ul>
+
+            <a class="terminal-button tier-card__button tier-card__button--accent" href="https://donate.stripe.com/dR6bKbbJ980K1xueUU">{% trans "DONATE_CUSTOM_AMOUNT.SH" %}</a>
+        </article>
+    </section>
+</section>
+{% endblock %}

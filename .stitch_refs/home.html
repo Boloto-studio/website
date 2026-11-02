@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Boloto Studio - Terminal</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f9c806",
+                        "background-light": "#f8f8f5",
+                        "background-dark": "#231f0f",
+                        "terminal-surface": "#111A14",
+                        "terminal-muted": "#738C7A",
+                        "terminal-accent": "#00FA9A",
+                        "terminal-text": "#E6F0EB",
+                    },
+                    fontFamily: {
+                        "display": ["Space Mono", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Space Mono', monospace;
+            background-color: #080C0A;
+            color: #E6F0EB;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Overlay */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0),
+                rgba(255, 255, 255, 0) 50%,
+                rgba(0, 0, 0, 0.2) 50%,
+                rgba(0, 0, 0, 0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.6;
+        }
+
+        /* CRT Flicker Animation */
+        @keyframes crtFlicker {
+            0% { opacity: 0.9; }
+            5% { opacity: 0.8; }
+            10% { opacity: 1; }
+            15% { opacity: 0.7; }
+            20% { opacity: 0.9; }
+            25% { opacity: 1; }
+            30% { opacity: 0.8; }
+            40% { opacity: 0.9; }
+            50% { opacity: 1; }
+            60% { opacity: 0.7; }
+            70% { opacity: 0.9; }
+            80% { opacity: 1; }
+            90% { opacity: 0.8; }
+            100% { opacity: 0.9; }
+        }
+
+        .crt-active {
+            animation: crtFlicker 0.15s infinite;
+        }
+
+        /* Blinking Cursor */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #080C0A; 
+            border-left: 1px solid #738C7A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #738C7A; 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f9c806; 
+        }
+
+        /* Image overlay scanlines for thumbnails */
+        .thumb-scanlines::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0) 50%,
+                rgba(0, 0, 0, 0.3) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+    </style>
+<style data-stitch-cursor=""></style><style data-stitch-scroll-lock=""></style></head>
+<body class="flex h-screen overflow-hidden antialiased selection:bg-primary selection:text-background-dark">
+<!-- CRT Scanlines -->
+<div class="scanlines"></div>
+<!-- Shared Navigation -->
+<div class="relative flex h-auto min-h-screen w-[30%] max-w-[320px] flex-col bg-[#181711] border-r border-terminal-muted z-10 shrink-0">
+<div class="layout-container flex h-full grow flex-col">
+<div class="flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-full flex-1">
+<div class="flex h-full flex-col justify-between p-4">
+<div class="flex flex-col gap-8">
+<div class="flex flex-col text-center border-b border-terminal-muted pb-4">
+<pre class="text-primary text-xs font-bold leading-none tracking-widest mx-auto"> ____  __  __    __  ____  __  
+(  _ \/  \(  )  /  \(_  _)/  \ 
+ ) _ (  O )) (_(  O ) )( (  O )
+(____/\__/(____)\__/ (__) \__/ 
+                                </pre>
+<p class="text-terminal-muted text-xs mt-2">[ BOLOTO STUDIO HQ ]</p>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-terminal-surface border border-terminal-muted shadow-[0_0_8px_rgba(0,250,154,0.2)]" href="#">
+<div class="text-terminal-accent" data-icon="TerminalWindow" data-weight="fill">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<p class="text-terminal-accent text-sm font-bold leading-normal">[ HOME ]</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="Users" data-weight="regular">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> STUDIO <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+<!-- Community Toggle -->
+<div class="flex flex-col" x-data="{ expanded: false }">
+<button @click="expanded = !expanded" class="flex items-center justify-between w-full px-3 py-2 group hover:bg-[#2A2921] transition-colors text-left focus:outline-none">
+<div class="flex items-center gap-3">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="Globe" data-weight="regular">
+<span class="material-symbols-outlined">globe</span>
+</div>
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> COMMUNITY <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</div>
+<span class="material-symbols-outlined text-terminal-muted group-hover:text-terminal-accent text-sm" x-text="expanded ? 'expand_less' : 'expand_more'">expand_more</span>
+</button>
+<div class="flex flex-col pl-10 pr-3 py-1 gap-1 border-l border-terminal-muted ml-5 mt-1 mb-2" style="display: none;" x-show="expanded">
+<a class="flex items-center px-2 py-1 group hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-muted text-xs font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent opacity-0 group-hover:opacity-100 transition-opacity">&gt;</span> FORUM</p>
+</a>
+<a class="flex items-center px-2 py-1 group hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-muted text-xs font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent opacity-0 group-hover:opacity-100 transition-opacity">&gt;</span> MY PROFILE</p>
+</a>
+<a class="flex items-center px-2 py-1 group hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-muted text-xs font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent opacity-0 group-hover:opacity-100 transition-opacity">&gt;</span> FRIENDS LIST</p>
+</a>
+<a class="flex items-center px-2 py-1 group hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-muted text-xs font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent opacity-0 group-hover:opacity-100 transition-opacity">&gt;</span> SERVERS LIST</p>
+</a>
+</div>
+</div>
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="Heart" data-weight="regular">
+<span class="material-symbols-outlined">favorite</span>
+</div>
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> DONATION <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="EnvelopeSimple" data-weight="regular">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> CONTACT <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+</nav>
+</div>
+<div class="mt-auto border-t border-terminal-muted pt-4">
+<p class="text-xs text-terminal-muted uppercase tracking-widest">SYS.VER: 4.2.0</p>
+<p class="text-xs text-terminal-accent uppercase tracking-widest mt-1 animate-pulse">STATUS: ONLINE</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Main Content -->
+<main class="flex-1 h-full overflow-y-auto bg-[#080C0A] relative z-0 pb-20" id="main-content">
+<!-- Hero Carousel -->
+<section class="w-full relative min-h-[500px] flex flex-col justify-end border-b border-[#738C7A]" x-data="{ currentSlide: 0, slides: [
+        {
+            bg: 'https://images.unsplash.com/photo-1542261777448-23d2a287091c?q=80&amp;w=2000&amp;auto=format&amp;fit=crop',
+            sector: 'SECTOR 7',
+            title: 'PROJECT: SWAMP',
+            desc: 'The flagship modpack for hardcore survival. Enter the swamp. Toxic environments, hostile fauna, and scarce resources await.'
+        },
+        {
+            bg: 'https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?q=80&amp;w=2000&amp;auto=format&amp;fit=crop',
+            sector: 'SECTOR 4',
+            title: 'PROJECT: WASTELAND',
+            desc: 'Irradiated deserts and ruined megacities. Scavenge for parts, build your rig, and survive the harsh solar storms.'
+        },
+        {
+            bg: 'https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?q=80&amp;w=2000&amp;auto=format&amp;fit=crop',
+            sector: 'SECTOR 9',
+            title: 'PROJECT: NEON DISTRICT',
+            desc: 'Cybernetic enhancements and corporate espionage. Infiltrate the megacorps in this vertical, rain-slicked concrete jungle.'
+        }
+    ] }">
+<template :key="index" x-for="(slide, index) in slides">
+<div :style="`background-image: linear-gradient(to top, rgba(8, 12, 10, 0.95) 0%, rgba(8, 12, 10, 0.6) 100%), url('${slide.bg}');`" class="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500" x-show="currentSlide === index" x-transition.opacity="">
+</div>
+</template>
+<div class="relative z-10 max-w-3xl p-12">
+<div class="inline-block bg-[#111A14] border border-[#738C7A] px-3 py-1 mb-6 flex items-center justify-between gap-6">
+<span class="text-[#00FA9A] text-sm font-bold tracking-widest uppercase" style="text-shadow: 0 0 8px rgba(0, 250, 154, 0.4);">
+                    CLASSIFIED // <span x-text="slides[currentSlide].sector"></span>
+</span>
+<div class="flex items-center gap-3 text-[#738C7A] text-xs font-bold tracking-widest">
+<button @click="currentSlide = currentSlide === 0 ? slides.length - 1 : currentSlide - 1" class="hover:text-primary transition-colors">&lt; PREV</button>
+<span>[ <span x-text="String(currentSlide + 1).padStart(2, '0')"></span> / <span x-text="String(slides.length).padStart(2, '0')"></span> ]</span>
+<button @click="currentSlide = currentSlide === slides.length - 1 ? 0 : currentSlide + 1" class="hover:text-primary transition-colors">NEXT &gt;</button>
+</div>
+</div>
+<h2 class="text-5xl md:text-7xl font-bold text-[#E6F0EB] uppercase tracking-tighter mb-4 leading-none" style="text-shadow: 2px 2px 0px #111A14;" x-text="slides[currentSlide].title">
+</h2>
+<p class="text-lg md:text-xl text-[#738C7A] mb-10 max-w-2xl leading-relaxed min-h-[60px]" x-text="slides[currentSlide].desc">
+</p>
+<!-- Primary CTA -->
+<button class="bg-primary text-[#080C0A] border-2 border-primary hover:bg-[#080C0A] hover:text-primary transition-colors duration-150 px-8 py-4 font-bold text-xl uppercase tracking-widest rounded-sm w-full md:w-auto text-center flex items-center justify-center gap-3 group shadow-[0_0_15px_rgba(249,200,6,0.3)] hover:shadow-[0_0_20px_rgba(249,200,6,0.6)]" onclick="document.getElementById('main-content').classList.add('crt-active'); setTimeout(() =&gt; { document.getElementById('main-content').classList.remove('crt-active'); }, 500);">
+<span class="material-symbols-outlined font-bold group-hover:translate-x-1 transition-transform">folder_open</span>
+                    [ ACCESS_FILES ]
+                </button>
+</div>
+</section>
+<!-- News Terminal Section -->
+<section class="p-12">
+<div class="flex items-center justify-between mb-8 border-b border-[#738C7A] pb-4">
+<h3 class="text-2xl text-[#E6F0EB] font-bold uppercase tracking-wider flex items-center gap-3">
+<span class="material-symbols-outlined text-[#738C7A]">terminal</span>
+                    Terminal_Logs
+                </h3>
+<span class="text-sm text-[#738C7A] uppercase" style="opacity: 0;">/boloto/logs&gt; _</span>
+</div>
+<!-- Terminal Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Video Log Card -->
+<article class="bg-[#111A14] border border-[#738C7A] p-6 rounded-sm hover:border-[#00FA9A] transition-colors duration-200 group flex flex-col h-full">
+<div class="flex items-center justify-between mb-4">
+<div class="text-[#00FA9A] text-sm font-bold" style="text-shadow: 0 0 8px rgba(0, 250, 154, 0.4);">[ 2024-10-25 18:45:00 ]</div>
+<div class="text-[#738C7A] text-xs font-bold border border-[#738C7A] px-2 py-1 rounded-sm">MEDIA_FILE</div>
+</div>
+<div class="relative w-full aspect-video mb-4 bg-[#080C0A] border border-[#738C7A] rounded-sm overflow-hidden thumb-scanlines cursor-pointer group-hover:border-primary transition-colors">
+<img alt="Video thumbnail" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity filter grayscale sepia-[.3] hue-rotate-[80deg]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjaJ-OwaOYmTZHUPXvYzP_PfjnwiIhfpBQlokRnP6z_Ot32h9umARy6udbci0ylGFQlPFiXZdbEvNpC-fKNbg-1hy3lIBb4WqLS7VFAXYEn_APatbA5F93SFRU1qBS-RA9lTXRs8J8yRPe1myuNPOf56VfMM5eUCJ50k2iuL8p53FkRm_ivTtVrjR3IwJBYjqdE2drtT5_A8q-XVTqkKUGJMqkwPoq-VSN7J3LXD_gWX4O27AT1IU-DMGIM6j4_wE9pHW4l9wX1slR"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-16 h-16 rounded-full border-2 border-[#00FA9A] flex items-center justify-center bg-black/50 group-hover:bg-primary/20 group-hover:border-primary transition-all duration-300">
+<span class="material-symbols-outlined text-[#00FA9A] group-hover:text-primary text-3xl ml-1">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 border border-[#738C7A]">
+<span class="text-[#E6F0EB] text-xs font-bold tracking-widest">LENGTH: 02:45</span>
+</div>
+</div>
+<h4 class="text-[#E6F0EB] text-xl font-bold uppercase mb-2 leading-tight group-hover:text-primary transition-colors">Devlog #42: Toxic Biome Overhaul</h4>
+<p class="text-[#738C7A] text-sm leading-relaxed mb-4 flex-grow">
+    Visual breakdown of the new volumetric fog system and updated hazard indicators in Sector 7.
+</p>
+<a class="text-primary text-sm uppercase font-bold hover:text-[#E6F0EB] transition-colors mt-auto flex items-center gap-1" href="#">
+                        PLAY_TRANSMISSION <span class="material-symbols-outlined text-sm">play_circle</span>
+</a>
+</article>
+<!-- Normal Log Card -->
+<article class="bg-[#111A14] border border-[#738C7A] p-6 rounded-sm hover:border-[#00FA9A] transition-colors duration-200 group flex flex-col h-full">
+<div class="flex items-center justify-between mb-4">
+<div class="text-[#00FA9A] text-sm font-bold" style="text-shadow: 0 0 8px rgba(0, 250, 154, 0.4);">[ 2024-10-24 14:00:00 ]</div>
+<div class="text-[#738C7A] text-xs font-bold border border-[#738C7A] px-2 py-1 rounded-sm">TEXT_LOG</div>
+</div>
+<h4 class="text-[#E6F0EB] text-xl font-bold uppercase mb-4 leading-tight group-hover:text-primary transition-colors">Patch v2.4 Released: The Bog Update</h4>
+<p class="text-[#738C7A] text-sm leading-relaxed mb-6 flex-grow">
+                        Significant overhaul to water toxicity mechanics. Increased spawn rates for mutated flora. Optimization pass completed on server backend.
+                    </p>
+<a class="text-primary text-sm uppercase font-bold hover:text-[#E6F0EB] transition-colors mt-auto flex items-center gap-1" href="#">
+                        READ_FULL_LOG <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</article>
+<!-- Normal Log Card -->
+<article class="bg-[#111A14] border border-[#738C7A] p-6 rounded-sm hover:border-[#00FA9A] transition-colors duration-200 group flex flex-col h-full">
+<div class="flex items-center justify-between mb-4">
+<div class="text-[#00FA9A] text-sm font-bold" style="text-shadow: 0 0 8px rgba(0, 250, 154, 0.4);">[ 2024-10-18 09:30:00 ]</div>
+<div class="text-[#738C7A] text-xs font-bold border border-[#738C7A] px-2 py-1 rounded-sm">TEXT_LOG</div>
+</div>
+<h4 class="text-[#E6F0EB] text-xl font-bold uppercase mb-4 leading-tight group-hover:text-primary transition-colors">Server Hardware Upgrade Complete</h4>
+<p class="text-[#738C7A] text-sm leading-relaxed mb-6 flex-grow">
+                        Migrated main database to new SSD array. Expect reduced latency during peak hours. Thank you to all our operative-tier supporters.
+                    </p>
+<a class="text-primary text-sm uppercase font-bold hover:text-[#E6F0EB] transition-colors mt-auto flex items-center gap-1" href="#">
+                        READ_FULL_LOG <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</article>
+<!-- Video Log Card -->
+<article class="bg-[#111A14] border border-[#738C7A] p-6 rounded-sm hover:border-[#00FA9A] transition-colors duration-200 group flex flex-col h-full">
+<div class="flex items-center justify-between mb-4">
+<div class="text-[#00FA9A] text-sm font-bold" style="text-shadow: 0 0 8px rgba(0, 250, 154, 0.4);">[ 2024-10-15 11:20:00 ]</div>
+<div class="text-[#738C7A] text-xs font-bold border border-[#738C7A] px-2 py-1 rounded-sm">MEDIA_FILE</div>
+</div>
+<div class="relative w-full aspect-video mb-4 bg-[#080C0A] border border-[#738C7A] rounded-sm overflow-hidden thumb-scanlines cursor-pointer group-hover:border-primary transition-colors">
+<img alt="Video thumbnail" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity filter grayscale sepia-[.3] hue-rotate-[80deg]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALbXbuqI1MGlVaaYVFieOL9YHr0BRuj3_vJOy0LxeM7iuvk3_F9iAtq29yjevzNTw8Hzg_4spPAu-Bc5T3CYBH5kphabEtlgzU_r-QB4DjGmVVvcGHbRv6Tf4IL9OOpewOmJuwuSGxYfRlMc4HJeUfVjEG5hC3sEJQ_CQSEsjaMpZs_g-KKL6ZPVKroqAE_5cA8a_h77ZaTtvsSvPJRqiEmovCJ-oZDW8K3kTvv86Xf9lhOPXc8gnHobt9WDifUAz_XW3Pw60TmVrx"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-16 h-16 rounded-full border-2 border-[#00FA9A] flex items-center justify-center bg-black/50 group-hover:bg-primary/20 group-hover:border-primary transition-all duration-300">
+<span class="material-symbols-outlined text-[#00FA9A] group-hover:text-primary text-3xl ml-1">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 border border-[#738C7A]">
+<span class="text-[#E6F0EB] text-xs font-bold tracking-widest">LENGTH: 14:12</span>
+</div>
+</div>
+<h4 class="text-[#E6F0EB] text-xl font-bold uppercase mb-2 leading-tight group-hover:text-primary transition-colors">Community Highlight: Base Defense</h4>
+<p class="text-[#738C7A] text-sm leading-relaxed mb-4 flex-grow">
+    Showcasing the top 5 player-built strongholds that survived the recent horde events.
+</p>
+<a class="text-primary text-sm uppercase font-bold hover:text-[#E6F0EB] transition-colors mt-auto flex items-center gap-1" href="#">
+                        PLAY_TRANSMISSION <span class="material-symbols-outlined text-sm">play_circle</span>
+</a>
+</article>
+</div>
+</section>
+</main>
+<script defer="" src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</body></html>

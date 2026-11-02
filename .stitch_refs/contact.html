@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Swampy Terminal - Contact</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f9c806",
+                        "background-light": "#f8f8f5",
+                        "background-dark": "#231f0f",
+                        "terminal-surface": "#111A14",
+                        "terminal-muted": "#738C7A",
+                        "terminal-accent": "#00FA9A",
+                        "terminal-text": "#E6F0EB",
+                    },
+                    fontFamily: {
+                        "display": ["Space Mono", "monospace"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Space Mono', monospace;
+            background-color: #080C0A;
+            color: #E6F0EB;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* CRT Scanline Overlay */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .terminal-border {
+            border: 1px solid #738C7A;
+        }
+
+        .input-glow:focus {
+            outline: none;
+            border-color: #f9c806;
+            box-shadow: 0 0 8px rgba(249, 200, 6, 0.4);
+        }
+
+        .btn-primary {
+            background-color: #f9c806;
+            color: #080C0A;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #080C0A;
+            color: #f9c806;
+            border: 1px solid #f9c806;
+        }
+
+        .nav-link:hover {
+            color: #00FA9A;
+        }
+        .nav-link:hover span {
+            color: #00FA9A;
+        }
+
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+<style data-stitch-cursor=""></style><style data-stitch-scroll-lock=""></style></head>
+<body class="font-display h-screen flex overflow-hidden selection:bg-terminal-accent selection:text-black antialiased">
+<!-- CRT Overlay -->
+<div class="scanlines"></div>
+<!-- Shared Navigation -->
+<div class="relative flex h-auto min-h-screen w-[30%] max-w-[320px] flex-col bg-[#181711] border-r border-terminal-muted z-10 shrink-0">
+<div class="layout-container flex h-full grow flex-col">
+<div class="flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-full flex-1">
+<div class="flex h-full flex-col justify-between p-4">
+<div class="flex flex-col gap-8">
+<div class="flex flex-col text-center border-b border-terminal-muted pb-4">
+<pre class="text-primary text-xs font-bold leading-none tracking-widest mx-auto"> ____  __  __    __  ____  __  
+(  _ \/  \(  )  /  \(_  _)/  \ 
+ ) _ (  O )) (_(  O ) )( (  O )
+(____/\__/(____)\__/ (__) \__/ 
+                                </pre>
+<p class="text-terminal-muted text-xs mt-2">[ BOLOTO STUDIO HQ ]</p>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="TerminalWindow" data-weight="regular">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> HOME <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="Users" data-weight="regular">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> STUDIO <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+<details class="group/nav">
+<summary class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors cursor-pointer outline-none">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="Globe" data-weight="regular">
+<span class="material-symbols-outlined">globe</span>
+</div>
+<p class="flex-1 text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> COMMUNITY <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+<span class="material-symbols-outlined text-terminal-muted text-sm group-open/nav:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="flex flex-col gap-1 pl-11 pr-3 py-2">
+<a class="flex items-center gap-3 px-2 py-1.5 group/sub hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover/sub:text-white"><span class="text-terminal-muted group-hover/sub:text-terminal-accent">[</span> FORUM <span class="text-terminal-muted group-hover/sub:text-terminal-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-2 py-1.5 group/sub hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover/sub:text-white"><span class="text-terminal-muted group-hover/sub:text-terminal-accent">[</span> MY PROFILE <span class="text-terminal-muted group-hover/sub:text-terminal-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-2 py-1.5 group/sub hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover/sub:text-white"><span class="text-terminal-muted group-hover/sub:text-terminal-accent">[</span> FRIENDS LIST <span class="text-terminal-muted group-hover/sub:text-terminal-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-2 py-1.5 group/sub hover:bg-[#2A2921] transition-colors" href="#">
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover/sub:text-white"><span class="text-terminal-muted group-hover/sub:text-terminal-accent">[</span> SERVERS LIST <span class="text-terminal-muted group-hover/sub:text-terminal-accent">]</span></p>
+</a>
+</div>
+</details>
+<a class="flex items-center gap-3 px-3 py-2 group hover:bg-[#2A2921] transition-colors" href="#">
+<div class="text-terminal-text group-hover:text-terminal-accent transition-colors" data-icon="Heart" data-weight="regular">
+<span class="material-symbols-outlined">favorite</span>
+</div>
+<p class="text-terminal-text text-sm font-medium leading-normal group-hover:text-white"><span class="text-terminal-muted group-hover:text-terminal-accent">[</span> DONATION <span class="text-terminal-muted group-hover:text-terminal-accent">]</span></p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-terminal-surface border border-terminal-muted shadow-[0_0_8px_rgba(0,250,154,0.2)]" href="#">
+<div class="text-terminal-accent" data-icon="EnvelopeSimple" data-weight="fill">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">mail</span>
+</div>
+<p class="text-terminal-accent text-sm font-bold leading-normal">[ CONTACT ]</p>
+</a>
+</nav>
+</div>
+<div class="mt-auto border-t border-terminal-muted pt-4">
+<p class="text-xs text-terminal-muted uppercase tracking-widest">SYS.VER: 4.2.0</p>
+<p class="text-xs text-terminal-accent uppercase tracking-widest mt-1 animate-pulse">STATUS: ONLINE</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Area -->
+<main class="flex-1 h-full overflow-y-auto p-6 md:p-12 flex flex-col items-center justify-center relative z-10">
+<div class="w-full max-w-[600px] flex flex-col gap-8">
+<header class="mb-4">
+<h1 class="text-3xl md:text-4xl font-bold text-white tracking-widest mb-2 uppercase border-b border-[#738C7A] pb-2 inline-block">SECURE_COMM_LINK</h1>
+<p class="text-[#738C7A] text-sm">&gt; INITIALIZING SECURE CHANNEL...</p>
+<p class="text-[#00FA9A] text-sm">&gt; CONNECTION ESTABLISHED. AWAITING INPUT.</p>
+</header>
+<div class="bg-[#111A14] terminal-border rounded-sm p-6 md:p-8 shadow-2xl relative overflow-hidden">
+<!-- Glitch/decoration line -->
+<div class="absolute top-0 left-0 w-full h-[2px] bg-primary opacity-50"></div>
+<form class="flex flex-col gap-6">
+<div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+<label class="text-primary font-bold whitespace-nowrap min-w-[140px]" for="name">/home/user/name &gt;</label>
+<input class="flex-1 bg-[#080C0A] terminal-border rounded-sm text-[#00FA9A] px-4 py-2 font-display focus:ring-0 input-glow placeholder-[#738C7A] placeholder-opacity-50" id="name" name="name" placeholder="Enter designation" required="" type="text"/>
+</div>
+<div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+<label class="text-primary font-bold whitespace-nowrap min-w-[140px]" for="email">/home/user/email &gt;</label>
+<input class="flex-1 bg-[#080C0A] terminal-border rounded-sm text-[#00FA9A] px-4 py-2 font-display focus:ring-0 input-glow placeholder-[#738C7A] placeholder-opacity-50" id="email" name="email" placeholder="Enter return address" required="" type="email"/>
+</div>
+<div class="flex flex-col gap-2 mt-4">
+<label class="text-primary font-bold" for="message">/home/user/message &gt;</label>
+<textarea class="w-full bg-[#080C0A] terminal-border rounded-sm text-[#00FA9A] px-4 py-3 font-display focus:ring-0 input-glow resize-y placeholder-[#738C7A] placeholder-opacity-50" id="message" name="message" placeholder="Begin transmission..." required="" rows="6"></textarea>
+</div>
+<div class="mt-6 flex flex-col items-center">
+<button class="btn-primary rounded-sm px-8 py-3 text-xl font-bold uppercase tracking-widest w-full md:w-auto border border-transparent" type="submit">
+                            [ TRANSMIT_DATA ]
+                        </button>
+<!-- Hidden Status Messages (for structural representation) -->
+<div class="mt-4 text-center hidden">
+<span class="text-primary animate-pulse">&gt; ENCRYPTING PACKAGE...</span>
+</div>
+<div class="mt-4 text-center hidden">
+<span class="text-[#00FA9A]">&gt; TRANSMISSION RECEIVED BY HQ.</span>
+</div>
+</div>
+</form>
+</div>
+<footer class="text-center text-[#738C7A] text-xs mt-8">
+                © BOLOTO STUDIO. END OF LINE.
+            </footer>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,386 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'frogsnet/servers_list.css' %}">
+{% endblock %}
+
+{% block path_title %}{% trans "Servers List" %}{% endblock %}
+{% block body_class %}servers-page{% endblock %}
+
+{% block body %}
+<section class="servers-browser" data-servers-browser>
+    <header class="servers-header-bar">
+        <div class="servers-header-bar__left">
+            <span class="servers-header-bar__channel">{% trans "SEC_NET://SECURE_CHAN_08" %}</span>
+            <span class="servers-header-bar__pipe">|</span>
+            <span>{% trans "STATION_ID: BLT-9921" %}</span>
+        </div>
+        <div class="servers-header-bar__right">
+            <div class="servers-header-bar__sync">
+                <span class="servers-ping-dot"></span>
+                <span>{% trans "SYNCED" %}</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="servers-browser__content">
+        <section class="servers-command-panel">
+            <header class="servers-panel-header servers-command-panel__header">
+                <div class="servers-panel-title">
+                    <span class="material-symbols-outlined">terminal</span>
+                    <span class="servers-command-prefix">{% trans "/sys/net/nodes&gt;" %}</span>
+                    <span class="servers-command-script">{% trans "server_list.sh --status=live" %}</span>
+                    <span class="servers-cursor"></span>
+                </div>
+                <div class="servers-command-meta">
+                    <span>{% trans "// SEC_VER: 4.8.1" %}</span>
+                    <span class="servers-command-meta__sync">{% trans "SYNCHRONIZED" %}</span>
+                </div>
+            </header>
+
+            <div class="servers-metrics-grid" data-metrics-grid>
+                <article class="servers-metric-card">
+                    <div class="servers-metric-card__label">
+                        <span>{% trans "NODES ONLINE" %}</span>
+                        <span class="servers-dot-breath"></span>
+                    </div>
+                    <div class="servers-metric-card__value"><span data-online-count>{{ online_nodes }}</span> <small>/ {{ total_nodes }}</small></div>
+                    <div class="servers-metric-card__foot" data-standby-count>
+                        {% blocktrans with standby=standby_nodes %}{{ standby }} NODE STANDBY{% endblocktrans %}
+                    </div>
+                </article>
+
+                <article class="servers-metric-card">
+                    <div class="servers-metric-card__label">{% trans "CLUSTER LOAD" %}</div>
+                    <div class="servers-metric-card__value"><span data-total-players>{{ total_players }}</span> <small>/ <span data-total-capacity>{{ total_capacity }}</span></small></div>
+                    <div class="servers-metric-bar">
+                        <span data-overall-load style="width: {{ overall_load }}%;"></span>
+                    </div>
+                </article>
+
+                <article class="servers-metric-card">
+                    <div class="servers-metric-card__label">{% trans "AVG LATENCY" %}</div>
+                    <div class="servers-metric-card__value"><span data-latency-average>--</span><small>ms</small></div>
+                    <div class="servers-metric-card__foot">{% trans "JITTER:" %} ±1.2ms</div>
+                </article>
+
+                <article class="servers-metric-card">
+                    <div class="servers-metric-card__label">{% trans "SOME OTHER BUZZWORD" %}</div>
+                    <div class="servers-metric-card__value">{{ throughput }}</div>
+                    <div class="servers-metric-card__foot">{% trans "TX/RX DUPLEX 10G" %}</div>
+                </article>
+            </div>
+
+            <form class="servers-toolbar" method="get" action="">
+                <label class="servers-search-wrap" for="server-node-search">
+                    <span>{% trans "qrcp_node:~$" %}</span>
+                    <input id="server-node-search" name="q" value="{{ search_query }}" type="search" autocomplete="off" spellcheck="false" placeholder="{% trans 'filter by name, modpack, region...' %}" data-filter-search>
+                </label>
+                <input type="hidden" name="region" id="servers-region-input" value="{{ selected_region|default:'ALL' }}">
+                <input type="hidden" name="online_only" id="servers-online-input" value="{% if online_only %}1{% else %}0{% endif %}">
+                <input type="hidden" name="sort" id="servers-sort-input" value="{{ sort_by }}">
+
+                <div class="servers-toolbar__controls">
+                    <div class="servers-region-group" role="tablist" aria-label="{% trans 'Region filter' %}">
+                        <button type="button" class="{% if selected_region == 'ALL' %}is-active{% endif %}" data-submit-region="ALL">{% trans "[ ALL REGIONS ]" %}</button>
+                        <button type="button" class="{% if selected_region == 'NA' %}is-active{% endif %}" data-submit-region="NA">{% trans "[ NA ]" %}</button>
+                        <button type="button" class="{% if selected_region == 'EU' %}is-active{% endif %}" data-submit-region="EU">{% trans "[ EU ]" %}</button>
+                        <button type="button" class="{% if selected_region == 'AS' %}is-active{% endif %}" data-submit-region="AS">{% trans "[ AS ]" %}</button>
+                        <button type="button" class="{% if selected_region == 'SA' %}is-active{% endif %}" data-submit-region="SA">{% trans "[ SA ]" %}</button>
+                        <button type="button" class="{% if selected_region == 'AF' %}is-active{% endif %}" data-submit-region="AF">{% trans "[ AF ]" %}</button>
+                        <button type="button" class="{% if selected_region == 'OC' %}is-active{% endif %}" data-submit-region="OC">{% trans "[ OC ]" %}</button>
+                    </div>
+
+                    <div class="servers-control-group">
+                        <label class="servers-control-box" for="server-modpack-select">
+                            <span class="material-symbols-outlined">deployed_code</span>
+                            <span>{% trans "MODPACK:" %}</span>
+                            <select id="server-modpack-select" name="modpack" data-submit-modpack>
+                                <option value="ALL">{% trans "[ ALL PACKS ]" %}</option>
+                                {% for modpack in modpacks %}
+                                <option value="{{ modpack }}" {% if selected_modpack == modpack %}selected{% endif %}>{{ modpack }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+
+                        <button type="button" class="servers-action-button {% if online_only %}is-active{% endif %}" data-toggle-online>
+                            <span class="servers-ping-dot"></span>
+                            <span>{% trans "ONLINE ONLY" %}</span>
+                        </button>
+
+                        <button type="button" class="servers-action-button {% if sort_by == 'population_desc' or sort_by == 'population_asc' %}is-active{% endif %}" data-toggle-sort>
+                            <span class="material-symbols-outlined">sort</span>
+                            <span>
+                                {% if sort_by == 'population_asc' %}
+                                    {% trans "SORT: POPULATION ↑" %}
+                                {% else %}
+                                    {% trans "SORT: POPULATION ↓" %}
+                                {% endif %}
+                            </span>
+                        </button>
+
+                        <button type="submit" class="servers-action-button servers-action-button--search">
+                            <span class="material-symbols-outlined">search</span>
+                            <span>{% trans "SEARCH" %}</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        {% if featured_node %}
+        <section class="servers-featured-card" data-node-entry data-node-id="{{ featured_node.id }}" data-node-online="{{ featured_node.is_online|yesno:'1,0' }}" data-node-region="{{ featured_node.region }}" data-node-modpack="{{ featured_node.modpack_name }}" data-node-search="{{ featured_node.name|lower }} {{ featured_node.description|lower }} {{ featured_node.modpack_name|lower }} {{ featured_node.region|lower }}" data-node-players="{{ featured_node.current_players }}" data-node-capacity="{{ featured_node.max_players }}" data-node-latency-host="{{ featured_node.latency_host }}">
+            <div class="servers-featured-glow"></div>
+            <div class="servers-featured-card__left">
+                <div class="servers-featured-status-row">
+                    <span class="servers-flagship-tag">{% trans "FLAGSHIP NODE" %}</span>
+                    <span class="servers-live-badge servers-live-badge--{{ featured_node.status_tone }}">
+                        <span class="servers-ping-dot"></span>
+                        <span>{{ featured_node.status_label }} // {{ featured_node.uptime_label }}</span>
+                    </span>
+                    <span class="servers-featured-node-id">{% blocktrans with node_id=featured_node.node_id %}NODE_ID: {{ node_id }}{% endblocktrans %}</span>
+                </div>
+
+                <h1 class="servers-featured-title">{{ featured_node.name }}</h1>
+                <div class="servers-modpack-chip servers-modpack-chip--featured">
+                    <img src="{% static 'base/icons/' %}{{ featured_node.modpack_icon }}" alt="{% blocktrans with name=featured_node.modpack_name %}{{ name }} icon{% endblocktrans %}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="material-symbols-outlined" style="display:none;">deployed_code</span>
+                    <span>{% trans "MODPACK:" %} {{ featured_node.modpack_name }} {{ featured_node.modpack_version }}</span>
+                </div>
+
+                <p class="servers-featured-description">{{ featured_node.description }}</p>
+
+                <div class="servers-featured-meta-grid">
+                    <div>
+                        <span>{% trans "VERSION" %}</span>
+                        <strong>{{ featured_node.modpack_version }}</strong>
+                    </div>
+                    <div>
+                        <span>{% trans "FRIENDS ONLINE" %}</span>
+                        <strong>{{ featured_node.friends_online }}</strong>
+                    </div>
+                    <div>
+                        <span>{% trans "WORLD SIZE" %}</span>
+                        <strong>{{ featured_node.world_size }}</strong>
+                    </div>
+                    <div>
+                        <span>{% trans "REGION" %}</span>
+                        <strong>{{ featured_node.region }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="servers-featured-side">
+                <div>
+                    <div class="servers-side-row">
+                        <span>{% trans "NODE LOAD CAPACITY" %}</span>
+                        <strong>{{ featured_node.load_percent }}% {% trans "FULL" %}</strong>
+                    </div>
+                    <div class="servers-side-players">{{ featured_node.current_players }} <small>/ {{ featured_node.max_players }} {% trans "ACTIVE PLAYERS" %}</small></div>
+                    <div class="servers-segmented-bar" data-segmented-bar data-load-percent="{{ featured_node.load_percent }}"></div>
+                    <div class="servers-side-meta">
+                        <span>{% trans "LATENCY:" %} <strong data-node-latency>--</strong>ms</span>
+                        <span>{% trans "SLOTS LEFT:" %} {{ featured_node.slots_left }}</span>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="servers-address-box" data-copy-target>{{ featured_node.connect_address }}</div>
+                    <button type="button" class="servers-copy-button" data-copy-button data-copy-value="{{ featured_node.connect_address }}">{% trans "[ COPY IP ADDRESS ]" %}</button>
+                    <button type="button" class="servers-secondary-button">{% trans "[ VIEW TELEMETRY & MODS ]" %}</button>
+                </div>
+            </aside>
+        </section>
+        {% endif %}
+
+        <section class="servers-cluster">
+            <header class="servers-panel-header servers-cluster__header">
+                <div class="servers-panel-title">
+                    <span>&gt;&gt;</span>
+                    <span>{% trans "CLUSTER NODES" %}</span>
+                </div>
+                <span data-visible-count>{% blocktrans with count=cluster_nodes|length %}VISIBLE: {{ count }}{% endblocktrans %}</span>
+            </header>
+
+            <div class="servers-cluster-grid" data-node-grid>
+                {% for node in cluster_nodes %}
+                <article class="servers-cluster-card" data-node-entry data-node-id="{{ node.id }}" data-node-online="{{ node.is_online|yesno:'1,0' }}" data-node-region="{{ node.region }}" data-node-modpack="{{ node.modpack_name }}" data-node-search="{{ node.name|lower }} {{ node.description|lower }} {{ node.modpack_name|lower }} {{ node.region|lower }}" data-node-players="{{ node.current_players }}" data-node-capacity="{{ node.max_players }}" data-node-latency-host="{{ node.latency_host }}">
+                    <div class="servers-cluster-card__top">
+                        <div>
+                            <div class="servers-cluster-status servers-cluster-status--{{ node.status_tone }}">
+                                <span class="servers-ping-dot"></span>
+                                <span>{{ node.status_label }}</span>
+                            </div>
+                            <h2>{{ node.name }}</h2>
+                            <div class="servers-modpack-chip">
+                                <img src="{% static 'base/icons/' %}{{ node.modpack_icon }}" alt="{% blocktrans with name=node.modpack_name %}{{ name }} icon{% endblocktrans %}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                                <span class="material-symbols-outlined" style="display:none;">deployed_code</span>
+                                <span>{% trans "MODPACK:" %} {{ node.modpack_name }} {{ node.modpack_version }}</span>
+                            </div>
+                        </div>
+                        <div class="servers-cluster-latency"><span data-node-latency>--</span>ms</div>
+                    </div>
+
+                    <p>{{ node.description }}</p>
+
+                    <div class="servers-cluster-stats">
+                        <span>{% trans "IP:" %} <strong>{{ node.ip_address }}</strong></span>
+                        <span class="servers-cluster-players">{{ node.current_players }} / {{ node.max_players }} {% trans "PLAYERS" %}</span>
+                    </div>
+
+                    <button type="button" class="servers-copy-button servers-copy-button--small" data-copy-button data-copy-value="{{ node.connect_address }}">{% trans "[ COPY IP ]" %}</button>
+                </article>
+                {% empty %}
+                <div class="servers-empty-state">
+                    <strong>{% trans "> NO SERVER NODES SYNCHRONIZED" %}</strong>
+                    <span>{% trans "Create server records in admin and refresh this terminal view." %}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</section>
+
+<script>
+(() => {
+    const browser = document.querySelector('[data-servers-browser]');
+    if (!browser) {
+        return;
+    }
+
+    const filterForm = browser.querySelector('.servers-toolbar');
+    const modpackField = browser.querySelector('[data-submit-modpack]');
+    const regionButtons = Array.from(browser.querySelectorAll('[data-submit-region]'));
+    const onlineButton = browser.querySelector('[data-toggle-online]');
+    const sortButton = browser.querySelector('[data-toggle-sort]');
+    const regionInput = browser.querySelector('#servers-region-input');
+    const onlineInput = browser.querySelector('#servers-online-input');
+    const sortInput = browser.querySelector('#servers-sort-input');
+
+    const loadBar = browser.querySelector('[data-overall-load]');
+    const averageLatencyMetric = browser.querySelector('[data-latency-average]');
+
+    const nodes = Array.from(browser.querySelectorAll('[data-node-entry]'));
+
+    const LABEL_STANDBY = '{% trans "NODE STANDBY" %}';
+    const LABEL_COPIED = '{% trans "[ COPIED ]" %}';
+    const LABEL_COPY_FAILED = '{% trans "[ COPY FAILED ]" %}';
+
+    if (loadBar) {
+        const width = loadBar.style.width;
+        loadBar.style.width = width;
+    }
+
+    const runLatencyCheck = async () => {
+        const latencyValues = [];
+        const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
+
+        await Promise.all(nodes.map(async (node) => {
+            const host = node.dataset.nodeLatencyHost;
+            const readouts = node.querySelectorAll('[data-node-latency]');
+            if (!host || !readouts.length) {
+                return;
+            }
+
+            const endpoint = `${protocol}://${host}/api/v2/crafty/check`;
+            const started = performance.now();
+
+            try {
+                await fetch(endpoint, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' });
+                const elapsed = Math.max(Math.round(performance.now() - started), 1);
+                latencyValues.push(elapsed);
+                readouts.forEach((el) => { el.textContent = String(elapsed); });
+            } catch (error) {
+                readouts.forEach((el) => { el.textContent = '--'; });
+            }
+        }));
+
+        if (averageLatencyMetric) {
+            if (!latencyValues.length) {
+                averageLatencyMetric.textContent = '--';
+            } else {
+                const avg = Math.round(latencyValues.reduce((acc, value) => acc + value, 0) / latencyValues.length);
+                averageLatencyMetric.textContent = String(avg);
+            }
+        }
+    };
+
+    browser.querySelectorAll('[data-segmented-bar]').forEach((bar) => {
+        const percent = Number(bar.dataset.loadPercent || 0);
+        const segments = 10;
+        const active = Math.round((percent / 100) * segments);
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < segments; i += 1) {
+            const segment = document.createElement('span');
+            segment.className = i < active ? 'is-active' : '';
+            fragment.appendChild(segment);
+        }
+        bar.replaceChildren(fragment);
+    });
+
+    browser.querySelectorAll('[data-copy-button]').forEach((button) => {
+        button.addEventListener('click', async () => {
+            const value = button.dataset.copyValue || '';
+            const originalLabel = button.textContent;
+            try {
+                await navigator.clipboard.writeText(value);
+                button.textContent = LABEL_COPIED;
+                window.setTimeout(() => {
+                    button.textContent = originalLabel;
+                }, 1400);
+            } catch (error) {
+                button.textContent = LABEL_COPY_FAILED;
+                window.setTimeout(() => {
+                    button.textContent = originalLabel;
+                }, 1400);
+            }
+        });
+    });
+
+    if (modpackField) {
+        modpackField.addEventListener('change', () => {
+            if (filterForm) {
+                filterForm.submit();
+            }
+        });
+    }
+
+    regionButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            if (regionInput) {
+                regionInput.value = button.dataset.submitRegion || 'ALL';
+            }
+            if (filterForm) {
+                filterForm.submit();
+            }
+        });
+    });
+
+    if (onlineButton) {
+        onlineButton.addEventListener('click', () => {
+            if (onlineInput) {
+                onlineInput.value = onlineInput.value === '1' ? '0' : '1';
+            }
+            if (filterForm) {
+                filterForm.submit();
+            }
+        });
+    }
+
+    if (sortButton) {
+        sortButton.addEventListener('click', () => {
+            if (sortInput) {
+                sortInput.value = sortInput.value === 'population_desc' ? 'population_asc' : 'population_desc';
+            }
+            if (filterForm) {
+                filterForm.submit();
+            }
+        });
+    }
+
+    runLatencyCheck();
+})();
+</script>
+{% endblock %}

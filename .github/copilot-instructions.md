@@ -1,120 +1,37 @@
 # Copilot Instructions for Boloto Studio Website
 
-This is a Django web application for Boloto Studio, featuring YouTube livestream integration and multi-language support.
+This repository is a Django 4.2 site with two active product surfaces and one scaffolded app:
 
-## Tech Stack
+- `base`: the public Boloto Studio site, contact flow, blog and event content, staff pages, and YouTube sync.
+- `frogsnet`: the forum, auth, profile, friends, and server-list experience.
+- `echoes_untamed`: scaffold only; do not assume live routes, models, or views unless the task explicitly targets it.
 
-- **Python**: 3.12
-- **Framework**: Django 4.2.14
-- **Database**: PostgreSQL
-- **Static Files**: WhiteNoise
-- **Task Scheduling**: APScheduler / django-apscheduler
-- **Containerization**: Docker, Docker Compose
-- **Web Server**: Gunicorn (production)
+## Working Areas
 
-## Project Structure
+- Project settings and root routing live in `boloto_studio_web/`.
+- Shared public-site templates and styles live in `base/templates/base/` and `base/static/base/`.
+- YouTube sync lives in `base/services/youtube_service.py`, `base/jobs.py`, and `base/management/commands/sync_youtube.py`.
+- Locale files live in `locale/`; user-facing copy should stay translation-ready.
 
-```
-├── boloto_studio_web/    # Django project settings
-│   ├── settings.py       # Main configuration
-│   ├── urls.py           # Root URL configuration
-│   └── wsgi.py           # WSGI application
-├── base/                 # Main Django app
-│   ├── models.py         # Database models
-│   ├── views.py          # View functions
-│   ├── urls.py           # App URL routing
-│   ├── templates/        # HTML templates
-│   ├── static/           # Static assets
-│   ├── services/         # Business logic services
-│   └── management/       # Custom management commands
-├── echoes_untamed/       # Secondary Django app
-├── locale/               # Translation files (EN, UK)
-├── manage.py             # Django management script
-└── requirements.txt      # Python dependencies
-```
+## Runtime and Validation
 
-## Commands
+- Install dependencies with `pip install -r requirements.txt`.
+- Run `python manage.py migrate` before local runs, then `python manage.py runserver`.
+- The app supports either `DB_STRING` or the `DB_NAME` / `DB_USER` / `DB_PASSWORD` / `DB_HOST` / `DB_PORT` environment variables.
+- The deployment image currently pins Python 3.11 in `Dockerfile`; keep backend changes compatible with Python 3.11 unless the runtime is updated.
+- Start validation with the narrowest command that covers the change. For public-site work, `python manage.py test base` is the default first check.
+- Full SQLite migration or test runs can fail because of existing repo issues unrelated to the current change. When Postgres is unavailable, prefer focused validation over broad migration churn.
 
-### Development
+## Project Conventions
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
+- Match the existing function-based view style unless there is a strong reason to introduce a class-based view.
+- Keep views thin. Move reusable logic and external API work into `base/services/` when that pattern already fits the change.
+- Preserve the defensive fallback pattern in `base/views.py`: pages that depend on optional database content should continue to handle `OperationalError` and `ProgrammingError` gracefully during fresh or partially migrated setups.
+- Wrap new user-facing strings in `_()` in Python and `{% trans %}` or `{% blocktrans %}` in templates.
+- Never edit applied migrations; add a new migration instead.
+- Keep `settings.py` changes minimal and environment-driven.
 
-# Run migrations
-python manage.py makemigrations
-python manage.py migrate
+## Reference Docs
 
-# Start development server
-python manage.py runserver
-
-# Run tests
-python manage.py test
-
-# Collect static files
-python manage.py collectstatic --noinput
-
-# Create translations
-python manage.py makemessages -l uk
-python manage.py compilemessages
-```
-
-### Docker
-
-```bash
-# Build and run with Docker Compose
-docker-compose up --build
-
-# Run in detached mode
-docker-compose up -d
-```
-
-## Code Style
-
-- Follow PEP 8 style guidelines for Python code
-- Use Django's coding conventions and patterns
-- Prefer class-based views for complex views, function-based for simple ones
-- Keep views thin, move business logic to services in `services/` directory
-- Use Django's ORM for database queries; avoid raw SQL unless necessary
-- Use Django's built-in form validation and model validators
-
-## Testing
-
-- Write tests in each app's `tests.py` file
-- Use Django's `TestCase` class for database-dependent tests
-- Use `SimpleTestCase` for tests not requiring database
-- Test views, models, and services separately
-- Run tests with `python manage.py test`
-
-## Database
-
-- PostgreSQL is the database of choice
-- Always create migrations for model changes with `python manage.py makemigrations`
-- Apply migrations with `python manage.py migrate`
-- Never modify existing migrations; create new ones instead
-
-## Environment Variables
-
-Required environment variables (see `.env.example`):
-
-- `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT` - Database connection
-- `DB_STRING` - Alternative database connection string
-- `ENVIRONMENT` - Set to `development` for debug mode
-- `YOUTUBE_API_KEY` - YouTube Data API v3 key
-- `YOUTUBE_CHANNEL_ID` - YouTube channel ID for sync
-
-## Internationalization
-
-- Supports English (`en`) and Ukrainian (`uk`)
-- Use `gettext_lazy` (aliased as `_`) for translatable strings in Python
-- Use `{% trans %}` and `{% blocktrans %}` in templates
-- Translation files are in `locale/` directory
-
-## Boundaries
-
-- Never commit secrets, API keys, or credentials
-- Do not modify `.env` files (they are gitignored)
-- Keep `settings.py` changes minimal; use environment variables for configuration
-- Do not directly modify migrations that have already been applied
-- Avoid adding new dependencies unless absolutely necessary
-- Test all changes before committing
+- Frontend direction and visual language: [DESIGN.md](../DESIGN.md)
+- YouTube sync setup and behavior: [YOUTUBE_INTEGRATION.md](../YOUTUBE_INTEGRATION.md)

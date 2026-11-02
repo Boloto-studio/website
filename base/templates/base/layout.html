@@ -1,52 +1,287 @@
-{% load static %}
 {% load i18n %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
+{% with current=request.resolver_match.url_name %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link href="{% static 'base/layers.css' %}" rel="stylesheet">
-    <link href="{% static 'base/project-styles.css' %}" rel="stylesheet">
+    <title>Boloto Studio // {% block path_title %}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <link rel="stylesheet" href="{% static 'base/project-styles.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'images/favicon-96x96.png' %}" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}" />
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/apple-touch-icon.png' %}" />
+    <link rel="manifest" href="{% static 'site.webmanifest' %}" />
     {% block extra_head %}{% endblock %}
-    <style>
-        .material-symbols-outlined {
-          font-variation-settings:
-          'FILL' 0,
-          'wght' 400,
-          'GRAD' 0,
-          'opsz' 24
-        }
-    </style>
-    <title>Boloto Studio: {% block path_title %}{% endblock %}</title>
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toastContainer = document.getElementById('toast-container');
+
+    function clearTyping(el) {
+        if (el._typingDelay) { window.clearTimeout(el._typingDelay); }
+        if (el._typingTimer) { window.clearInterval(el._typingTimer); }
+        el._typingDelay = null; el._typingTimer = null; el.classList.remove('is-typing');
+    }
+
+    function typeText(el, delay) {
+        clearTyping(el);
+        const fullText = el.dataset.fullText || el.textContent.trim();
+        el.dataset.fullText = fullText;
+        el.textContent = '';
+        el.classList.add('is-typing');
+
+        el._typingDelay = window.setTimeout(function () {
+            let idx = 0;
+            el._typingTimer = window.setInterval(function () {
+                idx += 1;
+                el.textContent = fullText.slice(0, idx);
+                if (idx >= fullText.length) {
+                    clearTyping(el);
+                }
+            }, 22);
+        }, delay || 0);
+    }
+
+    function hideToast(toast) {
+        clearTyping(toast.querySelector('.toast__body'));
+        toast.classList.remove('is-show');
+        toast.classList.add('is-hide');
+        setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 260);
+    }
+
+    function createToast(msg) {
+        const tag = (msg.level || 'info').toLowerCase();
+        const toast = document.createElement('div');
+        toast.className = 'toast toast--' + (tag === 'success' ? 'success' : (tag === 'error' ? 'error' : (tag === 'warning' ? 'warning' : 'info')));
+        const title = document.createElement('div');
+        title.className = 'toast__title';
+        title.textContent = tag === 'success' ? 'Success' : tag === 'error' ? 'Error' : tag === 'warning' ? 'Warning' : 'Info';
+        const body = document.createElement('div');
+        body.className = 'toast__body';
+        body.dataset.fullText = msg.text || '';
+
+        toast.appendChild(title);
+        toast.appendChild(body);
+
+        // add to container
+        toastContainer.insertBefore(toast, toastContainer.firstChild);
+
+        // show with animation
+        requestAnimationFrame(function () { toast.classList.add('is-show'); });
+
+        // start typing immediately
+        typeText(body, 60);
+
+        // auto-hide after 5s
+        const hideAfter = 5000;
+        const hideTimer = setTimeout(function () { hideToast(toast); }, hideAfter);
+
+        // allow click to dismiss
+        toast.addEventListener('click', function () { clearTimeout(hideTimer); hideToast(toast); });
+    }
+
+    window.createToast = createToast;
+
+    // Build messages array from Django messages (safe-escaped)
+    const djangoMessages = [
+    {% for message in messages %}
+        { level: "{{ message.tags|default:'info' }}", text: "{{ message|escapejs }}" }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+    ];
+
+    if (djangoMessages && djangoMessages.length) {
+        // hide the default stacked messages UI
+        const defaultList = document.querySelector('.terminal-messages');
+        if (defaultList) { defaultList.style.display = 'none'; defaultList.setAttribute('aria-hidden','true'); }
+
+        djangoMessages.forEach(function (m, i) {
+            // stagger entry slightly
+            setTimeout(function () { createToast(m); }, i * 160);
+        });
+    }
+});
+</script>
 </head>
-<body>
-    <header>
-        <div id="left">
-            <span>logo</span>
-            <nav>
-                <a href="{% url 'home' %}"><abbr title="{% trans 'Home' %}"><span class="material-symbols-outlined">home</span></abbr></a>
-                <a href="{% url 'studio' %}"><abbr title="{% trans 'Studio' %}"><span class="material-symbols-outlined">stadia_controller</span></abbr></a>
-                <a href="{% url 'team' %}"><abbr title="{% trans 'Team' %}"><span class="material-symbols-outlined">groups_2</span></abbr></a>
-                <a href=""><abbr title="{% trans 'Contact us' %}"><span class="material-symbols-outlined">mail</span></abbr></a>
+<body class="{% block body_class %}{% endblock %}">
+    <div class="terminal-shell">
+        <aside class="terminal-sidebar">
+            <a class="terminal-brand" href="{% url 'home' %}">
+                <pre class="terminal-brand__wordmark">
+ ____  __  __    __  ____  __  
+(  _ \/  \(  )  /  \(_  _)/  \ 
+ ) _ ( O  )) (_( O  ) )( ( O  )
+(____/\__/(____)\__/ (__) \__/ 
+                </pre>
+                <p class="terminal-brand__caption">[ Boloto Studio HQ ]</p>
+            </a>
+
+            <nav class="terminal-nav" aria-label="{% trans 'Primary navigation' %}">
+                <a class="terminal-nav-link{% if current == 'home' %} is-active{% endif %}" href="{% url 'home' %}">
+                    <span class="terminal-nav-link__icon material-symbols-outlined">terminal</span>
+                    <span class="terminal-nav-link__label">{% trans 'Home' %}</span>
+                </a>
+                <a class="terminal-nav-link{% if current == 'studio' %} is-active{% endif %}" href="{% url 'studio' %}">
+                    <span class="terminal-nav-link__icon material-symbols-outlined">groups</span>
+                    <span class="terminal-nav-link__label">{% trans 'Studio' %}</span>
+                </a>
+                <div class="terminal-nav-group{% if current == 'frogs-forum' or current == 'frogs-forum-new' or current == 'frogs-forum-thread' or current == 'frogs-profile' or current == 'frogs-friends' or current == 'frogs-servers' or current == 'frogs-login' or current == 'frogs-register' %} is-active is-open{% endif %}" data-nav-group>
+                    <button class="terminal-nav-summary{% if current == 'frogs-forum' or current == 'frogs-forum-new' or current == 'frogs-forum-thread' or current == 'frogs-profile' or current == 'frogs-friends' or current == 'frogs-servers' or current == 'frogs-login' or current == 'frogs-register' %} is-active{% endif %}" type="button" data-nav-toggle aria-expanded="{% if current == 'frogs-forum' or current == 'frogs-forum-new' or current == 'frogs-forum-thread' or current == 'frogs-profile' or current == 'frogs-friends' or current == 'frogs-servers' or current == 'frogs-login' or current == 'frogs-register' %}true{% else %}false{% endif %}">
+                        <span class="terminal-nav-summary__icon material-symbols-outlined">lan</span>
+                        <span class="terminal-nav-summary__label">frogs.net</span>
+                        <span class="terminal-nav-summary__caret material-symbols-outlined">expand_more</span>
+                    </button>
+                    <div class="terminal-nav-submenu" data-nav-panel>
+                        <a class="terminal-nav-sublink{% if current == 'frogs-forum' %} is-active{% endif %}" href="{% url 'frogs-forum' %}">
+                            <span class="nav-sublink__label" data-type-label>{% trans 'Forum' %}</span>
+                        </a>
+                        <a class="terminal-nav-sublink{% if current == 'frogs-profile' %} is-active{% endif %}" href="{% url 'frogs-profile-own' %}">
+                            <span class="nav-sublink__label" data-type-label>{% trans 'My Profile' %}</span>
+                        </a>
+                        <a class="terminal-nav-sublink{% if current == 'frogs-friends' %} is-active{% endif %}" href="{% url 'frogs-friends' %}">
+                            <span class="nav-sublink__label" data-type-label>{% trans 'Friends List' %}</span>{% if pending_friend_requests %}<span class="nav-badge-dot" title="{% trans 'Pending friend requests' %}"></span>{% endif %}
+                        </a>
+                        <a class="terminal-nav-sublink{% if current == 'frogs-servers' %} is-active{% endif %}" href="{% url 'frogs-servers' %}">
+                            <span class="nav-sublink__label" data-type-label>{% trans 'Servers List' %}</span>
+                        </a>
+                    </div>
+                </div>
+                <a class="terminal-nav-link terminal-nav-link--donate{% if current == 'donation' %} is-active{% endif %}" href="{% url 'donation' %}">
+                    <span class="terminal-nav-link__icon material-symbols-outlined">favorite</span>
+                    <span class="terminal-nav-link__label">{% trans 'Donation' %}</span>
+                </a>
+                <a class="terminal-nav-link{% if current == 'contact' %} is-active{% endif %}" href="{% url 'contact' %}">
+                    <span class="terminal-nav-link__icon material-symbols-outlined">mail</span>
+                    <span class="terminal-nav-link__label">{% trans 'Contact' %}</span>
+                </a>
+                <div class="terminal-nav-submenu mobile" data-nav-panel>
+                    <a class="terminal-nav-sublink{% if current == 'frogs-forum' %} is-active{% endif %}" href="{% url 'frogs-forum' %}">
+                        <span class="nav-sublink__label" data-type-label>{% trans 'Forum' %}</span>
+                    </a>
+                    <a class="terminal-nav-sublink{% if current == 'frogs-profile' %} is-active{% endif %}" href="{% url 'frogs-profile-own' %}">
+                        <span class="nav-sublink__label" data-type-label>{% trans 'My Profile' %}</span>
+                    </a>
+                    <a class="terminal-nav-sublink{% if current == 'frogs-friends' %} is-active{% endif %}" href="{% url 'frogs-friends' %}">
+                        <span class="nav-sublink__label" data-type-label>{% trans 'Friends List' %}</span>{% if pending_friend_requests %}<span class="nav-badge-dot" title="{% trans 'Pending friend requests' %}"></span>{% endif %}
+                    </a>
+                    <a class="terminal-nav-sublink{% if current == 'frogs-servers' %} is-active{% endif %}" href="{% url 'frogs-servers' %}">
+                        <span class="nav-sublink__label" data-type-label>{% trans 'Servers List' %}</span>
+                    </a>
+                </div>
             </nav>
-        </div>
-        <nav id="projects">
-            <a href="">Echoes Untamed</a>
-        </nav>
-        <div id="right">
-            <a href="https://donate.stripe.com/dR6bKbbJ980K1xueUU" class="button">{% trans "Donate" %}</a>
-            <a href="https://donate.stripe.com/dR6bKbbJ980K1xueUU"><span class="material-symbols-outlined">storefront</span>{% trans "Store" %}</a>
-            <a href="{% url 'frogsnet-home' %}"><abbr title="{% trans 'Frogs.Net' %}">
-                {% if user.is_authenticated %}
-                <img src="{% if user.frog.avatar %}{{ user.frog.avatar }}{% else %}{% static 'frogsnet/avatar.webp' %}{% endif %}" alt="{{ user.username }}'s avatar" class="avatar-small">
-                {% else %}
-                <span class="material-symbols-outlined">account_circle</span>
-                {% endif %}</abbr></a>
-        </div>
-    </header>
-    {% block body %}{% endblock %}
-    <footer></footer>
+
+            <div class="terminal-sidebar__meta">
+                <p class="terminal-meta-line">SYS.VER: 4.2.0</p>
+                <p class="terminal-meta-line terminal-meta-line--status">STATUS: ONLINE</p>
+            </div>
+        </aside>
+
+        <main class="terminal-main">
+            <div class="terminal-main__inner">
+                {% if messages %}
+                <ul class="terminal-messages" style="display:none;" aria-hidden="true">
+                    {% for message in messages %}
+                    <li class="terminal-message {{ message.tags|default:'info' }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <!-- Toast container (pop-up toasts created from Django messages) -->
+                <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+                {% block body %}{% endblock %}
+            </div>
+        </main>
+    </div>
 </body>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const navGroups = document.querySelectorAll("[data-nav-group]");
+
+    function clearTyping(label) {
+        if (label._typingDelay) {
+            window.clearTimeout(label._typingDelay);
+        }
+        if (label._typingTimer) {
+            window.clearInterval(label._typingTimer);
+        }
+        label._typingDelay = null;
+        label._typingTimer = null;
+        label.classList.remove("is-typing");
+    }
+
+    function resetLabel(label) {
+        clearTyping(label);
+        label.textContent = label.dataset.fullText || label.textContent;
+    }
+
+    function typeLabel(label, delay) {
+        clearTyping(label);
+        const fullText = label.dataset.fullText || label.textContent.trim();
+        label.dataset.fullText = fullText;
+        label.textContent = "";
+        label.classList.add("is-typing");
+
+        label._typingDelay = window.setTimeout(function () {
+            let index = 0;
+            label._typingTimer = window.setInterval(function () {
+                index += 1;
+                label.textContent = fullText.slice(0, index);
+                if (index >= fullText.length) {
+                    clearTyping(label);
+                }
+            }, 22);
+        }, delay);
+    }
+
+    function animateGroup(group) {
+        const labels = Array.from(new Set([
+            ...Array.from(group.querySelectorAll("[data-type-label]")),
+            ...Array.from(group.parentElement.querySelectorAll(".terminal-nav-submenu.mobile [data-type-label]"))
+        ]));
+
+        labels.forEach(function (label, index) {
+            label.dataset.fullText = label.dataset.fullText || label.textContent.trim();
+            typeLabel(label, index * 130);
+        });
+    }
+
+    navGroups.forEach(function (group) {
+        const toggle = group.querySelector("[data-nav-toggle]");
+        const labels = Array.from(new Set([
+            ...Array.from(group.querySelectorAll("[data-type-label]")),
+            ...Array.from(group.parentElement.querySelectorAll(".terminal-nav-submenu.mobile [data-type-label]"))
+        ]));
+
+        if (!toggle) {
+            return;
+        }
+
+        labels.forEach(function (label) {
+            label.dataset.fullText = label.textContent.trim();
+        });
+
+        if (group.classList.contains("is-open")) {
+            animateGroup(group);
+        }
+
+        toggle.addEventListener("click", function () {
+            const isOpen = group.classList.toggle("is-open");
+            toggle.setAttribute("aria-expanded", String(isOpen));
+
+            if (isOpen) {
+                animateGroup(group);
+                return;
+            }
+
+            labels.forEach(resetLabel);
+        });
+    });
+});
+</script>
+
+{% endwith %}
 </html>

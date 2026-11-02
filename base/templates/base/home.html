@@ -1,168 +1,106 @@
 {% extends "base/layout.html" %}
 {% load i18n %}
+{% load static %}
+{% load title_formatters %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'base/home.css' %}">
+{% endblock %}
 
 {% block path_title %}{% trans "Home" %}{% endblock %}
 
 {% block body %}
-<main id="home">
-    <section id="hero" class="hero-carousel">
-        {% for slide in hero_slides %}
-        <article class="hero-slide vertical-{{ slide.vertical_align }} horizontal-{{ slide.horizontal_align }}"
-            data-bg-image="{{ slide.image|escape }}">
-            <div class="hero-slide-content">
-                <h1>{{ slide.title }}</h1>
-                {% if slide.subtitle %}<p>{{ slide.subtitle }}</p>{% endif %}
-                {% if slide.link %}<a href="{{ slide.link|escape }}" class="button hero-cta">{{ slide.link_text}}</a>{%endif %}
-            </div>
-        </article>
-        {% empty %}
-        <article class="hero-slide hero-slide-placeholder">
-            <div class="hero-slide-content">
-                <h1>{% trans "Welcome to Boloto Studio" %}</h1>
-                <p>{% trans "Creating immersive gaming experiences" %}</p>
-            </div>
-        </article>
-        {% endfor %}
-    </section>
-    <script>
-        document.querySelectorAll('.hero-slide[data-bg-image]').forEach(function (slide) {
-            var url = slide.dataset.bgImage;
-            // Validate URL starts with https:// or http:// to prevent javascript: or data: URLs
-            // Additional validation: ensure no embedded javascript
-            if (url && (url.startsWith('https://') || url.startsWith('http://')) && !url.includes('javascript:')) {
-                slide.style.backgroundImage = 'url("' + url.replace(/["\\]/g, '') + '")';
-            }
-        });
-
-        // Auto-scroll carousel with looping
-        (function() {
-            var carousel = document.getElementById('hero');
-            var slides = carousel.querySelectorAll('.hero-slide');
-            if (slides.length <= 1) return;
-
-            var currentIndex = 0;
-            var autoScrollInterval = 5000; // 5 seconds between slides
-            var intervalId;
-            var scrollTimeout;
-
-            function scrollToSlide(index) {
-                if (index >= slides.length) {
-                    index = 0;
-                } else if (index < 0) {
-                    index = slides.length - 1;
-                }
-                currentIndex = index;
-                var slideWidth = slides[0] ? slides[0].offsetWidth : 0;
-                if (slideWidth > 0) {
-                    carousel.scrollTo({ left: index * slideWidth, behavior: 'smooth' });
-                }
-            }
-
-            function nextSlide() {
-                scrollToSlide(currentIndex + 1);
-            }
-
-            function startAutoScroll() {
-                intervalId = setInterval(nextSlide, autoScrollInterval);
-            }
-
-            function resetAutoScroll() {
-                clearInterval(intervalId);
-                startAutoScroll();
-            }
-
-            // Debounced scroll handler to update current index when user manually scrolls
-            carousel.addEventListener('scroll', function() {
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(function() {
-                    var slideWidth = slides[0] ? slides[0].offsetWidth : 0;
-                    if (slideWidth === 0) return;
-                    var scrollLeft = carousel.scrollLeft;
-                    var newIndex = Math.round(scrollLeft / slideWidth);
-                    if (newIndex !== currentIndex && newIndex >= 0 && newIndex < slides.length) {
-                        currentIndex = newIndex;
-                        resetAutoScroll();
-                    }
-                }, 100);
-            });
-
-            // Pause auto-scroll on hover
-            carousel.addEventListener('mouseenter', function() {
-                clearInterval(intervalId);
-            });
-
-            carousel.addEventListener('mouseleave', function() {
-                startAutoScroll();
-            });
-
-            // Start auto-scrolling
-            startAutoScroll();
-        })();
-    </script>
-    <!-- <div id="hero-divider"></div> -->
-    <div id="under-hero">
-        <div id="under-hero-left">
-            <section id="short-about">
-                <div class="fancy-title">
-                    <div class="fancy-title-line">
-                        <span></span>
+<section class="terminal-page-header terminal-page-header--hero">
+    <p class="terminal-kicker">{% trans "Classified // Sector 7" %}</p>
+    <div class="terminal-carousel" data-carousel>
+        <div class="terminal-carousel-track">
+            {% for slide in hero_slides %}
+            <article class="terminal-carousel-slide{% if forloop.first %} is-active{% endif %}{% if slide.image %} has-background-image{% endif %}" data-carousel-slide{% if slide.image %} style="--panel-image: url('{{ slide.image|escape }}')"{% endif %}>
+                <div class="terminal-carousel-copy">
+                    <span class="terminal-badge">{{ forloop.counter|stringformat:"02d" }}/{{ hero_slides|length|stringformat:"02d" }}</span>
+                    <div class="terminal-carousel-text-stack">
+                        <div class="terminal-carousel-window terminal-carousel-window--title">
+                            <h1 class="terminal-title">{{ slide.title|highlight_after_semicolon }}</h1>
+                        </div>
+                        {% if slide.subtitle %}
+                        <div class="terminal-carousel-window terminal-carousel-window--body">
+                            <p class="terminal-subtitle">{{ slide.subtitle }}</p>
+                        </div>
+                        {% endif %}
                     </div>
-                    <h2>{% trans "Us" %}</h2>
-                    <div class="fancy-title-line">
-                        <span></span>
+                    <div class="terminal-carousel-actions">
+                        {% if slide.link %}
+                        <a class="terminal-button" href="{{ slide.link }}">{% if slide.link_text %}[{{ slide.link_text }}]{% else %}[{% trans "Access files" %}]{% endif %}</a>
+                        {% else %}
+                        <a class="terminal-button" href="{% url 'studio' %}">{% trans "Access files" %}</a>
+                        {% endif %}
                     </div>
                 </div>
-                <p>Boloto Studio is just a bunch of friends building cool stuff together—modpacks, stories, sometimes
-                    full-on worlds. No corporate nonsense, just vibes, code, and a shared obsession with Slavic
-                    folklore.</p>
-            </section>
-            <section id="events">
-                <div class="fancy-title">
-                    <div class="fancy-title-line">
-                        <span></span>
+            </article>
+            {% empty %}
+            <article class="terminal-carousel-slide is-active" data-carousel-slide>
+                <div class="terminal-carousel-copy">
+                    <span class="terminal-badge">01/01</span>
+                    <div class="terminal-carousel-text-stack">
+                        <div class="terminal-carousel-window terminal-carousel-window--title">
+                            <h1 class="terminal-title">{% trans "Project:" %} <span class="terminal-title__accent">{% trans "Swamp" %}</span></h1>
+                        </div>
+                        <div class="terminal-carousel-window terminal-carousel-window--body">
+                            <p class="terminal-subtitle">{% trans "The flagship modpack for survival systems, uncanny folklore, and hostile wetlands." %}</p>
+                        </div>
                     </div>
-                    <h2>{% trans "Upcoming events" %}</h2>
-                    <div class="fancy-title-line">
-                        <span></span>
+                    <div class="terminal-carousel-actions">
+                        <a class="terminal-button" href="{% url 'studio' %}">{% trans "Access files" %}</a>
                     </div>
                 </div>
-                {% for event in events %}
-                <a href="{{event.link}}" class="event no-style">
-                    <div class="left">
-                        <h2>{{event.title|truncatechars:35}}</h2>
-                        <span>{{event.date}}</span>
-                    </div>
-                    <div class="right"><span class="material-symbols-outlined">videocam</span></div>
-                </a>
-                {% empty %}
-                <h2 style="text-align: center;">{% trans "Something is coming. Soon..." %}</h2>
-                {% endfor %}
-            </section>
+            </article>
+            {% endfor %}
         </div>
-        <section id="blog">
-            <div class="fancy-title">
-                <div class="fancy-title-line">
-                    <span></span>
-                </div>
-                <h2>{% trans "What's going on" %}</h2>
-                <div class="fancy-title-line">
-                    <span></span>
-                </div>
+        <div class="terminal-carousel-nav">
+            <div class="terminal-carousel-controls">
+                <button class="terminal-icon-button" type="button" data-carousel-prev aria-label="{% trans 'Previous slide' %}">
+                    <span class="material-symbols-outlined">west</span>
+                </button>
+                <button class="terminal-icon-button" type="button" data-carousel-next aria-label="{% trans 'Next slide' %}">
+                    <span class="material-symbols-outlined">east</span>
+                </button>
             </div>
-            <div id="posts-container">
-                {% for post in posts %}
-                <div class="blogpost">
-                    <div class="blog-bottom">
-                        <h1>{{ post.title }}</h1>
-                        <span>{{ post.published_date }}</span>
-                        <p>{{ post.content|truncatechars:650 }}</p>
-                    </div>
-                </div>
+            <div class="terminal-carousel-dots">
+                {% for slide in hero_slides %}
+                <button class="terminal-dot{% if forloop.first %} is-active{% endif %}" type="button" data-carousel-dot aria-label="{% blocktrans %}Go to slide {{ forloop.counter }}{% endblocktrans %}"></button>
                 {% empty %}
-                <h2 style="text-align: center;">{% trans "Keep an eye on updates!" %}</h2>
+                <button class="terminal-dot is-active" type="button" data-carousel-dot aria-label="{% trans 'Current slide' %}"></button>
                 {% endfor %}
             </div>
-        </section>
+        </div>
     </div>
-</main>
+</section>
+
+<section class="terminal-panel">
+    <div class="terminal-section-heading">
+        <h2 class="terminal-section-title">{% trans "Terminal logs" %}</h2>
+        <span class="terminal-badge">{% trans "Blog posts + video transmissions" %}</span>
+    </div>
+    <div class="terminal-logs-grid">
+        {% for item in terminal_logs %}
+        <a href="{{ item.url }}" class="terminal-log-card{% if item.thumbnail %} terminal-log-card--media{% endif %}">
+            {% if item.thumbnail %}
+            <div class="terminal-log-media" data-log-thumbnail="{{ item.thumbnail|escape }}">
+                <span class="terminal-log-play material-symbols-outlined">play_arrow</span>
+            </div>
+            {% endif %}
+            <div class="terminal-log-copy">
+                <div class="terminal-log-meta">
+                    <span>[ {{ item.timestamp|date:'Y-m-d H:i' }} ]</span>
+                    <span>{{ item.kind }}</span>
+                </div>
+                <h3 class="terminal-log-title">{{ item.title }}</h3>
+                <p class="terminal-log-body">{{ item.summary|truncatechars:220 }}</p>
+            </div>
+        </a>
+        {% empty %}
+        <p class="terminal-empty">{% trans "No logs indexed yet. Upload a transmission or publish a post to populate this console." %}</p>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}

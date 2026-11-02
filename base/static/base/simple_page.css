@@ -1,0 +1,29 @@
+.terminal-section--narrow {
+    width: min(100%, 860px);
+    margin: 0 auto;
+}
+
+.terminal-placeholder {
+    display: grid;
+    gap: 1rem;
+    padding: 1.2rem 1.3rem;
+    border: 1px solid var(--line);
+    background: rgba(9, 16, 12, 0.9);
+    box-shadow: var(--shadow);
+}
+
+.terminal-placeholder__title {
+    margin: 0;
+    color: var(--text);
+    font-size: clamp(1.9rem, 4vw, 3.5rem);
+    line-height: 0.95;
+    letter-spacing: 0.08rem;
+    text-transform: uppercase;
+}
+
+.terminal-placeholder__text {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.8;
+}

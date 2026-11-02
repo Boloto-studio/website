@@ -9,3 +9,9 @@ requests
 dotenv
 dj_database_url
 Pillow
+stripe
+markdown2
+nh3
+bs4
+ipinfo
+django-storages[s3]

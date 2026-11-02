@@ -1,0 +1,122 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+
+{% block path_title %}{% trans "Forum Topic" %}{% endblock %}
+{% block body_class %}forum-page{% endblock %}
+
+{% block body %}
+<section class="forum-shell" aria-label="{% trans 'Forum topic view' %}">
+    <header class="forum-shell__header">
+        <div class="forum-shell__header-row">
+            <div class="forum-shell__path">/BIN/<a href="{% url 'frogs-forum' %}">FORUM</a>/{% for ancestor in topic.path_trace %}<a href="{% url 'frogs-forum-topic' ancestor.id %}">{{ ancestor.title|upper }}</a>{% if not forloop.last %}/{% endif %}{% endfor %}</div>
+            <div class="forum-shell__status">
+                <span class="forum-shell__status-dot" aria-hidden="true"></span>
+                <span>{% trans "STATUS: ONLINE" %}</span>
+            </div>
+        </div>
+        <div class="forum-shell__header-row">
+            <h1 class="forum-shell__title">{{ topic.title|upper }}</h1>
+            <a class="forum-shell__button" href="{% url 'frogs-forum-new-topic' topic.id %}">{% trans "NEW_THREAD" %}</a>
+        </div>
+        <p class="forum-shell__subtitle">
+            {% if topic.description %}
+                {{ topic.description }}
+            {% else %}
+                {% trans "Operating channel for active transmissions and public technical diagnostics." %}
+            {% endif %}
+        </p>
+        <form class="forum-shell__search" method="get" action="{% url 'frogs-forum-topic' topic.id %}">
+            <span class="forum-shell__search-prefix">{% trans "GREP" %}</span>
+            <input class="forum-shell__search-input" type="search" name="q" value="{{ search_query }}" placeholder="{% trans 'SEARCH_TOPIC...' %}" aria-label="{% trans 'Search within this topic' %}">
+            <button class="forum-shell__search-button" type="submit">{% trans "SEARCH" %}</button>
+        </form>
+    </header>
+
+    {% if subtopics %}
+    <section class="forum-subtopics" aria-label="{% trans 'Subtopics' %}">
+        <div class="forum-subtopics__header">
+            <span class="forum-subtopics__label">{% trans "SUBTOPICS" %}</span>
+        </div>
+        <div class="forum-subtopics__divider" aria-hidden="true"></div>
+
+        <div class="forum-subtopics__list">
+            {% for subtopic in subtopics %}
+            <article class="forum-subtopic-card">
+                <div class="forum-topic-mini__top">
+                    <span class="forum-topic-card__tag">{% trans "TOPIC" %}</span>
+                    <span class="forum-topic-mini__meta">{% blocktrans count count=subtopic.posts.count %}{{ count }} THREAD{% plural %}{{ count }} THREADS{% endblocktrans %}</span>
+                </div>
+                <h3 class="forum-topic-mini__title">
+                    <a href="{% url 'frogs-forum-topic' subtopic.id %}">{{ subtopic.title|upper }}</a>
+                </h3>
+                {% if subtopic.description %}
+                <div class="forum-topic-card__footer">
+                    <div class="forum-topic-card__meta">
+                        <span>{{ subtopic.description }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="forum-topic-feed" aria-label="{% trans 'Topic posts' %}">
+        {% if page_obj.object_list %}
+            {% for post in page_obj.object_list %}
+            <article class="forum-topic-card{% if topic.is_pinned %} is-pinned{% endif %}">
+                <div class="forum-topic-card__header">
+                    <div>
+                        <span class="forum-topic-card__tag">{% trans "THREAD" %}</span>
+                        <h2 class="forum-topic-card__title"><a href="{% url 'frogs-forum-thread' post.id %}">{{ post.title }}</a></h2>
+                    </div>
+                    <div class="forum-topic-card__meta">
+                        <span>{% blocktrans count count=post.responses.count %}{{ count }} REPLY{% plural %}{{ count }} REPLIES{% endblocktrans %}</span>
+                    </div>
+                </div>
+
+                {% if post.content %}
+                <div class="forum-topic-card__body">
+                    {{ post.parse_html_content|striptags|truncatechars:220 }}
+                </div>
+                {% endif %}
+
+                <div class="forum-topic-card__footer">
+                    <div class="forum-topic-card__meta">
+                        <span>{{ post.author.username|upper }}</span>
+                        <span>•</span>
+                        <span>{{ post.published_date|timesince|upper }} {% trans "AGO" %}</span>
+                    </div>
+                    <a class="forum-topic-card__meta" href="{% url 'frogs-forum-thread' post.id %}">[ {% trans "READ_MORE" %} ]</a>
+                </div>
+            </article>
+            {% endfor %}
+        {% else %}
+            <div class="forum-empty">{% trans "NO_THREADS_MATCH_THIS_QUERY." %}</div>
+        {% endif %}
+    </section>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="forum-pagination" aria-label="{% trans 'Forum topic pagination' %}">
+        {% if page_obj.has_previous %}
+            <a class="forum-pagination__nav" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}">{% trans "[ PREV ]" %}</a>
+        {% endif %}
+
+        <div class="forum-pagination__list">
+            {% for page_number in page_obj.paginator.page_range %}
+                {% if page_number == page_obj.number %}
+                    <span class="forum-pagination__item is-active">{{ page_number }}</span>
+                {% else %}
+                    <a class="forum-pagination__item" href="?page={{ page_number }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}">{{ page_number }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {% if page_obj.has_next %}
+            <a class="forum-pagination__nav" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}">{% trans "[ NEXT ]" %}</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+</section>
+{% endblock %}

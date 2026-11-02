@@ -1,0 +1,237 @@
+{% extends "base/layout.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'frogsnet/forum_new_post.css' %}">
+{% endblock %}
+
+{% block path_title %}{% trans "New Forum Post" %}{% endblock %}
+{% block body_class %}forum-new-post-page{% endblock %}
+
+{% block body %}
+<section class="forum-new-post-shell" aria-label="{% trans 'Forum post composer' %}">
+    <form method="post" class="forum-new-post-form" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="forum-new-post-form__errors" aria-live="polite">
+            {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="forum-new-post-topbar">
+            <div class="forum-new-post-topbar__status">
+                <span class="forum-new-post-topbar__dot"></span>
+                <span>{% trans "BOLOTO_FORUM // TERMINAL_COMPOSE" %}</span>
+            </div>
+            <div class="forum-new-post-topbar__meta">
+                <span>{% trans "NET: OPTIMAL" %}</span>
+                <span>{% trans "PACKETS: 0xFA4" %}</span>
+                <span>{% trans "CIPHER: AES_SWAMP_256" %}</span>
+            </div>
+        </div>
+
+        <div class="forum-new-post-body">
+            <div class="forum-new-post-panel">
+                <div class="forum-new-post-panel__header">
+                    <span>{% trans "SYS_DIR: /VAR/SPOOL/BOLOTO_NET/OUTBOX" %}</span>
+                    <span class="forum-new-post-panel__status">{% trans "PARITY_CHECK: PASSED" %}</span>
+                </div>
+                <h1 class="forum-new-post-panel__title">{% trans "COMPOSE_TRANSMISSION" %}</h1>
+                <p class="forum-new-post-panel__subtitle">{% trans "Transmit verified payload to all swamp clusters. Monitored protocol layer active." %}</p>
+            </div>
+
+            <div class="forum-new-post-composer">
+                <div class="forum-new-post-field">
+                    <div class="forum-new-post-field__label-row">
+                        <label for="id_title">{% trans "TITLE" %}</label>
+                        <span class="forum-new-post-field__hint">{% trans "[MAX_LEN: 128]" %}</span>
+                    </div>
+                    <input
+                        type="text"
+                        id="id_title"
+                        name="title"
+                        class="forum-new-post-input"
+                        value="{{ form.title.value|default_if_none:'' }}"
+                        maxlength="128"
+                        autocomplete="off"
+                        placeholder="{% trans 'ENTER_TRANSMISSION_SUBJECT...' %}"
+                        required
+                    >
+                    {% if form.title.errors %}
+                    <div class="forum-new-post-error">{{ form.title.errors|join:', ' }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="forum-new-post-field">
+                    <label for="id_topic" class="forum-new-post-field__label-row">
+                        <span>{% trans "TOPIC_DIR" %}</span>
+                        <span class="forum-new-post-field__hint">{% trans "[VIRTUAL_PATH]" %}</span>
+                    </label>
+                    <div class="forum-new-post-select-wrap">
+                        <select id="id_topic" name="topic" class="forum-new-post-select" required>
+                            <option value="">{% trans "SELECT_TOPIC..." %}</option>
+                            {% for topic in form.topic.field.queryset %}
+                            <option value="{{ topic.id }}" {% if form.topic.value|stringformat:'s' == topic.id|stringformat:'s' %}selected{% endif %}>[ /{{ topic.title|upper }} ]</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if form.topic.errors %}
+                    <div class="forum-new-post-error">{{ form.topic.errors|join:', ' }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="forum-new-post-editor">
+                    <div class="forum-new-post-editor__meta">
+                        <label for="id_content">{% trans "BODY_DATA" %}</label>
+                        <span class="forum-new-post-editor__meta-text">{% trans "[RAW_TEXT / UTF-8]" %}</span>
+                    </div>
+
+                    <div class="forum-new-post-toolbar" aria-label="{% trans 'Markdown formatting tools' %}">
+                        <div class="forum-new-post-toolbar__group">
+                            <button type="button" class="forum-new-post-toolbar__button js-markdown-format" data-format="bold" data-prefix="**" data-suffix="**" aria-label="{% trans 'Bold text' %}"><strong>B</strong></button>
+                            <button type="button" class="forum-new-post-toolbar__button js-markdown-format" data-format="italic" data-prefix="*" data-suffix="*" aria-label="{% trans 'Italic text' %}"><em>I</em></button>
+                            <button type="button" class="forum-new-post-toolbar__button js-markdown-format" data-format="heading" data-prefix="## " data-suffix="\n" aria-label="{% trans 'Heading' %}">H</button>
+                            <button type="button" class="forum-new-post-toolbar__button js-markdown-format" data-format="quote" data-prefix="> " data-suffix="\n" aria-label="{% trans 'Quote block' %}">❝</button>
+                            <button type="button" class="forum-new-post-toolbar__button js-markdown-format" data-format="list" data-prefix="- " data-suffix="\n" aria-label="{% trans 'Bullet list' %}">•</button>
+                            <button type="button" class="forum-new-post-toolbar__button js-markdown-format" data-format="image" data-prefix="![alt text](" data-suffix=")" data-inner-text="Image URL" aria-label="{% trans 'Image' %}">IMG</button>
+                            <button type="button" class="forum-new-post-toolbar__button js-markdown-format" data-format="code" data-prefix="```\n" data-suffix="\n```" aria-label="{% trans 'Code block' %}">&lt;/&gt;</button>
+                        </div>
+                        <div class="forum-new-post-toolbar__group forum-new-post-toolbar__group--actions">
+                            <button type="button" class="forum-new-post-toolbar__button forum-new-post-toolbar__button--ghost js-preview-toggle" aria-label="{% trans 'Preview content' %}">{% trans "PREVIEW" %}</button>
+                            <button type="reset" class="forum-new-post-toolbar__button forum-new-post-toolbar__button--ghost" aria-label="{% trans 'Clear editor content' %}">{% trans "CLEAR" %}</button>
+                        </div>
+                    </div>
+
+                    <textarea
+                        id="id_content"
+                        name="content"
+                        class="forum-new-post-textarea"
+                        rows="11"
+                        placeholder="{% trans 'TYPE_PAYLOAD_HERE... DATA_PACKETS WILL BE COMPRESSED BEFORE DISPATCH.' %}"
+                        required
+                    >{{ form.content.value|default_if_none:'' }}</textarea>
+                    {% if form.content.errors %}
+                    <div class="forum-new-post-error">{{ form.content.errors|join:', ' }}</div>
+                    {% endif %}
+
+                    <div class="forum-new-post-preview" id="forum-post-preview" hidden>
+                        <div class="forum-new-post-preview__header">
+                            <span>{% trans "PREVIEW" %}</span>
+                            <span class="forum-new-post-preview__status">{% trans "READY" %}</span>
+                        </div>
+                        <div class="forum-new-post-preview__content" id="forum-post-preview-content"></div>
+                    </div>
+                </div>
+
+                <div class="forum-new-post-footer">
+                    <div class="forum-new-post-footer__meta">
+                        <span class="material-symbols-outlined">lock</span>
+                        <span>{% trans "AES-SWAMP // CHECKSUM_ACTIVE" %}</span>
+                    </div>
+                    <button type="submit" class="forum-new-post-submit" aria-label="{% trans 'Publish post' %}">
+                        <span class="material-symbols-outlined">sensors</span>
+                        <span>{% trans "[ TRANSMIT_DATA.SH ]" %}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const textarea = document.getElementById('id_content');
+    const previewBox = document.getElementById('forum-post-preview');
+    const previewContent = document.getElementById('forum-post-preview-content');
+    const previewButton = document.querySelector('.js-preview-toggle');
+    const formatButtons = document.querySelectorAll('.js-markdown-format');
+    let previewTimer = null;
+
+    function decodeFormattingToken(value) {
+      return (value || '').replace(/\\n/g, '\n').replace(/\\r/g, '\r');
+    }
+
+    function applyFormatting(prefix, suffix, inner = undefined) {
+      if (!textarea) return;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selected = textarea.value.slice(start, end) || inner || 'text';
+      const replacement = prefix + selected + suffix;
+      textarea.setRangeText(replacement, start, end, 'end');
+      textarea.focus();
+
+      const caretStart = start + prefix.length;
+      const caretEnd = caretStart + selected.length;
+      textarea.setSelectionRange(caretStart, caretEnd);
+    }
+
+    formatButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        const prefix = decodeFormattingToken(button.dataset.prefix || '');
+        const suffix = decodeFormattingToken(button.dataset.suffix || '');
+        applyFormatting(prefix, suffix, button?.dataset?.innerText);
+      });
+    });
+
+    async function renderPreview() {
+      if (!textarea || !previewBox || !previewContent) return;
+      const content = textarea.value.trim();
+      if (!content) {
+        previewContent.innerHTML = '<p class="forum-new-post-preview__empty">{% trans "Awaiting payload..." %}</p>';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('content', content);
+
+      try {
+        const response = await fetch('{% url "preview-post" %}', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('preview failed');
+        }
+
+        const data = await response.json();
+        previewContent.innerHTML = data.html || '';
+      } catch (error) {
+        previewContent.innerHTML = '<p class="forum-new-post-preview__empty">{% trans "Preview unavailable." %}</p>';
+      }
+    }
+
+    function schedulePreviewRefresh() {
+      if (!previewBox || previewBox.hasAttribute('hidden')) {
+        return;
+      }
+
+      if (previewTimer) {
+        window.clearTimeout(previewTimer);
+      }
+
+      previewTimer = window.setTimeout(function () {
+        renderPreview();
+      }, 3000);
+    }
+
+    previewButton.addEventListener('click', function () {
+      const isHidden = previewBox.hasAttribute('hidden');
+      previewBox.toggleAttribute('hidden', !isHidden);
+      if (!previewBox.hasAttribute('hidden')) {
+        renderPreview();
+      }
+    });
+
+    textarea.addEventListener('input', function () {
+      schedulePreviewRefresh();
+    });
+  });
+</script>
+{% endblock %}

@@ -1,10 +1,109 @@
 {% extends "base/layout.html" %}
 {% load i18n %}
+{% load static %}
 
-{% block path_title %}{% trans "Studio" %}{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'base/studio.css' %}">
+{% endblock %}
+
+{% block path_title %}{{ page_title }}{% endblock %}
 
 {% block body %}
-<main id="studio">
+<section class="terminal-page-header">
+    <p class="terminal-path">DIR: /usr/local/boloto/studio</p>
+    <h1 class="terminal-title">{% trans "Initiating Boloto protocol" %}</h1>
+    <p class="terminal-subtitle">{% trans "A mission log for the studio and a live roster for the people building the worlds, systems, and stories behind Boloto Studio." %}</p>
+</section>
+
+<div class="terminal-grid terminal-grid--two">
+    <section class="terminal-panel">
+        <div class="terminal-section-heading">
+            <h2 class="terminal-section-title">mission_log.txt</h2>
+            <span class="terminal-badge">{% trans "Transmission" %}</span>
+        </div>
+        <div class="terminal-mission-log">
+            {% blocktrans %}
+            <p>INITIALIZING BOLOTO PROTOCOL...</p>
+            <p>ESTABLISHED: 2024</p>
+            <p>DIRECTIVE: Engineer uncooperative, lore-drenched game worlds.</p>
+            <p></p>
+            <p></p>
+            <p>We are a collective of artists, coders, builders, and late-night troubleshooters.</p>
+            <p>Our flagship project, PROJECT SWAMP, leans into survival systems, atmosphere, and stories that feel like they were dug out of a forgotten bunker.</p>
+            <p>We build tools for players who like mud on their boots and mystery in the fog.</p>
+            <p>END LOG.</p>
+            {% endblocktrans %}
+        </div>
+    </section>
+
+    <section class="terminal-panel">
+        <div class="terminal-section-heading">
+            <h2 class="terminal-section-title">{% trans "Field notes" %}</h2>
+            <span class="terminal-badge">{% trans "Live status" %}</span>
+        </div>
+        <p class="terminal-card-copy">{{ main_focus.text }}</p>
+        <div class="terminal-inline-actions">
+            <a class="terminal-inline-link" href="{% url 'home' %}">{% trans "Review public logs" %}</a>
+            <a class="terminal-inline-link" href="{% url 'donation' %}">{% trans "Support the operation" %}</a>
+        </div>
+    </section>
     
-</main>
+</div>
+
+<section class="terminal-panel" style="margin-top: 1rem;">
+    <div class="terminal-section-heading">
+        <h2 class="terminal-section-title">{% trans "Active personnel" %}</h2>
+        <span class="terminal-badge">{{ staff|length }} {% trans "entries" %}</span>
+    </div>
+    <div class="terminal-staff-grid">
+        {% for member in staff %}
+        <article class="terminal-staff-card">
+            <div class="terminal-staff-photo">
+                {% if member.photo %}
+                <img src="{{ member.photo.url }}" alt="{{ member.name }}">
+                {% else %}
+                <div class="terminal-staff-placeholder material-symbols-outlined">person</div>
+                {% endif %}
+            </div>
+            <div>
+                <h3 class="terminal-card-title">{{ member.user.username }}</h3>
+                <h5 class="terminal-card-subtitle">{{ member.name }}</h5>
+                <p class="terminal-staff-role">> {{ member.role }}</p>
+            </div>
+            {% if member.bio %}
+            <p class="terminal-card-copy">{{ member.bio }}</p>
+            {% endif %}
+            <div class="terminal-socials">
+                {% if member.github_url %}
+                <a class="terminal-social-link" href="{{ member.github_url }}" aria-label="GitHub">
+                    <img src="{% static 'base/icons/github.svg' %}" alt="">
+                </a>
+                {% endif %}
+                {% if member.instagram_url %}
+                <a class="terminal-social-link" href="{{ member.instagram_url }}" aria-label="Instagram">
+                    <img src="{% static 'base/icons/instagram.svg' %}" alt="">
+                </a>
+                {% endif %}
+                {% if member.facebook_url %}
+                <a class="terminal-social-link" href="{{ member.facebook_url }}" aria-label="Facebook">
+                    <img src="{% static 'base/icons/facebook.svg' %}" alt="">
+                </a>
+                {% endif %}
+                {% if member.discord_url %}
+                <a class="terminal-social-link" href="{{ member.discord_url }}" aria-label="Discord">
+                    <img src="{% static 'base/icons/discord.svg' %}" alt="">
+                </a>
+                {% endif %}
+                {% if member.telegram_username %}
+                <a class="terminal-social-link" href="https://t.me/{{ member.telegram_username }}" aria-label="Telegram">
+                    <img src="{% static 'base/icons/telegram.svg' %}" alt="">
+                </a>
+                {% endif %}
+            </div>
+        </article>
+        {% empty %}
+        <p class="terminal-empty">{% trans "No personnel records yet. Add staff members in the admin to populate this directory." %}</p>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}
