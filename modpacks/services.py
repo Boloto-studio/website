@@ -180,10 +180,10 @@ def sign_out(client):
     client.save(update_fields=["user"])
 
 
-def serialize_account(user):
+def serialize_account(user, request=None):
     frog = getattr(user, "frog", None)
     return {
         "username": user.get_username(),
-        "avatar": (frog.avatar or None) if frog else None,
+        "avatar": _image_url(frog.avatar, request) if frog else None,
         "minecraft_username": (frog.minecraft_username or None) if frog else None,
     }

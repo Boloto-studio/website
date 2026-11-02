@@ -122,7 +122,7 @@ def login(request):
         )
     except SignInError as exc:
         return _error(exc.code, exc.message, exc.status)
-    return JsonResponse({"token": token, "account": serialize_account(client.user)})
+    return JsonResponse({"token": token, "account": serialize_account(client.user, request)})
 
 
 @csrf_exempt
@@ -142,5 +142,5 @@ def me(request):
     client = _client_from_request(request)
     if client is None:
         return _error("unauthorized", "Unknown launcher.", 401)
-    account = serialize_account(client.user) if client.user_id else None
+    account = serialize_account(client.user, request) if client.user_id else None
     return JsonResponse({"account": account})

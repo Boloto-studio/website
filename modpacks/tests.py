@@ -222,6 +222,7 @@ class SignInTests(ApiTestCase):
         self.assertEqual(response.status_code, 200)
         body = response.json()
         self.assertEqual(body["account"]["username"], "mavka")
+        self.assertIsNone(body["account"]["avatar"])
         self.assertEqual(self.me(body["token"]).json()["account"]["username"], "mavka")
 
     def test_wrong_password(self):
@@ -298,3 +299,14 @@ class SignInTests(ApiTestCase):
     def test_me_and_logout_need_a_known_token(self):
         self.assertEqual(self.me("bogus").status_code, 401)
         self.assertEqual(self.client.post(reverse("modpacks:logout")).status_code, 401)
+
+
+    def test_account_includes_uploaded_avatar_url(self):
+        # The frogs.net avatar is an uploaded image; it must come back as a URL
+        # (S3 in production, /media/ locally), not crash the JSON response.
+        frog = self.user.frog
+        frog.avatar.name = "avatars/mavka.png"  # point at a stored file without uploading
+        frog.save()
+        avatar = self.login().json()["account"]["avatar"]
+        self.assertTrue(avatar.startswith("http"), avatar)
+        self.assertTrue(avatar.endswith("avatars/mavka.png"), avatar)
