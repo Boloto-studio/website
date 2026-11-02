@@ -381,11 +381,11 @@ class FriendsListTests(TestCase):
         Frog.objects.filter(user=self.friend_online).update(last_activity=timezone.now())
         Frog.objects.filter(user=self.friend_offline).update(last_activity=timezone.now() - timedelta(days=30))
 
-        self.user.frog.friends.add(self.friend_online, self.friend_offline)
+        self.user.frog.friends.add(self.friend_online.frog, self.friend_offline.frog)
         self.incoming_request = self.incoming.frog
         self.incoming_request.allow_friend_requests = True
         self.incoming_request.save()
-        FriendRequest.objects.create(from_user=self.incoming_request, to_user=self.user)
+        FriendRequest.objects.create(from_frog=self.incoming_request, to_frog=self.user.frog)
 
     def test_friends_list_view_renders_roster_and_requests(self):
         self.client.login(username='rosterlead', password='secret123')
@@ -422,7 +422,7 @@ class FriendsListTests(TestCase):
         response = self.client.delete(reverse('frogs-friend-request', args=[self.incoming.id]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(FriendRequest.objects.filter(from_user=self.incoming.frog, to_user=self.user).exists())
+        self.assertFalse(FriendRequest.objects.filter(from_frog=self.incoming.frog, to_frog=self.user.frog).exists())
 
     def test_friend_request_put_accepts_inbound_request(self):
         self.client.login(username='rosterlead', password='secret123')
@@ -430,8 +430,51 @@ class FriendsListTests(TestCase):
         response = self.client.put(reverse('frogs-friend-request', args=[self.incoming.id]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(self.user.frog.friends.filter(id=self.incoming.id).exists())
-        self.assertFalse(FriendRequest.objects.filter(from_user=self.incoming.frog, to_user=self.user).exists())
+        self.assertTrue(self.user.frog.friends.filter(pk=self.incoming.frog.pk).exists())
+        # Symmetrical: the other side has the friendship too.
+        self.assertTrue(self.incoming.frog.friends.filter(pk=self.user.frog.pk).exists())
+        self.assertFalse(FriendRequest.objects.filter(from_frog=self.incoming.frog, to_frog=self.user.frog).exists())
+
+    def test_friendships_are_symmetrical(self):
+        self.assertTrue(self.friend_online.frog.friends.filter(pk=self.user.frog.pk).exists())
+        self.assertEqual(self.user.frog.friends.count(), 2)
+
+    def test_delete_friend_removes_it_for_both(self):
+        self.client.login(username='rosterlead', password='secret123')
+
+        response = self.client.delete(reverse('frogs-friend-delete', args=[self.friend_online.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(self.user.frog.friends.filter(pk=self.friend_online.frog.pk).exists())
+        self.assertFalse(self.friend_online.frog.friends.filter(pk=self.user.frog.pk).exists())
+        again = self.client.delete(reverse('frogs-friend-delete', args=[self.friend_online.id]))
+        self.assertEqual(again.status_code, 400)
+
+    def test_send_request_then_accept_from_the_other_side(self):
+        stranger = User.objects.create_user(username='stranger', password='secret123')
+        self.client.login(username='stranger', password='secret123')
+        self.assertEqual(self.client.post(reverse('frogs-friend-request', args=[self.user.id])).status_code, 200)
+        self.assertEqual(self.client.post(reverse('frogs-friend-request', args=[self.user.id])).status_code, 400)
+
+        self.client.login(username='rosterlead', password='secret123')
+        self.assertEqual(self.client.put(reverse('frogs-friend-request', args=[stranger.id])).status_code, 200)
+        self.assertTrue(stranger.frog.friends.filter(pk=self.user.frog.pk).exists())
+        self.assertFalse(FriendRequest.objects.filter(to_frog=self.user.frog, from_frog=stranger.frog).exists())
+
+    def test_profile_page_shows_friends_and_status(self):
+        self.client.login(username='rosterlead', password='secret123')
+
+        own = self.client.get(reverse('frogs-profile', args=[self.user.id]))
+        self.assertContains(own, 'signal_one')
+        self.assertContains(own, reverse('frogs-profile', args=[self.friend_online.id]))
+
+        other = self.client.get(reverse('frogs-profile', args=[self.friend_online.id]))
+        self.assertEqual(other.context['friend_status'], 'friends')
+
+    def test_pending_request_badge_counts_incoming(self):
+        self.client.login(username='rosterlead', password='secret123')
+        response = self.client.get(reverse('frogs-friends'))
+        self.assertEqual(response.context['pending_friend_requests'], 1)
 
     def test_friends_list_online_count_uses_last_activity(self):
         self.client.login(username='rosterlead', password='secret123')

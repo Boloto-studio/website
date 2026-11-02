@@ -314,9 +314,9 @@ def profile_page(request, profile_id=None):
     else:
         try:
             user = User.objects.get(id=profile_id)
-            if FriendRequest.objects.filter(from_user=request.user.frog, to_user=user).exists():
+            if FriendRequest.objects.filter(from_frog=request.user.frog, to_frog__user=user).exists():
                 friend_status = "sent"
-            elif request.user.frog.friends.filter(id=user.id).exists():
+            elif request.user.frog.friends.filter(user=user).exists():
                 friend_status = "friends"
         except User.DoesNotExist:
             raise Http404("Profile not found")
@@ -372,14 +372,14 @@ def friends_list(request):
     frog = request.user.frog
     search_query = request.GET.get('q', '').strip()
 
-    friends = list(frog.friends.select_related('frog').all())
+    friends = [friend.user for friend in frog.friends.select_related('user')]
     friends.sort(key=lambda friend: (
         0 if friend.frog.status['is_active'] or friend.frog.status['in_game_status'] else 1,
         friend.username.lower(),
     ))
 
     incoming_requests = list(
-        FriendRequest.objects.filter(to_user=request.user).select_related('from_user__user').order_by('-created_at')
+        FriendRequest.objects.filter(to_frog=frog).select_related('from_frog__user').order_by('-created_at')
     )
 
     friend_cards = []
@@ -399,8 +399,8 @@ def friends_list(request):
 
     request_cards = []
     for incoming_request in incoming_requests:
-        source_user = incoming_request.from_user.user
-        source_frog = incoming_request.from_user
+        source_frog = incoming_request.from_frog
+        source_user = source_frog.user
         request_cards.append({
             'user': source_user,
             'frog': source_frog,
@@ -438,20 +438,20 @@ def friend_request(request, profile_id):
         if target_user == request.user:
             return JsonResponse({'error': 'Cannot send a friend request to yourself.'}, status=400)
 
-        existing_request = FriendRequest.objects.filter(from_user=request.user.frog, to_user=target_user).first()
-        if existing_request:
+        frog, target_frog = request.user.frog, target_user.frog
+        if FriendRequest.objects.filter(from_frog=frog, to_frog=target_frog).exists():
             return JsonResponse({'error': 'Friend request already sent.'}, status=400)
 
-        if request.user.frog.friends.filter(id=target_user.id).exists():
+        if frog.friends.filter(pk=target_frog.pk).exists():
             return JsonResponse({'error': 'You are already friends with this user.'}, status=400)
 
-        FriendRequest.objects.create(from_user=request.user.frog, to_user=target_user)
+        FriendRequest.objects.create(from_frog=frog, to_frog=target_frog)
         return JsonResponse({'success': 'Friend request sent.'})
     elif request.method == 'DELETE':
         target_user = get_object_or_404(User, id=profile_id)
-        friend_request = FriendRequest.objects.filter(from_user=request.user.frog, to_user=target_user).first()
+        friend_request = FriendRequest.objects.filter(from_frog=request.user.frog, to_frog=target_user.frog).first()
         if not friend_request:
-            friend_request = FriendRequest.objects.filter(from_user=target_user.frog, to_user=request.user).first()
+            friend_request = FriendRequest.objects.filter(from_frog=target_user.frog, to_frog=request.user.frog).first()
         if not friend_request:
             return JsonResponse({'error': 'No friend request found to cancel.'}, status=400)
 
@@ -459,14 +459,16 @@ def friend_request(request, profile_id):
         return JsonResponse({'success': 'Friend request canceled.'})
     elif request.method == 'PUT':
         target_user = get_object_or_404(User, id=profile_id)
-        friend_request = FriendRequest.objects.filter(from_user=target_user.frog, to_user=request.user).first()
+        frog, target_frog = request.user.frog, target_user.frog
+        friend_request = FriendRequest.objects.filter(from_frog=target_frog, to_frog=frog).first()
         if not friend_request:
             return JsonResponse({'error': 'No friend request found to accept.'}, status=400)
 
-        through = request.user.frog.friends.through
-        through.objects.get_or_create(frog=request.user.frog, user=target_user)
-        through.objects.get_or_create(frog=target_user.frog, user=request.user)
-        friend_request.delete()
+        frog.friends.add(target_frog)  # symmetrical: both frogs get the friendship
+        # Drop any request in either direction now that they're friends.
+        FriendRequest.objects.filter(
+            Q(from_frog=target_frog, to_frog=frog) | Q(from_frog=frog, to_frog=target_frog)
+        ).delete()
         accepted_friend = _friend_card_context(target_user)
         friend_html = render_to_string('frogsnet/includes/friend_card.html', {'friend': accepted_friend}, request=request)
         return JsonResponse({
@@ -480,13 +482,11 @@ def friend_request(request, profile_id):
 def delete_friend(request, profile_id):
     if request.method == 'DELETE':
         target_user = get_object_or_404(User, id=profile_id)
-        frog = request.user.frog
-        through = frog.friends.through
-        deleted, _ = through.objects.filter(
-            Q(frog=frog, user=target_user) | Q(frog=target_user.frog, user=request.user)
-        ).delete()
-        if not deleted:
+        frog, target_frog = request.user.frog, target_user.frog
+        if not frog.friends.filter(pk=target_frog.pk).exists():
             return JsonResponse({'error': 'You are not friends with this user.'}, status=400)
+
+        frog.friends.remove(target_frog)  # symmetrical: removed for both frogs
 
         return JsonResponse({'success': 'Friend removed.'})
 

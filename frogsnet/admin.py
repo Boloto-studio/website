@@ -4,13 +4,28 @@ from frogsnet.models import FriendRequest, Frog, ForumPost, ForumTopic, ModpackS
 
 admin.site.register(ModpackStat) 
 
-class FriendRequestInline(admin.TabularInline):
+class SentFriendRequestInline(admin.TabularInline):
     model = FriendRequest
-    fk_name = "from_user"
+    fk_name = "from_frog"
     extra = 0
-    fields = ("from_user", "to_user", "created_at")
+    fields = ("to_frog", "created_at")
     readonly_fields = ("created_at",)
+    raw_id_fields = ("to_frog",)
     ordering = ("-created_at",)
+    verbose_name = "sent friend request"
+    verbose_name_plural = "sent friend requests"
+
+
+class ReceivedFriendRequestInline(admin.TabularInline):
+    model = FriendRequest
+    fk_name = "to_frog"
+    extra = 0
+    fields = ("from_frog", "created_at")
+    readonly_fields = ("created_at",)
+    raw_id_fields = ("from_frog",)
+    ordering = ("-created_at",)
+    verbose_name = "received friend request"
+    verbose_name_plural = "received friend requests"
 class ForumPostReplyInline(admin.TabularInline):
     model = ForumPost
     fk_name = "response_to"
@@ -31,8 +46,10 @@ class ForumTopicPostInline(admin.TabularInline):
 
 @admin.register(Frog)
 class FrogAdmin(admin.ModelAdmin):
-    inlines = [FriendRequestInline]
+    inlines = [SentFriendRequestInline, ReceivedFriendRequestInline]
     search_fields = ["user__username", "minecraft_username"]
+    # Friendships are symmetrical, so editing them here updates both frogs.
+    filter_horizontal = ["friends", "modpacks"]
 
 
 @admin.register(ForumPost)

@@ -25,11 +25,9 @@ class Frog(models.Model):
     last_active = models.DateTimeField(auto_now=True)
     last_activity = models.DateTimeField(null=True, blank=True, help_text="Last time the user made a request. Set by UpdateLastActivityMiddleware.")
     minecraft_username = models.CharField(max_length=255, blank=True)
-    # Friendships are stored in both directions (frog→user and back); the
-    # views write both rows. `symmetrical` must not be set: it only applies to
-    # self-referential relations and here it made .add() write a mirrored row
-    # with the frog and user IDs swapped.
-    friends = models.ManyToManyField(User, blank=True, related_name='friends_with')
+    # Frog↔Frog and symmetrical: frog.friends.add(other) / .remove(other)
+    # keep both directions in sync on their own.
+    friends = models.ManyToManyField('self', blank=True, symmetrical=True)
     tier = models.CharField(max_length=255, blank=True, choices=tier_choices, default='frog')
     stripe_customer_id = models.CharField(max_length=255, blank=True)
     in_game_status = models.CharField(max_length=255, blank=True)
@@ -78,15 +76,15 @@ class Frog(models.Model):
         return self.user.username
 
 class FriendRequest(models.Model):
-    from_user = models.ForeignKey(Frog, on_delete=models.CASCADE, related_name='sent_friend_requests')
-    to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_friend_requests')
+    from_frog = models.ForeignKey(Frog, on_delete=models.CASCADE, related_name='sent_friend_requests')
+    to_frog = models.ForeignKey(Frog, on_delete=models.CASCADE, related_name='received_friend_requests')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('from_user', 'to_user')
+        unique_together = ('from_frog', 'to_frog')
 
     def __str__(self):
-        return f"{self.from_user.user.username} -> {self.to_user.username}"
+        return f"{self.from_frog.user.username} -> {self.to_frog.user.username}"
 
 class ModpackStat(models.Model):
     modpack = models.ForeignKey('modpacks.Modpack', on_delete=models.CASCADE, related_name='stats')
